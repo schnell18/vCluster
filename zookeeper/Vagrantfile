@@ -1,0 +1,57 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "centos66-java8-dev"
+  config.vm.box_check_update = false
+  config.rdp.port = 5000
+  config.vm.synced_folder ".", "/work"
+
+  # take care of /etc/hosts in both host and guest
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+
+$script1 = <<SCRIPT1
+yum localinstall -y /tmp/zookeeper-3.4.8-1.el6.x86_64.rpm
+if [[ -z $(grep server.1 /etc/zookeeper/zoo.cfg) ]]; then
+cat <<'EOF' >> /etc/zookeeper/zoo.cfg
+
+## workaround leader election port is opened only on loopback NIC
+quorumListenOnAllIPs=true
+
+########## cluster definition start ##########
+server.1=zk1.zookeeper.vn:2888:3888
+server.2=zk2.zookeeper.vn:2888:3888
+server.3=zk3.zookeeper.vn:2888:3888
+########## cluster definition end ##########
+EOF
+fi
+service zookeeper start
+
+SCRIPT1
+
+# make myid file
+$script2 = <<SCRIPT2
+echo $MYID > /var/lib/zookeeper/data/myid
+SCRIPT2
+
+  3.times do |i|
+    node_id = "zk#{i + 1}"
+    config.vm.define node_id do |zk|
+      config.vm.provision "file", source: ".vagrant_prov/zookeeper-3.4.8-1.el6.x86_64.rpm", destination: "/tmp/zookeeper-3.4.8-1.el6.x86_64.rpm"
+      zk.vm.provision "shell", inline: $script1
+      zk.vm.provision "shell", inline: $script2, env: {:MYID => i + 1}
+      zk.vm.network "private_network", ip: "192.168.82.1#{i + 5}"
+      zk.vm.hostname = "zk#{i + 1}.zookeeper.vn"
+      zk.vm.provision :hostmanager
+      zk.vm.provider "virtualbox" do |vb|
+        vb.name   = node_id
+        vb.gui    = false
+        vb.memory = 512
+        vb.cpus   = 1
+      end
+    end
+  end
+
+end
+
+# vim: set ai nu nobk expandtab sw=2 tw=72 ts=4 syntax=ruby :
