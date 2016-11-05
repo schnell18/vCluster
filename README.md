@@ -11,19 +11,21 @@ project][1]
 Soft cluster catalog
 ====================
 
-| Type      | Version       | Nodes          | root pass | comment   |
-| ----------| ------------- | -------------- | --------- | --------- |
-| zookeeper | 3.48          | zk1,zk2,zk3    | root      |           |
+| Type      | Version       | Nodes          | root password | comment   |
+| ----------| ------------- | -------------- | ------------- | --------- |
+| zookeeper | 3.48          | zk1,zk2,zk3    | root          |           |
+| kafka     | 0.10.1.0      | kf1,kf2,kf3    | root          |           |
 
 Using the cluster
 =================
 To use the cluster, you need install [virtualbox][2], [vagrant][3] and
 [vagrant-hostmanager][4]. Then clone this repository and choose the
-module as you see fit and run: directory and type command like:
+appropriate module and type command like:
 
     vagrant up
 
-This will bring up the cluster.
+under the corresponding directory and the cluster will start up in a few
+mintues.
 
 [1]: https://github.com/schnell18/vmbot.git
 [2]: https://www.virtualbox.org/
