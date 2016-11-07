@@ -1,0 +1,55 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "centos66-java8-dev"
+  config.vm.box_check_update = false
+  config.rdp.port = 5000
+  config.vm.synced_folder ".", "/work"
+
+  # take care of /etc/hosts in both host and guest
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+
+# install elasticsearch
+$script1 = <<SCRIPT1
+rpm -q --queryformat "%{name} %{version} installed" elasticsearch
+if [[  $? != 0 ]]; then
+  yum localinstall -y /tmp/elasticsearch-5.0.0.rpm
+fi
+
+
+echo sed -i "'s|#\\(cluster.name\\):.*|\\1: ${ES_CLUSTER_NAME}|'" /etc/elasticsearch/elasticsearch.yml | sh
+echo sed -i "'s|#\\(node.name\\):.*|\\1: ${ES_NODE_NAME}|'" /etc/elasticsearch/elasticsearch.yml | sh
+echo sed -i "'s|#\\(network.host\\):.*|\\1: ${ES_NODE_IP}|'" /etc/elasticsearch/elasticsearch.yml | sh
+
+echo sed -i "'s|\\(-Xms\\).*|-Xms512M|'" /etc/elasticsearch/jvm.options | sh
+echo sed -i "'s|\\(-Xmx\\).*|-Xmx512M|'" /etc/elasticsearch/jvm.options | sh
+
+cat <<EOF > /etc/security/limits.d/10-elasticsearch.conf
+elasticsearch          soft    nproc     10240
+EOF
+chkconfig --add elasticsearch
+service elasticsearch start
+SCRIPT1
+
+  3.times do |i|
+    node_id = "es#{i + 1}"
+    ip = "192.168.80.1#{i + 5}"
+    config.vm.define node_id do |es|
+      config.vm.provision "file", source: ".vagrant_prov/elasticsearch-5.0.0.rpm", destination: "/tmp/elasticsearch-5.0.0.rpm"
+      es.vm.provision "shell", inline: $script1, env: {:ES_NODE_NAME => node_id, :ES_NODE_IP => ip, :ES_CLUSTER_NAME => "esbootcamp"}
+      es.vm.network "private_network", ip: ip
+      es.vm.hostname = "#{node_id}.elasticsearch.vn"
+      es.vm.provision :hostmanager
+      es.vm.provider "virtualbox" do |vb|
+        vb.name   = node_id
+        vb.gui    = false
+        vb.memory = 1024
+        vb.cpus   = 2
+      end
+    end
+  end
+
+end
+
+# vim: set ai nu nobk expandtab sw=2 tw=72 ts=4 syntax=ruby :
