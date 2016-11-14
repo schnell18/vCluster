@@ -29,6 +29,7 @@ server.3=kf3.kafka.vn:2888:3888
 EOF
 fi
 echo $MYID > /var/lib/zookeeper/data/myid
+chkconfig --add zookeeper
 service zookeeper start
 
 SCRIPT1
@@ -45,6 +46,7 @@ echo sed -i "'s|\\(zookeeper.connect\\)=.*|\\1=$ZK_HOSTS|'" /var/lib/kafka/confi
 echo sed -i "'s|#\\(advertised.listeners\\)=.*|\\1=PLAINTEXT://${KF_HOST}:9092|'" /var/lib/kafka/config/server.properties | sh
 
 echo 'KAFKA_HEAP_OPTS="-Xmx512M -Xms512M"' > /etc/sysconfig/kafka
+chkconfig --add kafka
 service kafka start
 SCRIPT2
 
