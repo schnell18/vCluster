@@ -1,0 +1,364 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "centos66-java8-dev"
+  config.vm.box_check_update = false
+  config.rdp.port = 5000
+  config.vm.synced_folder ".", "/work"
+
+  # take care of /etc/hosts in both host and guest
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+
+# install hadoop for worker node
+$inst_worker = <<SCRIPT1
+# install rpmbot yum repo
+if [[ ! -f /etc/yum.repos.d/rpmbot.repo ]]; then
+cat <<'EOF' > /etc/yum.repos.d/rpmbot.repo
+[rpmbot]
+name=RPMBot devops repo
+baseurl=http://192.168.33.40/rhel/$releasever
+enabled=1
+gpgcheck=0
+EOF
+fi
+
+# install softwares
+rpm -q --queryformat "%{name} %{version} installed" hadoop
+if [[  $? != 0 ]]; then
+  yum install -y                           \
+      bigtop-jsvc-1.0.15                   \
+      bigtop-groovy-2.4.4                  \
+      bigtop-utils-1.1.0                   \
+      hadoop-2.7.1                         \
+      hadoop-client-2.7.1                  \
+      hadoop-hdfs-2.7.1                    \
+      hadoop-hdfs-datanode-2.7.1           \
+      hadoop-hdfs-fuse-2.7.1               \
+      hadoop-libhdfs-2.7.1                 \
+      hadoop-mapreduce-2.7.1               \
+      hadoop-mapreduce-historyserver-2.7.1 \
+      hadoop-yarn-2.7.1                    \
+      hadoop-yarn-nodemanager-2.7.1        \
+      zookeeper-3.4.6
+
+  service hadoop-yarn-nodemanager start
+  service hadoop-hdfs-datanode start
+fi
+
+SCRIPT1
+
+# install hadoop for master node
+$inst_master = <<SCRIPT2
+# install rpmbot yum repo
+if [[ ! -f /etc/yum.repos.d/rpmbot.repo ]]; then
+cat <<'EOF' > /etc/yum.repos.d/rpmbot.repo
+[rpmbot]
+name=RPMBot devops repo
+baseurl=http://192.168.33.40/rhel/$releasever
+enabled=1
+gpgcheck=0
+EOF
+fi
+
+# install softwares
+rpm -q --queryformat "%{name} %{version} installed" hadoop
+if [[  $? != 0 ]]; then
+  yum install -y                           \
+      bigtop-jsvc-1.0.15                   \
+      bigtop-groovy-2.4.4                  \
+      bigtop-utils-1.1.0                   \
+      hadoop-2.7.1                         \
+      hadoop-client-2.7.1                  \
+      hadoop-hdfs-2.7.1                    \
+      hadoop-hdfs-fuse-2.7.1               \
+      hadoop-hdfs-namenode-2.7.1           \
+      hadoop-hdfs-secondarynamenode-2.7.1  \
+      hadoop-hdfs-zkfc-2.7.1               \
+      hadoop-libhdfs-2.7.1                 \
+      hadoop-mapreduce-2.7.1               \
+      hadoop-mapreduce-historyserver-2.7.1 \
+      hadoop-yarn-2.7.1                    \
+      hadoop-yarn-resourcemanager-2.7.1    \
+      zookeeper-3.4.6
+
+  service hadoop-hdfs-namenode start
+  service hadoop-yarn-resourcemanager start
+fi
+
+# config rpc bind host
+ret=$(grep dfs.namenode.rpc-bind-host /etc/hadoop/conf/hdfs-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/dnnd.lst
+  <property>
+    <name>dfs.namenode.rpc-bind-host</name>
+    <value>0.0.0.0</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/dnnd.lst' /etc/hadoop/conf/hdfs-site.xml
+fi
+
+SCRIPT2
+
+# configure hadoop
+# set hdfs namenode, datanode, seconardy name node data dirs
+$conf_script = <<SCRIPT3
+# create slave file
+echo "" > /etc/hadoop/conf/slaves
+for i in $(seq 1 $HOSTS);
+do
+    echo "worker${i}.hadoop.vn" >> /etc/hadoop/conf/slaves
+done;
+
+# setup ssh
+if [[ ! -d ~hdfs/.ssh ]]; then
+  mkdir ~hdfs/.ssh
+  cp ~devel/.ssh/authorized_keys ~hdfs/.ssh
+  cp ~devel/.ssh/id_rsa ~hdfs/.ssh
+  cat <<EOF > ~hdfs/.ssh/config
+Host *
+  StrictHostKeyChecking no
+EOF
+  chown -R hdfs.hadoop ~hdfs/.ssh
+  chmod 700 ~hdfs/.ssh
+  chmod 600 ~hdfs/.ssh/*
+fi
+
+if [[ ! -d ~yarn/.ssh ]]; then
+  mkdir ~yarn/.ssh
+  cp ~devel/.ssh/authorized_keys ~yarn/.ssh
+  cp ~devel/.ssh/id_rsa ~yarn/.ssh
+  cat <<EOF > ~yarn/.ssh/config
+Host *
+  StrictHostKeyChecking no
+EOF
+  chown -R yarn.hadoop ~yarn/.ssh
+  chmod 700 ~yarn/.ssh
+  chmod 600 ~yarn/.ssh/*
+fi
+
+ret=$(grep fs.defaultFS /etc/hadoop/conf/core-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/core.lst
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://master1.hadoop.vn/</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/core.lst' /etc/hadoop/conf/core-site.xml
+fi
+
+ret=$(grep fs.file.impl /etc/hadoop/conf/core-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/core.lst
+  <property>
+    <name>fs.file.impl</name>
+    <value>org.apache.hadoop.fs.LocalFileSystem</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/core.lst' /etc/hadoop/conf/core-site.xml
+fi
+
+ret=$(grep fs.hdfs.impl /etc/hadoop/conf/core-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/core.lst
+  <property>
+    <name>fs.hdfs.impl</name>
+    <value>org.apache.hadoop.hdfs.DistributedFileSystem</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/core.lst' /etc/hadoop/conf/core-site.xml
+fi
+
+ret=$(grep dfs.namenode.checkpoint.dir /etc/hadoop/conf/hdfs-site.xml)
+if [[ -z $ret ]]; then
+  if [[ ! -d /var/lib/hadoop-hdfs/data/namesecondary ]]; then
+    mkdir -p /var/lib/hadoop-hdfs/data/namesecondary
+    chown -R hdfs.hadoop /var/lib/hadoop-hdfs/data/namesecondary
+  fi
+  cat <<EOF > /tmp/dnnd.lst
+  <property>
+    <name>dfs.namenode.checkpoint.dir</name>
+    <value>/var/lib/hadoop-hdfs/data/namesecondary</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/dnnd.lst' /etc/hadoop/conf/hdfs-site.xml
+fi
+
+# turn off permission check to allow client create file with ease
+ret=$(grep dfs.permissions.enabled /etc/hadoop/conf/hdfs-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/dnnd.lst
+  <property>
+    <name>dfs.permissions.enabled</name>
+    <value>false</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/dnnd.lst' /etc/hadoop/conf/hdfs-site.xml
+fi
+
+ret=$(grep dfs.namenode.name.dir /etc/hadoop/conf/hdfs-site.xml)
+if [[ -z $ret ]]; then
+  if [[ ! -d /var/lib/hadoop-hdfs/data/name ]]; then
+    mkdir -p /var/lib/hadoop-hdfs/data/name
+    chown -R hdfs.hadoop /var/lib/hadoop-hdfs/data/name
+  fi
+  cat <<EOF > /tmp/dnnd.lst
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>/var/lib/hadoop-hdfs/data/name</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/dnnd.lst' /etc/hadoop/conf/hdfs-site.xml
+fi
+
+ret=$(grep dfs.datanode.data.dir /etc/hadoop/conf/hdfs-site.xml)
+if [[ -z $ret ]]; then
+  if [[ ! -d /var/lib/hadoop-hdfs/data/data ]]; then
+    mkdir -p /var/lib/hadoop-hdfs/data/data
+    chown -R hdfs.hadoop /var/lib/hadoop-hdfs/data/data
+  fi
+  cat <<EOF > /tmp/dnnd.lst
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>/var/lib/hadoop-hdfs/data/data</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/dnnd.lst' /etc/hadoop/conf/hdfs-site.xml
+fi
+
+# yarn config files
+ret=$(grep yarn.nodemanager.resource.cpu-vcores /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.nodemanager.resource.cpu-vcores</name>
+    <value>2</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.nodemanager.resource.memory-mb /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>1536</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.nodemanager.aux-services /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.nodemanager.local-dirs /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  if [[ ! -d /var/lib/hadoop-yarn/data/local-dir ]]; then
+    mkdir -p /var/lib/hadoop-yarn/data/local-dir
+    chown -R yarn.hadoop /var/lib/hadoop-yarn/data/local-dir
+  fi
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.nodemanager.local-dirs</name>
+    <value>/var/lib/hadoop-yarn/data/local-dir</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.resourcemanager.hostname /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>master1.hadoop.vn</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.resourcemanager.bind-host /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+  cat <<EOF > /tmp/yarn.lst
+  <property>
+    <name>yarn.resourcemanager.bind-host</name>
+    <value>0.0.0.0</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep yarn.application.classpath /etc/hadoop/conf/yarn-site.xml)
+if [[ -z $ret ]]; then
+
+  cat <<'EOF' > /tmp/yarn.lst
+  <property>
+    <name>yarn.application.classpath</name>
+    <value>/etc/hadoop/conf,/usr/lib/hadoop/*,/usr/lib/hadoop/lib/*,/usr/lib/hadoop-hdfs/*,/usr/lib/hadoop-hdfs/lib/*,/usr/lib/hadoop-yarn/*,/usr/lib/hadoop-yarn/lib/*,/usr/lib/hadoop-mapreduce/*,/usr/lib/hadoop-mapreduce/lib/*
+    </value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/yarn.lst' /etc/hadoop/conf/yarn-site.xml
+fi
+
+ret=$(grep mapreduce.application.classpath /etc/hadoop/conf/mapred-site.xml)
+if [[ -z $ret ]]; then
+
+  cat <<EOF > /tmp/mapred.lst
+  <property>
+    <name>mapreduce.application.classpath</name>
+    <value>/usr/lib/hadoop-hdfs/*,/usr/lib/hadoop-hdfs/lib/*,/usr/lib/hadoop-mapreduce/*,/usr/lib/hadoop-mapreduce/lib/*</value>
+  </property>
+EOF
+  sed -i '/<configuration>/r /tmp/mapred.lst' /etc/hadoop/conf/mapred-site.xml
+fi
+
+SCRIPT3
+
+  1.times do |i|
+    node_id = "master#{i + 1}"
+    config.vm.define node_id do |hp|
+      hp.vm.network "private_network", ip: "192.168.83.1#{i + 5}"
+      hp.vm.hostname = "master#{i + 1}.hadoop.vn"
+      hp.vm.provision :hostmanager
+      hp.vm.provision "shell", inline: $inst_master, env: {:HOSTS => 3}
+      hp.vm.provision "shell", inline: $conf_script
+      hp.vm.provider "virtualbox" do |vb|
+        vb.name   = node_id
+        vb.gui    = false
+        vb.memory = 2024
+        vb.cpus   = 2
+      end
+    end
+  end
+
+  3.times do |i|
+    node_id = "worker#{i + 1}"
+    config.vm.define node_id do |hp|
+      hp.vm.network "private_network", ip: "192.168.83.2#{i + 5}"
+      hp.vm.hostname = "worker#{i + 1}.hadoop.vn"
+      hp.vm.provision :hostmanager
+      hp.vm.provision "shell", inline: $inst_worker, env: {:HOSTS => 3}
+      hp.vm.provision "shell", inline: $conf_script
+      hp.vm.provider "virtualbox" do |vb|
+        vb.name   = node_id
+        vb.gui    = false
+        vb.memory = 2024
+        vb.cpus   = 2
+      end
+    end
+  end
+
+end
+
+# vim: set ai nu nobk expandtab sw=2 tw=72 ts=4 syntax=ruby :

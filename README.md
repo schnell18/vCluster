@@ -16,6 +16,7 @@ Soft cluster catalog
 | zookeeper      | 3.48          | zk1,zk2,zk3    | root          |           |
 | kafka          | 0.10.1.0      | kf1,kf2,kf3    | root          |           |
 | elasticsearch  | 5.0.0         | es1,es2,es3    | root          |           |
+| hadoop         | 2.7.1         | hp1,hp2,hp3    | root          |           |
 
 Using the cluster
 =================
