@@ -1,0 +1,12 @@
+.vagrant/
+*.class
+*.jar
+*.bak
+*.log
+*.ipr
+*.iml
+*.iws
+.gradle/
+.idea/
+build/
+target/
