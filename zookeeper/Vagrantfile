@@ -25,6 +25,7 @@ server.3=zk3.zookeeper.vn:2888:3888
 ########## cluster definition end ##########
 EOF
 fi
+chkconfig --level 345 zookeeper on
 service zookeeper start
 
 SCRIPT1
@@ -46,7 +47,7 @@ SCRIPT2
       zk.vm.provider "virtualbox" do |vb|
         vb.name   = node_id
         vb.gui    = false
-        vb.memory = 512
+        vb.memory = 1536
         vb.cpus   = 1
       end
     end
