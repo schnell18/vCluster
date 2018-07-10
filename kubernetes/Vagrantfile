@@ -26,15 +26,15 @@ fi
 if [[ ! -f /usr/local/bin/kube-proxy ]]; then
   pushd /work/.preload
   if [[ ! -f /work/.preload/kube-proxy ]]; then
-    baseurl1="https://storage.googleapis.com/kubernetes-release/release/v1.10.2/bin/linux/amd64"
+    baseurl1="https://storage.googleapis.com/kubernetes-release/release/v1.11.0/bin/linux/amd64"
     baseurl2="https://github.com/kubernetes-incubator/cri-tools/releases/download/v1.11.0"
     baseurl3="https://github.com/opencontainers/runc/releases/download/v1.0.0-rc5"
     baseurl4="https://github.com/containernetworking/plugins/releases/download/v0.6.0/"
-    baseurl5="https://github.com/containerd/containerd/releases/download/v1.1.0"
+    baseurl5="https://github.com/containerd/containerd/releases/download/v1.1.1"
 
     echo "Downloading containerd, cni-plugins kubelet and kube-proxy etc..."
     wget -q -e use_proxy=yes -e https_proxy=192.168.90.1:1087 \\
-      "$baseurl5/containerd-1.1.0.linux-amd64.tar.gz"         \\
+      "$baseurl5/containerd-1.1.1.linux-amd64.tar.gz"         \\
       "$baseurl4/cni-plugins-amd64-v0.6.0.tgz"                \\
       "$baseurl3/runc.amd64"                                  \\
       "$baseurl2/crictl-v1.11.0-linux-amd64.tar.gz"           \\
@@ -56,7 +56,7 @@ if [[ ! -f /usr/local/bin/kube-proxy ]]; then
   cp runc.amd64 /usr/local/bin/runc
   tar -xzvf crictl-v1.11.0-linux-amd64.tar.gz -C /usr/local/bin/ > /dev/null
   tar -xzvf cni-plugins-amd64-v0.6.0.tgz -C /opt/cni/bin/ > /dev/null
-  tar -xzvf containerd-1.1.0.linux-amd64.tar.gz -C /tmp > /dev/null
+  tar -xzvf containerd-1.1.1.linux-amd64.tar.gz -C /tmp > /dev/null
   mv /tmp/bin/* /usr/local/bin
   chmod +x /usr/local/bin/{kubectl,kube-proxy,kubelet,runc}
   popd
@@ -97,7 +97,7 @@ fi
 if [[ ! -f /usr/local/bin/kube-apiserver ]]; then
   pushd /work/.preload
   if [[ ! -f /work/.preload/kube-apiserver ]]; then
-    baseurl="https://storage.googleapis.com/kubernetes-release/release/v1.10.2/bin/linux/amd64"
+    baseurl="https://storage.googleapis.com/kubernetes-release/release/v1.11.0/bin/linux/amd64"
     echo "Downloading kube-apiserver kube-controller-manager etc..."
     wget -q -e use_proxy=yes -e https_proxy=192.168.90.1:1087 \\
       "$baseurl/kube-apiserver"          \\
