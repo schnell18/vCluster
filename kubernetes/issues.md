@@ -95,6 +95,49 @@ With vagrant you can:
 
 [Also reported by this post][3]
 
+## connect to pod on other node fails
+
+Root cause is the host node is not configured to forward IP packet as routers do.
+Route table in container:
+
+    # ip route show
+    default via 169.254.1.1 dev eth0 
+    169.254.1.1 dev eth0 scope link 
+
+Route table on host node:
+
+    [root@kbn3 ~]# ip route
+    default via 10.0.2.2 dev enp0s3 proto static metric 100 
+    10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 100 
+    10.200.42.64/26 via 192.168.90.25 dev enp0s8 proto bird 
+    blackhole 10.200.115.128/26 proto bird 
+    10.200.115.131 dev cali472eedd090c scope link 
+    10.200.115.132 dev cali1ed9954a6a5 scope link 
+    10.200.145.192/26 via 192.168.90.26 dev enp0s8 proto bird 
+    192.168.90.0/24 dev enp0s8 proto kernel scope link src 192.168.90.27 metric 100 
+
+IP forward setting:
+
+    [root@kbn3 ~]# cat /proc/sys/net/ipv4/ip_forward
+    0
+
+Temporary fix:
+
+    echo echo 1 > /proc/sys/net/ipv4/ip_forward
+
+Permenant fix:
+
+    cat <<EOF > /etc/sysctl.d/k8s.conf
+    net.ipv4.ip_forward = 1
+    EOF
+
+## dashboard startup failure due to root ca absent
+
+    2018/07/11 15:34:35 Error while initializing connection to Kubernetes apiserver. This most likely means that the cluster is misconfigured (e.g., it has invalid apiserver certificates or service accounts configuration) or the --apiserver-host param points to a server that does not exist. Reason: Get https://192.168.90.15:6443/version: x509: failed to load system roots and no roots provided
+    Refer to our FAQ and wiki pages for more information: https://github.com/kubernetes/dashboard/wiki/FAQ
+
+This is caused by not load the root ca certificates in /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem on RHEL7/CentOS7
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working

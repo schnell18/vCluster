@@ -48,6 +48,11 @@ subjects:
     name: kubernetes
 EOF
 
+echo "Loading root-ca certificates into secret..."
+kubectl create secret generic root-ca-certs                 \
+  --from-file=tls-ca-bundle.pem=/var/lib/kubernetes/ca.pem  \
+  --namespace kube-system
+
 echo "Loading kube-apiserver certificates into secret..."
 kubectl create secret generic kubernetes-dashboard-certs \
   --from-file=/var/lib/kubernetes/kubernetes.pem         \

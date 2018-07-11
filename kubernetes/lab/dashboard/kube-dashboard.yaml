@@ -113,8 +113,10 @@ spec:
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.
-          # - --apiserver-host=http://kbm1.kube.vn:6443
+          - --apiserver-host=https://192.168.90.15:6443
         volumeMounts:
+        - name: root-ca-certs
+          mountPath: /etc/pki/ca-trust/extracted/pem
         - name: kubernetes-dashboard-certs
           mountPath: /certs
           # Create on-disk volume to store exec logs
@@ -131,6 +133,9 @@ spec:
       - name: kubernetes-dashboard-certs
         secret:
           secretName: kubernetes-dashboard-certs
+      - name: root-ca-certs
+        secret:
+          secretName: root-ca-certs
       - name: tmp-volume
         emptyDir: {}
       serviceAccountName: kubernetes-dashboard
