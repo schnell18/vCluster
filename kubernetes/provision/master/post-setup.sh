@@ -53,12 +53,6 @@ kubectl create secret generic root-ca-certs                 \
   --from-file=tls-ca-bundle.pem=/var/lib/kubernetes/ca.pem  \
   --namespace kube-system
 
-echo "Loading kube-apiserver certificates into secret..."
-kubectl create secret generic kubernetes-dashboard-certs \
-  --from-file=/var/lib/kubernetes/kubernetes.pem         \
-  --from-file=/var/lib/kubernetes/kubernetes-key.pem     \
-  --namespace kube-system
-
 echo "Loading etcd key, certificates and ca into secret..."
 kubectl create secret generic calico-etcd-secrets             \
   --from-file=etcd-cert=/var/lib/kubernetes/kubernetes.pem    \

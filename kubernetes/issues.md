@@ -138,6 +138,22 @@ Permenant fix:
 
 This is caused by not load the root ca certificates in /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem on RHEL7/CentOS7
 
+## dashboard startup failure due to problematic root ca
+
+    2018/07/17 16:36:04 Synchronizer kubernetes-dashboard-key-holder-kube-system exited with error: unexpected object: &Secret{ObjectMeta:k8s_io_apimachinery_pkg_apis_meta_v1.ObjectMeta{Name:,GenerateName:,Namespace:,SelfLink:,UID:,ResourceVersion:,Generation:0,CreationTimestamp:0001-01-01 00:00:00 +0000 UTC,DeletionTimestamp:<nil>,DeletionGracePeriodSeconds:nil,Labels:map[string]string{},Annotations:map[string]string{},OwnerReferences:[],Finalizers:[],ClusterName:,Initializers:nil,},Data:map[string][]byte{},Type:,StringData:map[string]string{},}
+    2018/07/17 16:36:05 Storing encryption key in a secret
+    panic: secrets is forbidden: User "system:anonymous" cannot create secrets in the namespace "kube-system"
+
+    goroutine 1 [running]:
+    github.com/kubernetes/dashboard/src/app/backend/auth/jwe.(*rsaKeyHolder).init(0xc420206fa0)
+        /home/travis/build/kubernetes/dashboard/.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend/auth/jwe/keyholder.go:131 +0x2d3
+    github.com/kubernetes/dashboard/src/app/backend/auth/jwe.NewRSAKeyHolder(0x1a7ee00, 0xc4201fc5a0, 0xc4201fc5a0, 0x127b962)
+        /home/travis/build/kubernetes/dashboard/.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend/auth/jwe/keyholder.go:170 +0x83
+    main.initAuthManager(0x1a7e300, 0xc420053aa0, 0xc42055dc68, 0x1)
+        /home/travis/build/kubernetes/dashboard/.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend/dashboard.go:183 +0x12f
+    main.main()
+        /home/travis/build/kubernetes/dashboard/.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend/dashboard.go:101 +0x28c
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working
