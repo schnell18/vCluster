@@ -154,6 +154,19 @@ This is caused by not load the root ca certificates in /etc/pki/ca-trust/extract
     main.main()
         /home/travis/build/kubernetes/dashboard/.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend/dashboard.go:101 +0x28c
 
+## mongodb statefulset fail to start
+
+    23:33 $ kubectl describe statefulsets mongo
+    Name:		mongo
+    Namespace:	default
+    Labels:		<none>
+    Events:
+    FirstSeen	LastSeen	Count	From			SubObjectPath	Type		Reason		Message
+    ---------	--------	-----	----			-------------	--------	------		-------
+    1m		1m		12	statefulset-controller			Warning		FailedCreate	create Pod mongo-0 in StatefulSet mongo failed error: Failed to create PVC -mongo-0: PersistentVolumeClaim "-mongo-0" is invalid: metadata.name: Invalid value: "-mongo-0": a DNS-1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+    1m		1m		13	statefulset-controller			Warning		FailedCreate	create Claim -mongo-0 for Pod mongo-0 in StatefulSet mongo failed error: PersistentVolumeClaim "-mongo-0" is invalid: metadata.name: Invalid value: "-mongo-0": a DNS-1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working
