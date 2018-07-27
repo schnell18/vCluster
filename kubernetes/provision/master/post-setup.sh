@@ -1,6 +1,6 @@
 
 echo "Starting services..."
-for SERVICE in ntpd etcd kube-apiserver kube-controller-manager kube-scheduler; do
+for SERVICE in nfs ntpd etcd kube-apiserver kube-controller-manager kube-scheduler; do
     systemctl daemon-reload
     systemctl enable $SERVICE
     systemctl restart $SERVICE
@@ -10,7 +10,7 @@ echo "Take a nap to wait for kube-apiserver fully started ..."
 # take nap to wait for kube-apiserver fully started
 sleep 20
 echo "Creating RBAC rules..."
-cat << EOF | kubectl apply -f -
+cat << EOF | kubectl create -f -
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -32,7 +32,7 @@ rules:
       - "*"
 EOF
 
-cat << EOF | kubectl apply -f -
+cat << EOF | kubectl create -f -
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
@@ -61,5 +61,8 @@ kubectl create secret generic calico-etcd-secrets             \
   --namespace kube-system
 
 echo "Setup calico networking..."
-kubectl apply -f /work/provision/network/calico/rbac.yaml
-kubectl apply -f /work/provision/network/calico/calico.yaml
+kubectl create -f /work/provision/network/calico/rbac.yaml
+kubectl create -f /work/provision/network/calico/calico.yaml
+
+echo "Setup kube-dns..."
+kubectl create -f /work/provision/network/dns/kube-dns.yaml

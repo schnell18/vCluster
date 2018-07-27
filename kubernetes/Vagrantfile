@@ -144,12 +144,22 @@ echo "Setting up master..."
 hostnamectl set-hostname $KB_MASTER_HOST
 echo "Setting up nfs..."
 if [ ! -d /var/nfs ]; then
-    mkdir /var/nfs
+    mkdir -p /var/nfs/mysql
+    mkdir -p /var/nfs/mongodb{0,1,2}
     chown nfsnobody:nfsnobody /var/nfs
     chmod 755 /var/nfs
-    if [ ! -f /etc/exports ]; then
-        cat <<EOF > /etc/exports
-/var/nfs 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+    if [ ! -f /etc/exports.d/mysql.exports ]; then
+        cat <<EOF > /etc/exports.d/mysql.exports
+/var/nfs/mysql 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/mongodb0.exports
+/var/nfs/mongodb0 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/mongodb1.exports
+/var/nfs/mongodb1 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/mongodb2.exports
+/var/nfs/mongodb2 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
 EOF
         exportfs -a
     fi

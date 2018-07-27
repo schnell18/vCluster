@@ -43,6 +43,7 @@ spec:
   nfs:
     server: kbm1.kube.vn
     path: /var/nfs/mongodb2
+
 ---
 # configMap to hold mongo cluster management script
 apiVersion: v1
@@ -120,7 +121,7 @@ spec:
         - containerPort: 27017
           name: web
         volumeMounts:
-        - name: mongo
+        - name: nfs
           mountPath: /data/db
       # This container initializes the mongodb server, then sleeps.
       - name: init-mongo
@@ -141,7 +142,6 @@ spec:
     spec:
       accessModes:
       - ReadWriteOnce
-      storageClassName: anything
       resources:
         requests:
           storage: 2Gi
