@@ -228,6 +228,28 @@ This is caused by not load the root ca certificates in /etc/pki/ca-trust/extract
     main.main()
         /private/tmp/kubernetes-cli-20170519-56130-14l9tbm/src/k8s.io/kubernetes/_output/local/go/src/k8s.io/kubernetes/cmd/kubectl/kubectl.go:26 +0x22
 
+## kubectl connect error
+
+Get error like:
+
+    error: unable to upgrade connection: Forbidden (user=kubernetes, verb=create, resource=nodes, subresource=proxy)
+
+authorization problem??
+Root cause is the ClusterRole and ClusterRoleBinding were not creatd properly as indicated by:
+
+    kbm1: error: unable to recognize "STDIN": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+    kbm1: error: unable to recognize "STDIN": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+
+## awk in busybox does not support split() w/ separator
+
+This does not work:
+
+    echo $HOSTNAME | awk '{split($0, a, "-"); print $a[2] + 1}'
+
+Use this instead:
+
+    echo $HOSTNAME | awk -F '-' -e '{split($0, a); print $a[2] + 1}'
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working

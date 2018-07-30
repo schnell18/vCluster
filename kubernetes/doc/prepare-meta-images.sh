@@ -27,15 +27,18 @@ done
 docker pull quay.io/calico/cni:v3.1.3
 docker pull quay.io/calico/kube-controllers:v3.1.3
 docker pull quay.io/calico/node:v3.1.3
+docker pull quay.io/calico/ctl:v3.1.3
 
 docker save                                       \
     k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8 \
     k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8      \
     k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8       \
     k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3  \
+    k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10    \
     k8s.gcr.io/pause-amd64:3.1                    \
     k8s.gcr.io/pause:3.1                          \
     quay.io/calico/cni:v3.1.3                     \
     quay.io/calico/kube-controllers:v3.1.3        \
     quay.io/calico/node:v3.1.3                    \
+    quay.io/calico/ctl:v3.1.3                     \
     > meta-images.tar
