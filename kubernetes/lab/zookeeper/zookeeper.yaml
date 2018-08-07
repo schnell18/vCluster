@@ -53,7 +53,7 @@ metadata:
 data:
   init.sh: |
       #!/bin/sh
-      echo $HOSTNAME
+      echo "Initializing zookeeper myid on node $HOSTNAME..."
       chown -R 1000 /var/lib/zookeeper
       rm -f /var/lib/zookeeper/myid
       MYID=$(echo $HOSTNAME | sed 's/\w\+-//')

@@ -147,6 +147,9 @@ if [ ! -d /var/nfs ]; then
     mkdir -p /var/nfs/mysql
     mkdir -p /var/nfs/mongodb{0,1,2}
     mkdir -p /var/nfs/zk{0,1,2}
+    mkdir -p /var/nfs/harbor
+    mkdir -p /var/nfs/harbor_mysql
+    mkdir -p /var/nfs/harbor_log
     chown nfsnobody:nfsnobody /var/nfs
     chmod 755 /var/nfs
     if [ ! -f /etc/exports.d/mysql.exports ]; then
@@ -170,6 +173,15 @@ EOF
 EOF
         cat <<EOF > /etc/exports.d/zk2.exports
 /var/nfs/zk2 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/harbor.exports
+/var/nfs/harbor 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/harbor_mysql.exports
+/var/nfs/harbor_mysql 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/harbor_log.exports
+/var/nfs/harbor_log 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
 EOF
         exportfs -a
     fi

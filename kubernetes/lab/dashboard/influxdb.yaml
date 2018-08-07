@@ -1,3 +1,50 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: influxdb-pv0
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    server: kbm1.kube.vn
+    path: /var/nfs/influxdb
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: influxdb-pv-claim
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# configMap to hold influxdb config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: influxdb-conf
+  namespace: kube-system
+data:
+  influxdb.conf: |
+    reporting-disabled = true
+
+    [meta]                                                                           
+      dir = "/var/lib/influxdb/meta"                                                 
+                                                                                    
+    [data]                                                                           
+      dir = "/var/lib/influxdb/data"                                                 
+      engine = "tsm1"                                                                
+      wal-dir = "/var/lib/influxdb/wal"  
+
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -13,13 +60,21 @@ spec:
     spec:
       containers:
       - name: influxdb
-        image: k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
+        image: harbor.dev.pajkdc.com/pajk_dev:1.6.0-alpine
+        imagePullPolicy: IfNotPresent
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /etc/influxdb
+          name: influxdb-conf
+        - mountPath: /var/lib/influxdb
           name: influxdb-storage
       volumes:
       - name: influxdb-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: influxdb-pv-claim
+      - name: influxdb-conf
+        configMap:
+          name: influxdb-conf
+
 ---
 apiVersion: v1
 kind: Service
