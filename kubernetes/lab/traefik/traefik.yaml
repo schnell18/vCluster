@@ -1,3 +1,33 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-cert
+  namespace: kube-system
+type: Opaque
+data:
+  tls.cert: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVSakNDQXk2Z0F3SUJBZ0lVYXMxcDArRkJlbTNpZnFkK0NhWGNZemxGY0o4d0RRWUpLb1pJaHZjTkFRRUwKQlFBd2FqRUxNQWtHQTFVRUJoTUNRMDR4RVRBUEJnTlZCQWdUQ0ZOb1lXNW5hR0ZwTVJFd0R3WURWUVFIRXdoVAphR0Z1WjJoaGFURVRNQkVHQTFVRUNoTUtTM1ZpWlhKdVpYUmxjekVMTUFrR0ExVUVDeE1DUTBFeEV6QVJCZ05WCkJBTVRDa3QxWW1WeWJtVjBaWE13SGhjTk1UZ3dPVEU1TVRNMU56QXdXaGNOTVRrd09URTVNVE0xTnpBd1dqQncKTVFzd0NRWURWUVFHRXdKRFRqRVJNQThHQTFVRUNCTUlVMmhoYm1kb1lXa3hFVEFQQmdOVkJBY1RDRk5vWVc1bgphR0ZwTVJBd0RnWURWUVFLRXdkcmRXSmxMblp1TVE4d0RRWURWUVFMRXdacWFtaHZiV1V4R0RBV0JnTlZCQU1UCkQzUnlZV1ZtYVdzdWEzVmlaUzUyYmpDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUIKQVBLT2FNUG9vS1l5MmY5RXhnRGFnRmJWbkg3S2FyRkVld0ZicjQ3YWk5VzdsKzlwNGZTWUViUDM5TDE5Uk5QYwpMMFpKNjgwWkkzNnUvbStpK1E4T1VIeDF6ZmJKa0pXbnFub0JKeVBJYnN0NnpQSm9rKzU1TmQwa0htd0htamk0CkYvNUozWFFHLzZYbWpEaGlZTjFDTUF3SElUWGNFUVFhWGU5KzZYaWlCSTZJZmZWS2FtclBkZ2xVRUpwUVBzY0EKNTVibkIrb2ZhL0Q2YTUzbFVIWStaamc5c2FybktDeHMySDIwYmZnaldIUXZMTTJmQi81MlIwYUpIY1ZJYnZtNwpqaW5EYkV1TTBrREw4N2FoYmZ6cUFjTU1zOE4vTTJrREo0TnMrNGs2WUFDc0d6cE8zdlIrV0JxVDJtMGhEeU9mCmk4c0R2YmFvaFJnTlppUnNFREhQQ0trQ0F3RUFBYU9CM1RDQjJqQU9CZ05WSFE4QkFmOEVCQU1DQmFBd0hRWUQKVlIwbEJCWXdGQVlJS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUF3R0ExVWRFd0VCL3dRQ01BQXdIUVlEVlIwTwpCQllFRkZSS2N1cTQwL0F6WTkwaWg5MGZCZXZkWEhuT01COEdBMVVkSXdRWU1CYUFGQndzSXc1cUxDVWszKzB2CmFVZWdaTGlvcE02a01Gc0dBMVVkRVFSVU1GS0NEM1J5WVdWbWFXc3VhM1ZpWlM1MmJvSUpiVEl0Y0c5eWRIVnoKZ2hKdE1pMXdiM0owZFhNdGNtVm5hWE4wY25tQ0RtMHlMWEJ2Y25SMWN5MXVaMmw0Z2hCeVpXZHBjM1J5ZVM1cgpkV0psTG5adU1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmRQMTNVWWhPMEo3aGNFNDVqMWZQdVRybkFJMmlhCmc3SG55cVA4VXFNVjB1Vmg1YjlFMjU5NnovVEZMa0pmRzZVSEplY1ExUmYxd1Zzcmx4V0RSNnJaZXRUdzd3SnkKNER1MU1lMDU0SnlEQkhzWFBibFowbjN5RjNaVXVDYnNUWHJXTWJnYjAxWkNsd0RQeGtYeTVwc3o1dmtnRnhJSgpVM1dhNTVQKzVtdlZiK3M5YmU3UllRTEtBNUFwK094cEN3UU1hYUhDc0pDTUp1VEFlbHpsY0JnYTJVQUZ1eFRDCjhGMHNiQmZ6MmxCMGlKRW1NdlIwRHBFcnlwdFJhSlBUdk0rM1VMajIxVWZWNU9YRFJobXJ6NjhGTkZnNTN6V2sKb25TMHZtS3JRUGVSSHhvaFlNK0ZNNXNmc3MvTUJ2ZGxjSVNJU1RBQ0JNUDZzL1hvNGdSVStGaTMKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBOG81b3craWdwakxaLzBUR0FOcUFWdFdjZnNwcXNVUjdBVnV2anRxTDFidVg3Mm5oCjlKZ1JzL2YwdlgxRTA5d3ZSa25yelJramZxNytiNkw1RHc1UWZIWE45c21RbGFlcWVnRW5JOGh1eTNyTThtaVQKN25rMTNTUWViQWVhT0xnWC9rbmRkQWIvcGVhTU9HSmczVUl3REFjaE5kd1JCQnBkNzM3cGVLSUVqb2g5OVVwcQphczkyQ1ZRUW1sQSt4d0RubHVjSDZoOXI4UHBybmVWUWRqNW1PRDJ4cXVjb0xHellmYlJ0K0NOWWRDOHN6WjhICi9uWkhSb2tkeFVodStidU9LY05zUzR6U1FNdnp0cUZ0L09vQnd3eXp3Mzh6YVFNbmcyejdpVHBnQUt3Yk9rN2UKOUg1WUdwUGFiU0VQSTUrTHl3Tzl0cWlGR0ExbUpHd1FNYzhJcVFJREFRQUJBb0lCQVFDVHVrNXVlMEZVMkFYVApwaVJlSXJZbHJPWXFoc2ZpZlUzWmJ1a0d2VzZMVnp6Yk1RYlFmTW5UYllKZTRtdklDUU8xOEpHd0VjNS9lcjgyCmFQRDl6WDhSdm9JWiszdVcyazVIRG1xekxZRGxaejVwcVczbndXVWY4YjZobHlQRHhjTy9PV2VxSWhVVUNzMSsKRGRUbkRVZk1HNCtMaVNQSDl2TWRTWk9TeUVLME41ZkxRd290eGo4d2w4cStzS2pkdk5LSkRRTGhZQ015NG5JawpkRGtqTUJ1ZDZEelRycUQ0R2g1ZGxxMmVhSlkzcXhXWTRTRmRCRno0RkluTGNoemtVM1FORmZ4cFByZjFmZDVuCmVNUzl3WnVGUE9IMGcvSnlYTStJdTRLbThUbmxGcU51WjhwdnFXdWNUYnhQZHNNQ2VWUDZ1U01xRmo4b3Y0SkEKNzBZazV2Z3hBb0dCQVB0QytsYmtWakR5Qno3NkpZVWlUSWs3bCs1enRzaDZyT1V5ZXNoTEJGeEUwR0E3WXpIVQpwTm1IaHE3SzdWRDJIeUptRWsySXlFbnZoNzNSNnlqSjlEYmVnUllvS3VTbTFMMmVvOWw3T3QwQ1RvaVFzZzQ1CnJ1eXp2ZUtEdjN3RHVDZkM5azNueUZ2VnpTWnFvTFluK0EybVo2S1E0ckNZY1AxeVpyb2dtSG90QW9HQkFQY2gKWjRKRG9uSVR4YzlPcDBzajhsRHFIaVVKWWlOSkhWdko4YnZjTFZxZGNNQklha0k1YVlIaWlqWHpOaGJpTFc2Kwo5bnNyUnVKYTJhemM3SFROOHdxQnJiUXZxZTdCS1JQenAvN0tOUTFNbTlLUTRpMEFTSTBaM3NGRWFVNHlIbFhiCmZreUs4NFcvSHM5RjJCQlNUb0F3U2N0VUdJVDRNaHdHSnNVYThzSHRBb0dBTzJ2a25tWVR5REdFNnl6bmNLdmkKNDlXWEljcDE0TVc2VzkzclViRUVEL29xT1lmeDlwZnVnSTlmbDdqZ0ZQU1ArbWVmVG56WnVUcVBwS0dmZHA4RQpSWEdybjV6U1FBOEFZdlBBbGk5aGhXRUZSNkRJcXpxVEZ1R1BONkdteUdKc3krSjhzNEhzVFdPcng3a1IxdUp1CjlITjFNT29JNG5DNjBBV2RLOG1IcGVVQ2dZRUFqbmxrcW5ZQnRsRHQ3c21DcTFCTENCa2hUZXJ0K0RmVHhESlYKdWgrQ3lrWVFWZHFwNEFvbmFLbEpVemNuVE9RU20xRmUycjJsZlNReGNIWmhvQ21IMzl2SllDTkdqZzR3ZDM4MgpzQzYxalRoSWNZbnp5MHZwaCtlTlE5RUVBUC9sKzB1eXNjQStDektYT1pvanFhMDU4cTlrSytRTXlzUW9aMzJvClptUlY1alVDZ1lCbFgzbzBlZlBIV1RpcWl5dExzVmhRTjViWjMrU2o2ZEhhNjFSN1BEaEk0SDhhbnh6VEZSOHgKUTB1NWJ0Ry9MYVlTSFc2UWxqM24xNDE4czBGQ1dVMmtaeXZwWW5Sc0FUd3B4ZG9GWWh0b1AvLzZ4Tk4yejZ0QQpxVzFyMGNMZXl4cUpRcndWOW84QkxQNXluMStQcmlPdlpRSkdZTWVJcXJLdGpNZkk2a0Jhd2c9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-conf
+  namespace: kube-system
+data:
+  traefik.toml: |
+    # traefik.toml
+    defaultEntryPoints = ["http","https"]
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+        [entryPoints.http.redirect]
+          entryPoint = "https"
+      [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          [[entryPoints.https.tls.certificates]]
+          CertFile = "/ssl/tls.crt"
+          KeyFile = "/ssl/tls.key"
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -59,10 +89,26 @@ spec:
     spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
+      volumes:
+        - name: ssl
+          secret:
+            secretName: traefik-cert
+        - name: config
+          configMap:
+            name: traefik-conf
       containers:
       - image: traefik:1.6-alpine
         name: traefik-ingress-lb
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: "/ssl"
+          name: "ssl"
+        - mountPath: "/config"
+          name: "config"
         ports:
+        - name: https
+          containerPort: 443
+          hostPort: 443
         - name: http
           containerPort: 80
           hostPort: 80
@@ -76,8 +122,9 @@ spec:
             - NET_BIND_SERVICE
         args:
         - --api
+        - --configfile=/config/traefik.toml
         - --kubernetes
-        - --logLevel=INFO
+        - --logLevel=DEBUG
 ---
 kind: Service
 apiVersion: v1

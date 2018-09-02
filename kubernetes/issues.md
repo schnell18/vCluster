@@ -250,6 +250,16 @@ Use this instead:
 
     echo $HOSTNAME | awk -F '-' -e '{split($0, a); print $a[2] + 1}'
 
+## service ip unreachable
+
+8月 28 21:26:12 kbn1.kube.vn kube-proxy[635]: I0828 21:26:12.480839     635 controller_utils
+8月 28 21:26:12 kbn1.kube.vn kube-proxy[635]: I0828 21:26:12.480944     635 controller_utils
+8月 28 21:26:12 kbn1.kube.vn kube-proxy[635]: E0828 21:26:12.629703     635 proxier.go:1340]
+8月 28 21:26:34 kbn1.kube.vn kube-proxy[635]: E0828 21:26:34.270953     635 proxier.go:603] 
+8月 28 21:26:58 kbn1.kube.vn kube-proxy[635]: E0828 21:26:58.270190     635 proxier.go:1340]
+
+8月 28 21:26:12 kbn1.kube.vn kube-proxy[635]: E0828 21:26:12.629703     635 proxier.go:1340] Failed to delete stale service IP 10.32.0.10 connections, error: error deleting connection tracking state for UDP service IP: 10.32.0.10, error: error looking for path of conntrack: exec: "conntrack": executable file not found in $PATH
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working

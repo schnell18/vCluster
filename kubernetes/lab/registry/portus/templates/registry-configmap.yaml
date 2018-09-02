@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "registry.fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  config: |
+    version: 0.1
+    log:
+      accesslog:
+        disabled: false
+      level: debug
+      formatter: text
+      fields:
+        service: registry
+        environment: staging
+    storage:
+      filesystem:
+        rootdirectory: {{ .Values.registry.mountPath }}
+        maxthreads: 100
+      delete:
+        enabled: false
+      redirect:
+        disable: false
+      maintenance:
+        uploadpurging:
+          enabled: true
+          age: 168h
+          interval: 24h
+          dryrun: false
+        readonly:
+          enabled: false
+    auth:
+      {{- if .Values.portus.tls.enabled }}
+      token:
+        realm: {{ printf "https://%s:%d/v2/token" (.Values.nginx.host | default (printf "%s" (include "nginx.fullname" .))) (int .Values.nginx.service.port) | quote }}
+        service: {{ printf "%s:%s" (include "registry.fullname" .) .Values.registry.service.port | quote }}
+        issuer: {{ template "portus.fullname" . }}
+        rootcertbundle: "/certificates/portus.crt"
+      {{- else }}
+      silly:
+        realm: {{ printf "http://%s:%d/v2/token" (.Values.nginx.host | default (printf "%s" (include "nginx.fullname" .))) (int (.Values.registry.service.nodePort | default .Values.nginx.service.port)) | quote }}
+        service: {{ printf "%s:%s" (include "registry.fullname" .) .Values.registry.service.port | quote }}
+      {{- end }}
+    http:
+      addr: 0.0.0.0:{{ .Values.registry.service.port }}
+      tls:
+        certificate: "/certificates/portus.crt"
+        key: "/certificates/portus.key"
+      debug:
+        addr: 0.0.0.0:{{ .Values.registry.service.debugPort }}
+      headers:
+        X-Content-Type-Options: [nosniff]
+      http2:
+        disabled: true
+    notifications:
+      endpoints:
+        - name: alistener
+          disabled: false
+          {{- if .Values.portus.tls.enabled }}
+          url: https://{{ template "nginx.fullname" . }}/v2/webhooks/events
+          {{- else }}
+          url: http://{{ template "nginx.fullname" . }}/v2/webhooks/events
+          {{- end }}
+          timeout: 2000ms
+          threshold: 5
+          backoff: 1s
+          ignoredmediatypes:
+            - application/octet-stream

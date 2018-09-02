@@ -18,6 +18,11 @@ if [[  $? != 0 ]]; then
   yum install -y nfs-utils
 fi
 
+rpm -q --queryformat "%{name} %{version} installed" conntrack-tools
+if [[  $? != 0 ]]; then
+  yum install -y conntrack-tools
+fi
+
 rpm -q --queryformat "%{name} %{version} installed" socat
 if [[  $? != 0 ]]; then
   yum install -y socat
@@ -145,6 +150,7 @@ hostnamectl set-hostname $KB_MASTER_HOST
 echo "Setting up nfs..."
 if [ ! -d /var/nfs ]; then
     mkdir -p /var/nfs/mysql
+    mkdir -p /var/nfs/mariadb/{master,slave}
     mkdir -p /var/nfs/mongodb{0,1,2}
     mkdir -p /var/nfs/zk{0,1,2}
     mkdir -p /var/nfs/harbor
@@ -182,6 +188,15 @@ EOF
 EOF
         cat <<EOF > /etc/exports.d/harbor_log.exports
 /var/nfs/harbor_log 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/mariadb_master.exports
+/var/nfs/mariadb/master 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/mariadb_slave.exports
+/var/nfs/mariadb/slave 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
+EOF
+        cat <<EOF > /etc/exports.d/registry.exports
+/var/nfs/registry 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
 EOF
         exportfs -a
     fi
@@ -234,7 +249,7 @@ $minion_count = 3
       kbn.vm.provision "shell", path: "provision/minion/post-setup.sh"
       kbn.vm.network "private_network", ip: ip
       kbn.vm.provision :hostmanager
-      kbn.hostmanager.aliases = %W(kbn#{i + 1}.kube.vn)
+      kbn.hostmanager.aliases = %W(kbn#{i + 1}.kube.vn registry.kube.vn)
       kbn.vm.provider "virtualbox" do |vb|
         vb.name   = node_id
         vb.gui    = false

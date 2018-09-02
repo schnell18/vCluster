@@ -7,7 +7,7 @@
 #   k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8       \
 #   k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8      \
 #   k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8 \
-#   k8s.gcr.io/kubernetes-helm/tiller:v2.9.1      \
+#   gcr.io/kubernetes-helm/tiller:v2.10.0         \
 # )
 
 images=(                                        \
@@ -43,6 +43,9 @@ docker save                                       \
     quay.io/calico/ctl:v3.1.3                     \
     k8s.gcr.io/heapster-influxdb-amd64:v1.3.3     \
     k8s.gcr.io/heapster-amd64:v1.5.3              \
-    gcr.io/kubernetes-helm/tiller:v2.9.1          \
+    gcr.io/kubernetes-helm/tiller:v2.10.0         \
     harbor.dev.pajkdc.com/pajk_dev:1.6.0-alpine   \
     > meta-images.tar
+
+docker save                                       \
+    gcr.io/kubernetes-helm/tiller:v2.10.0 > tiller.tar

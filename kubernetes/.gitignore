@@ -1,6 +1,9 @@
 .vagrant/
 *.class
 *.jar
+*.tar
+*.tgz
+*.zip
 *.bak
 *.log
 *.ipr

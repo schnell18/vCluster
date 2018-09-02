@@ -1,3 +1,29 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: registry-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    server: kbm1.kube.vn
+    path: /var/nfs/registry
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: registry-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -6,7 +32,6 @@ metadata:
 data:
   htpassword: |-
     bitmover:$2y$05$h3F6w4V6DRDZd7g0cPI8AeO/W8RBwAh5iHn/r17yaicjaVA0feCx2
-  # The CNI network configuration to install on each node.
   config.yml: |-
     version: 0.1
     storage:
@@ -58,7 +83,9 @@ spec:
         - mountPath: /certs
           name: certs-conf
         - mountPath: /etc/registry/
-          name: htpasswd-conf
+          name: registry-conf
+        - mountPath: /var/lib/registry
+          name: registry-data
       volumes:
       - name: certs-conf
         secret:
@@ -66,3 +93,20 @@ spec:
       - name: registry-conf
         configMap:
           name: registry-config
+      - name: registry-data
+        persistentVolumeClaim:
+          claimName: registry-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry
+  namespace: kube-system
+spec:
+  type: NodePort
+  ports:
+   - port: 443
+     targetPort: 443
+     nodePort: 32443
+  selector:
+    app: registry2
