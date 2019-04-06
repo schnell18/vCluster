@@ -1,9 +1,9 @@
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "centos74-min"
+  config.vm.box = "centos76_min"
   config.vm.box_check_update = false
   config.rdp.port = 5000
-  config.vm.synced_folder ".", "/work"
+  config.vm.synced_folder ".", "/work", automount: true
 
   # take care of /etc/hosts in both host and guest
   config.hostmanager.enabled = true
