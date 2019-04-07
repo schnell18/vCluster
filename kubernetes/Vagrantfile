@@ -1,6 +1,6 @@
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "centos76_min"
+  config.vm.box = "debian98-min"
   config.vm.box_check_update = false
   config.rdp.port = 5000
   config.vm.synced_folder ".", "/work", automount: true
@@ -10,209 +10,6 @@ Vagrant.configure(2) do |config|
   config.hostmanager.manage_host = true
   config.hostmanager.manage_guest = true
 
-# install warez on worker
-$inst_minion_warez = <<SCRIPT22
-
-rpm -q --queryformat "%{name} %{version} installed" nfs-utils
-if [[  $? != 0 ]]; then
-  yum install -y nfs-utils
-fi
-
-rpm -q --queryformat "%{name} %{version} installed" conntrack-tools
-if [[  $? != 0 ]]; then
-  yum install -y conntrack-tools
-fi
-
-rpm -q --queryformat "%{name} %{version} installed" socat
-if [[  $? != 0 ]]; then
-  yum install -y socat
-fi
-
-if [[ ! -f /usr/local/bin/kube-proxy ]]; then
-  pushd /work/.preload
-  if [[ ! -f /work/.preload/kube-proxy ]]; then
-    baseurl1="https://storage.googleapis.com/kubernetes-release/release/v1.11.0/bin/linux/amd64"
-    baseurl2="https://github.com/kubernetes-incubator/cri-tools/releases/download/v1.11.0"
-    baseurl3="https://github.com/opencontainers/runc/releases/download/v1.0.0-rc5"
-    baseurl4="https://github.com/containernetworking/plugins/releases/download/v0.6.0/"
-    baseurl5="https://github.com/containerd/containerd/releases/download/v1.1.1"
-
-    echo "Downloading containerd, cni-plugins kubelet and kube-proxy etc..."
-    wget -q -e use_proxy=yes -e https_proxy=192.168.90.1:1087 \\
-      "$baseurl5/containerd-1.1.1.linux-amd64.tar.gz"         \\
-      "$baseurl4/cni-plugins-amd64-v0.6.0.tgz"                \\
-      "$baseurl3/runc.amd64"                                  \\
-      "$baseurl2/crictl-v1.11.0-linux-amd64.tar.gz"           \\
-      "$baseurl1/kubelet"                                     \\
-      "$baseurl1/kube-proxy"
-  else
-    echo "Using pre-downloaded containerd, cni-plugins kubelet and kube-proxy etc..."
-  fi
-
-  mkdir -p              \\
-    /etc/cni/net.d      \\
-    /opt/cni/bin        \\
-    /var/lib/kubelet    \\
-    /var/lib/kube-proxy \\
-    /var/lib/kubernetes \\
-    /var/run/kubernetes
-
-  cp kubectl kube-proxy kubelet /usr/local/bin/
-  cp runc.amd64 /usr/local/bin/runc
-  tar -xzvf crictl-v1.11.0-linux-amd64.tar.gz -C /usr/local/bin/ > /dev/null
-  tar -xzvf cni-plugins-amd64-v0.6.0.tgz -C /opt/cni/bin/ > /dev/null
-  tar -xzvf containerd-1.1.1.linux-amd64.tar.gz -C /tmp > /dev/null
-  mv /tmp/bin/* /usr/local/bin
-  chmod +x /usr/local/bin/{kubectl,kube-proxy,kubelet,runc}
-  popd
-
-fi
-
-SCRIPT22
-
-# install warez on master
-$inst_master_rpms = <<SCRIPT2
-
-rpm -q --queryformat "%{name} %{version} installed" etcd
-if [[  $? != 0 ]]; then
-  yum install -y etcd
-fi
-
-rpm -q --queryformat "%{name} %{version} installed" nfs-utils
-if [[  $? != 0 ]]; then
-  yum install -y nfs-utils
-fi
-
-if [[ ! -f /usr/local/bin/cfssl ]]; then
-  pushd /work/.preload
-  if [[ ! -f /work/.preload/cfssl_linux-amd64 ]]; then
-    echo "Downloading cfssl tools..."
-    wget -q -e use_proxy=yes -e https_proxy=192.168.90.1:1087 \\
-      https://pkg.cfssl.org/R1.2/cfssl_linux-amd64            \\
-      https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-  else
-    echo "Using pre-downloaded cfssl tools..."
-  fi
-  cp cfssl_linux-amd64 /usr/local/bin/cfssl
-  cp cfssljson_linux-amd64 /usr/local/bin/cfssljson
-  chmod +x /usr/local/bin/{cfssl,cfssljson}
-  popd
-fi
-
-if [[ ! -f /usr/local/bin/kube-apiserver ]]; then
-  pushd /work/.preload
-  if [[ ! -f /work/.preload/kube-apiserver ]]; then
-    baseurl="https://storage.googleapis.com/kubernetes-release/release/v1.11.0/bin/linux/amd64"
-    echo "Downloading kube-apiserver kube-controller-manager etc..."
-    wget -q -e use_proxy=yes -e https_proxy=192.168.90.1:1087 \\
-      "$baseurl/kube-apiserver"          \\
-      "$baseurl/kube-controller-manager" \\
-      "$baseurl/kube-scheduler"          \\
-      "$baseurl/kubectl"
-  else
-    echo "Using pre-downloaded kube-apiserver kube-controller-manager etc..."
-  fi
-  cp kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
-  chmod +x /usr/local/bin/{kube-apiserver,kube-controller-manager,kube-scheduler,kubectl}
-  popd
-fi
-SCRIPT2
-
-# configuration for all kubernetes hosts
-$all_config = <<SCRIPT4
-echo "Setting up host level config..."
-systemctl disable firewalld
-systemctl stop firewalld
-
-cat <<EOF > /etc/sysctl.d/k8s.conf
-net.ipv4.ip_forward = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
-sysctl --system
-swapoff -a && sysctl -w vm.swappiness=0
-sed -i 's/.*swap.*/#&/' /etc/fstab
-setenforce  0
-sed -i "s/^SELINUX=enforcing/SELINUX=disabled/g" /etc/sysconfig/selinux
-sed -i "s/^SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config
-sed -i "s/^SELINUX=permissive/SELINUX=disabled/g" /etc/sysconfig/selinux
-sed -i "s/^SELINUX=permissive/SELINUX=disabled/g" /etc/selinux/config
-
-cat <<EOF > /etc/profile.d/usrlocalbin.sh
-export PATH=/usr/local/bin:$PATH
-EOF
-SCRIPT4
-
-# configuration for kubernetes master
-$master_config = <<SCRIPT6
-echo "Setting up master..."
-hostnamectl set-hostname $KB_MASTER_HOST
-echo "Setting up nfs..."
-if [ ! -d /var/nfs ]; then
-    mkdir -p /var/nfs/mysql
-    mkdir -p /var/nfs/mariadb/{master,slave}
-    mkdir -p /var/nfs/mongodb{0,1,2}
-    mkdir -p /var/nfs/zk{0,1,2}
-    mkdir -p /var/nfs/harbor
-    mkdir -p /var/nfs/harbor_mysql
-    mkdir -p /var/nfs/harbor_log
-    chown nfsnobody:nfsnobody /var/nfs
-    chmod 755 /var/nfs
-    if [ ! -f /etc/exports.d/mysql.exports ]; then
-        cat <<EOF > /etc/exports.d/mysql.exports
-/var/nfs/mysql 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/mongodb0.exports
-/var/nfs/mongodb0 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/mongodb1.exports
-/var/nfs/mongodb1 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/mongodb2.exports
-/var/nfs/mongodb2 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/zk0.exports
-/var/nfs/zk0 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/zk1.exports
-/var/nfs/zk1 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/zk2.exports
-/var/nfs/zk2 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/harbor.exports
-/var/nfs/harbor 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/harbor_mysql.exports
-/var/nfs/harbor_mysql 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/harbor_log.exports
-/var/nfs/harbor_log 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/mariadb_master.exports
-/var/nfs/mariadb/master 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/mariadb_slave.exports
-/var/nfs/mariadb/slave 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        cat <<EOF > /etc/exports.d/registry.exports
-/var/nfs/registry 192.168.90.0/24(rw,sync,no_root_squash,no_subtree_check,anonuid=65534,anongid=65534)
-EOF
-        exportfs -a
-    fi
-fi
-
-SCRIPT6
-
-# configuration for kubernetes minion
-$minion_config = <<SCRIPT6
-echo "Setting up kubelet..."
-hostnamectl set-hostname $KB_MINION_HOST
-
-SCRIPT6
-
-$minion_count = 3
-
   # provision master
   1.times do |i|
     node_id = "kbm#{i + 1}"
@@ -220,12 +17,7 @@ $minion_count = 3
       kbm.vm.network "private_network", ip: "192.168.90.1#{i + 5}"
       kbm.vm.provision :hostmanager
       kbm.hostmanager.aliases = %w(kbm1.kube.vn)
-      kbm.vm.provision "shell", inline: $inst_master_rpms
-      kbm.vm.provision "shell", inline: $all_config
-      kbm.vm.provision "shell", inline: $master_config, env: {:KB_MASTER_HOST =>  "kbm1.kube.vn"}
-      kbm.vm.provision "shell", path: "provision/master/pre-setup.sh", env: {:MINION_COUNT => $minion_count, :KUBERNETES_PUBLIC_ADDRESS => "192.168.90.1#{i + 5}"}
-      kbm.vm.provision "shell", path: "provision/master/setup.sh", env: {:INTERNAL_IP =>  "192.168.90.1#{i + 5}"}
-      kbm.vm.provision "shell", path: "provision/master/post-setup.sh"
+      kbm.vm.hostname = "#{node_id}.kube.vn"
       kbm.vm.provider "virtualbox" do |vb|
         vb.name   = node_id
         vb.gui    = false
@@ -237,19 +29,14 @@ $minion_count = 3
   end
 
   # provision nodes
-  $minion_count.times do |i|
+  3.times do |i|
     node_id = "kbn#{i + 1}"
     ip = "192.168.90.2#{i + 5}"
     config.vm.define node_id do |kbn|
-      kbn.vm.provision "shell", inline: $inst_minion_warez
-      kbn.vm.provision "shell", inline: $all_config
-      kbn.vm.provision "shell", inline: $minion_config, env: {:KB_MINION_HOST => "#{node_id}.kube.vn"}
-      kbn.vm.provision "shell", path: "provision/minion/pre-setup.sh"
-      kbn.vm.provision "shell", path: "provision/minion/setup.sh", env: {:NODE_IP => ip, :MASTER_HOST => "kbm1.kube.vn"}
-      kbn.vm.provision "shell", path: "provision/minion/post-setup.sh"
       kbn.vm.network "private_network", ip: ip
       kbn.vm.provision :hostmanager
-      kbn.hostmanager.aliases = %W(kbn#{i + 1}.kube.vn registry.kube.vn)
+      kbn.vm.hostname = "#{node_id}.kube.vn"
+      kbn.hostmanager.aliases = %W(kbn#{i + 1}.kube.vn)
       kbn.vm.provider "virtualbox" do |vb|
         vb.name   = node_id
         vb.gui    = false
