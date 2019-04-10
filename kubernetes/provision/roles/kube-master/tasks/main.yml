@@ -1,0 +1,144 @@
+---
+# tasks file for kube-master
+
+- name: install python3 pip
+  apt:
+    default_release: buster
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - python3-pip
+- name: install pyOpenSSL
+  pip:
+    name: pyOpenSSL
+
+- name: install etcd, cfssl
+  apt:
+    default_release: buster
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - etcd
+    - golang-cfssl
+
+# download kubernetes binaries for master
+- name: test if kubernetes binaries for master are downloaded
+  stat:
+    path: /work/.preload/kube-apiserver
+  register: pmkb
+- name: download kubernetes master components
+  shell: "{{ lookup('template', 'download-master.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "pmkb.stat.exists == False"
+
+# install kubernetes binaries for master
+- name: test if kubernetes binaries for master are installed
+  stat:
+    path: /usr/local/bin/kube-apiserver
+  register: pmk
+- name: install kubernetes master components
+  shell: "{{ lookup('template', 'install-master.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "pmk.stat.exists == False"
+
+# generate ownca certificate for signing
+
+- name: ensure /var/kubernetes/lib exists
+  file:
+    path: /var/lib/kubernetes
+    state: directory
+- name: test if own ca is genereated
+  stat:
+    path: /var/lib/kubernetes/ownca.pem
+  register: ownca
+- name: generate own ca
+  shell: "{{ lookup('template', 'gen-ownca.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "ownca.stat.exists == False"
+
+# - name: ensure /var/kubernetes/lib exists
+#   file:
+#     path: /var/lib/kubernetes
+#     state: directory
+# - name: generate ownca private key
+#   openssl_privatekey:
+#     path: /var/lib/kubernetes/ownca-key.pem
+# - name: generate certificate request for ownca
+#   openssl_csr:
+#     path: /var/lib/kubernetes/ownca.csr
+#     privatekey_path: /var/lib/kubernetes/ownca-key.pem
+#     key_usage: 
+#       - digitalSignature
+#       - keyAgreement
+#       - server auth
+#     extended_key_usage: 
+#       - client auth
+#     common_name: jjhome own ca
+#     country_name: CN
+#     state_or_province_name: Shanghai
+#     locality_name: Shanghai
+#     organization_name: jjhome
+#     organizational_unit_name: jjhome
+#     state: present
+# - name: generate certificate for kube-apiserver
+#   openssl_certificate:
+#     path: /var/lib/kubernetes/ownca.crt
+#     csr_path: /var/lib/kubernetes/ownca.csr
+#     provider: selfsigned
+# 
+# # generate certificate for master components
+# - name: generate certificate for kube-apiserver
+#   openssl_privatekey:
+#     path: /var/lib/kubernetes/kube-apiserver-key.pem
+# - name: generate certificate request for kube-apiserver
+#   openssl_csr:
+#     path: /var/lib/kubernetes/kube-apiserver.csr
+#     privatekey_path: /var/lib/kubernetes/kube-apiserver-key.pem
+#     key_usage: 
+#       - key encipherment
+#       - server auth
+#       - client auth
+#     common_name: system:kube-apiserver
+#     country_name: CN
+#     state_or_province_name: Shanghai
+#     locality_name: Shanghai
+#     organization_name: system:kube-apiserver
+#     organizational_unit_name: jjhome
+#     state: present
+# - name: generate certificate for kube-apiserver
+#   openssl_certificate:
+#     path: /var/lib/kubernetes/kube-apiserver.crt
+#     csr_path: /var/lib/kubernetes/kube-apiserver.csr
+#     ownca_path: /var/lib/kubernetes/ownca.crt
+#     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
+#     provider: ownca
+# 
+# - name: generate certificate for kube-scheduler
+#   openssl_privatekey:
+#     path: /var/lib/kubernetes/kube-scheduler-key.pem
+# - name: generate certificate request for kube-scheduler
+#   openssl_csr:
+#     path: /var/lib/kubernetes/kube-scheduler.csr
+#     privatekey_path: /var/lib/kubernetes/kube-scheduler-key.pem
+#     key_usage: 
+#       - key encipherment
+#       - server auth
+#       - client auth
+#     common_name: system:kube-scheduler
+#     country_name: CN
+#     state_or_province_name: Shanghai
+#     locality_name: Shanghai
+#     organization_name: system:kube-scheduler
+#     organizational_unit_name: jjhome
+#     state: present
+# - name: generate certificate for kube-scheduler
+#   openssl_certificate:
+#     path: /var/lib/kubernetes/kube-scheduler.crt
+#     csr_path: /var/lib/kubernetes/kube-scheduler.csr
+#     ownca_path: /var/lib/kubernetes/ownca.crt
+#     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
+#     provider: ownca
+# 

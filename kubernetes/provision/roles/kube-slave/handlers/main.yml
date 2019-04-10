@@ -1,0 +1,30 @@
+---
+# handlers file for kube-slave
+
+- name: Enable kubernetes node components
+  become: True
+  systemd:
+    daemon-reload: True
+
+- name: Start kubelet
+  become: True
+  systemd:
+    name: kubelet
+    state: started
+    enabled: True
+
+- name: Start kube-proxy
+  become: True
+  systemd:
+    name: kube-proxy
+    state: started
+    enabled: True
+
+- name: Start containerd
+  become: True
+  systemd:
+    name: containerd
+    state: started
+    enabled: True
+
+# TODO: start ntpd like service here

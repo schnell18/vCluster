@@ -2,71 +2,16 @@
 - hosts: all
   become: yes
   pre_tasks:
-    #   - name: update apt database
-    #     raw: apt-get update
-    #   - name: install python3-apt
-    #     raw: apt-get install -y python3-apt
-    # - name: Add buster to /etc/apt/sources.list
-    #   apt_repository:
-    #     repo: deb http://mirror.sjtu.edu.cn/debian/ buster main contrib non-free
-    #     state: present
-    #     update_cache: True
-
-    # - name: enable https transport for apt
-    #   apt:
-    #     name: apt-transport-https
-    #     state: present
-    # - name: enable google deb source list
-    #   apt_repository:
-    #     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-    #     state: present
-    #     update_cache: True
-    # - name: install google gpg key
-    #   apt_key:
-    #     keyring: /etc/apt/trusted.gpg.d/google.gpg
-    #     data: |
-    #       -----BEGIN PGP PUBLIC KEY BLOCK-----
-
-    #       mQENBFUd6rIBCAD6mhKRHDn3UrCeLDp7U5IE7AhhrOCPpqGF7mfTemZYHf/5Jdjx
-    #       cOxoSFlK7zwmFr3lVqJ+tJ9L1wd1K6P7RrtaNwCiZyeNPf/Y86AJ5NJwBe0VD0xH
-    #       TXzPNTqRSByVYtdN94NoltXUYFAAPZYQls0x0nUD1hLMlOlC2HdTPrD1PMCnYq/N
-    #       uL/Vk8sWrcUt4DIS+0RDQ8tKKe5PSV0+PnmaJvdF5CKawhh0qGTklS2MXTyKFoqj
-    #       XgYDfY2EodI9ogT/LGr9Lm/+u4OFPvmN9VN6UG+s0DgJjWvpbmuHL/ZIRwMEn/tp
-    #       uneaLTO7h1dCrXC849PiJ8wSkGzBnuJQUbXnABEBAAG0QEdvb2dsZSBDbG91ZCBQ
-    #       YWNrYWdlcyBBdXRvbWF0aWMgU2lnbmluZyBLZXkgPGdjLXRlYW1AZ29vZ2xlLmNv
-    #       bT6JAT4EEwECACgFAlUd6rICGy8FCQWjmoAGCwkIBwMCBhUIAgkKCwQWAgMBAh4B
-    #       AheAAAoJEDdGwginMXsPcLcIAKi2yNhJMbu4zWQ2tM/rJFovazcY28MF2rDWGOnc
-    #       9giHXOH0/BoMBcd8rw0lgjmOosBdM2JT0HWZIxC/Gdt7NSRA0WOlJe04u82/o3OH
-    #       WDgTdm9MS42noSP0mvNzNALBbQnlZHU0kvt3sV1YsnrxljoIuvxKWLLwren/GVsh
-    #       FLPwONjw3f9Fan6GWxJyn/dkX3OSUGaduzcygw51vksBQiUZLCD2Tlxyr9NvkZYT
-    #       qiaWW78L6regvATsLc9L/dQUiSMQZIK6NglmHE+cuSaoK0H4ruNKeTiQUw/EGFaL
-    #       ecay6Qy/s3Hk7K0QLd+gl0hZ1w1VzIeXLo2BRlqnjOYFX4A=
-    #       =HVTm
-    #       -----END PGP PUBLIC KEY BLOCK-----
-    #     state: present
-
-    - name: install etcd, cfssl
-      apt:
-        default_release: buster
-        name: "{{ packages }}"
-      vars:
-        packages:
-        - etcd
-        - golang-cfssl
-      when: "'master' in group_names"
-
-  tasks:
     # install and config tsocks
     - name: install tsocks
       apt:
         name: tsocks
         state: present
     - name: config tsocks
-      lineinfile:
+      replace:
         path: /etc/tsocks.conf
-        regexp: '^server\\s*='
-        line: 'server = 10.0.2.2'
-
+        regexp: '^server = 192.168.0.1$'
+        replace: 'server = 10.0.2.2'
     - name: install pre-requisite warez like socat conntrack
       apt:
         name: "{{ packages }}"
@@ -74,11 +19,6 @@
         packages:
         - socat
         - conntrack
-
-    - name: add /usr/local/bin to PATH
-      copy:
-        content: 'export PATH=/usr/local/bin:$PATH'
-        dest: /etc/profile.d/usrlocalbin.sh
     - name: load br_netfilter right now
       modprobe:
         name: br_netfilter
@@ -92,12 +32,10 @@
       command: swapoff -a
       when: ansible_swaptotal_mb > 0
     - name: turn swap off in fstab
-      lineinfile:
+      replace:
         path: /etc/fstab
-        regexp: '^([^#].*none\\s+swap\\s+.*)$'
-        line: '#\1'
-        backrefs: True
-      when: ansible_swaptotal_mb > 0
+        regexp: '^([^#]+\s+none\s+swap\s+.*)$'
+        replace: '# \1'
     - name: turn vm.swappiness off
       sysctl:
         name: vm.swappiness
@@ -126,6 +64,13 @@
         sysctl_set: yes
         state: present
         reload: yes
+
+- hosts: master
+  become: yes
+  roles:
+    - role: kube-master
+
+  tasks:
     - name: install pre-requisite warez like nfs server
       apt:
         name: "{{ packages }}"
@@ -133,62 +78,18 @@
         packages:
         - nfs-kernel-server
         - nfs-common
-      when: "'master' in group_names"
 
+- hosts: slave
+  become: yes
+  roles:
+    - role: kube-slave
+
+  tasks:
     - name: install pre-requisite warez like nfs client
       apt:
         name: "{{ packages }}"
       vars:
         packages:
         - nfs-common
-      when: "'slave' in group_names"
-
-    # download kubernetes binaries for master
-    - name: test if kubernetes binaries for master are downloaded
-      stat:
-        path: /work/.preload/kube-apiserver
-      register: pmkb
-      when: "'master' in group_names"
-    - name: download kubernetes master components
-      shell: "{{ lookup('template', 'download-master.sh') }}"
-      args:
-        executable: /bin/bash
-      when: "'master' in group_names and pmkb.stat.exists == False"
-
-    # install kubernetes binaries for master
-    - name: test if kubernetes binaries for master are installed
-      stat:
-        path: /usr/local/bin/kube-apiserver
-      register: pmk
-      when: "'master' in group_names"
-    - name: install kubernetes master components
-      shell: "{{ lookup('template', 'install-master.sh') }}"
-      args:
-        executable: /bin/bash
-      when: "'master' in group_names and pmk.stat.exists == False"
-
-    # download kubernetes binaries for slave
-    - name: test if kubernetes binaries for node are downloaded
-      stat:
-        path: /work/.preload/kube-proxy
-      register: plkb
-      when: "'slave' in group_names"
-    - name: download kubernetes node components
-      shell: "{{ lookup('template', 'download-kube.sh') }}"
-      args:
-        executable: /bin/bash
-      when: "'slave' in group_names and plkb.stat.exists == False"
-
-    # install kubernetes binaries for slave
-    - name: test if kubernetes binaries for node are installed
-      stat:
-        path: /usr/local/bin/kube-proxy
-      register: kb
-      when: "'slave' in group_names"
-    - name: install kubernetes node components
-      shell: "{{ lookup('template', 'install-kube.sh') }}"
-      args:
-        executable: /bin/bash
-      when: "'slave' in group_names and kb.stat.exists == False"
 
 # vim: set ai nu nobk expandtab sw=2 ts=4 tw=72 syntax=yaml:

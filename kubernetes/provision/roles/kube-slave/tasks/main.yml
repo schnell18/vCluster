@@ -1,0 +1,26 @@
+---
+# tasks file for kube-slave
+
+# download kubernetes binaries for slave
+- name: test if kubernetes binaries for node are downloaded
+  stat:
+    path: /work/.preload/kube-proxy
+  register: plkb
+  when: "'slave' in group_names"
+- name: download kubernetes node components
+  shell: "{{ lookup('template', 'download-kube.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "'slave' in group_names and plkb.stat.exists == False"
+
+# install kubernetes binaries for slave
+- name: test if kubernetes binaries for node are installed
+  stat:
+    path: /usr/local/bin/kube-proxy
+  register: kb
+  when: "'slave' in group_names"
+- name: install kubernetes node components
+  shell: "{{ lookup('template', 'install-kube.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "'slave' in group_names and kb.stat.exists == False"

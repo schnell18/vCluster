@@ -1,0 +1,12 @@
+---
+# defaults file for kube-master
+kube_data_dir: /var/lib/kubernetes
+temp_data_dir: /tmp
+ownca_cn: Kubernetes
+ownca_c: CN
+ownca_st: Shanghai
+ownca_l: Shanghai
+ownca_o: earthling
+ownca_ou: jjhome
+ownca_key_size: 4096
+ownca_expiry: 8760h
