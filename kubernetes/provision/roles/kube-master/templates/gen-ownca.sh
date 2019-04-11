@@ -1,7 +1,4 @@
-if [ ! -f {{ kube_data_dir }}/ca.pem ]; then
-  echo "Generating ca, certs and kubeconfig..."
-fi
-
+# generates own ca
 cat << EOF | cfssl gencert -initca - | cfssljson -bare {{ kube_data_dir }}/ownca
 {
   "CN": "{{ ownca_cn}}",

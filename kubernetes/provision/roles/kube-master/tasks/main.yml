@@ -43,12 +43,11 @@
     executable: /bin/bash
   when: "pmk.stat.exists == False"
 
-# generate ownca certificate for signing
-
 - name: ensure /var/kubernetes/lib exists
   file:
     path: /var/lib/kubernetes
     state: directory
+# generate ownca certificate for signing
 - name: test if own ca is genereated
   stat:
     path: /var/lib/kubernetes/ownca.pem
@@ -58,6 +57,67 @@
   args:
     executable: /bin/bash
   when: "ownca.stat.exists == False"
+# generate api server certificate
+- name: test if api server certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/kubernetes.pem
+  register: cert
+- name: generate api server certificate
+  shell: "{{ lookup('template', 'gen-kube-apiserver-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+# generate kube scheduler certificate
+- name: test if kube scheduler certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/kube-scheduler.pem
+  register: cert
+- name: generate kube scheduler certificate
+  shell: "{{ lookup('template', 'gen-kube-scheduler-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+# generate kube controller manager certificate
+- name: test if kube controller manager certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/kube-controller-manager.pem
+  register: cert
+- name: generate kube controller manager certificate
+  shell: "{{ lookup('template', 'gen-kube-controller-manager-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+# generate kube admin certificate
+- name: test if kubernetes admin certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/admin.pem
+  register: cert
+- name: generate kubernetes admin certificate
+  shell: "{{ lookup('template', 'gen-kube-admin-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+# generate service account certificate
+- name: test if service account certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/service-account.pem
+  register: cert
+- name: generatekube service account certificate
+  shell: "{{ lookup('template', 'gen-kube-service-account-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+# generate kube proxy certificate
+- name: test if kube proxy certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/kube-proxy.pem
+  register: cert
+- name: generate kube proxy certificate
+  shell: "{{ lookup('template', 'gen-kube-proxy-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+
 
 # - name: ensure /var/kubernetes/lib exists
 #   file:

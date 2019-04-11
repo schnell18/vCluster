@@ -10,3 +10,22 @@ ownca_o: earthling
 ownca_ou: jjhome
 ownca_key_size: 4096
 ownca_expiry: 8760h
+kubernetes_public_address: 
+apiserver_cn: kubernetes
+apiserver_o: jjhome
+apiserver_ou: jjhome
+kube_scheduler_cn: kube-scheduler
+kube_scheduler_o: jjhome
+kube_scheduler_ou: jjhome
+kube_proxy_cn: system:kube-proxy
+kube_proxy_o: system:node-proxier
+kube_proxy_ou: jjhome
+kube_admin_cn: admin
+kube_admin_o: system:masters
+kube_admin_ou: jjhome
+service_account_cn: service-accounts
+service_account_o: Kubernetes
+service_account_ou: jjhome
+kube_controller_manager_cn: system:kube-controller-manager
+kube_controller_manager_o: system:kube-controller-manager
+kube_controller_manager_ou: jjhome
