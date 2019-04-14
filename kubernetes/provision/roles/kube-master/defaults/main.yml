@@ -1,6 +1,8 @@
 ---
 # defaults file for kube-master
+cluster_name: my-kube
 kube_data_dir: /var/lib/kubernetes
+kubernetes_public_address: 192.168.90.15 
 temp_data_dir: /tmp
 ownca_cn: Kubernetes
 ownca_c: CN
@@ -10,7 +12,6 @@ ownca_o: earthling
 ownca_ou: jjhome
 ownca_key_size: 4096
 ownca_expiry: 8760h
-kubernetes_public_address: 
 apiserver_cn: kubernetes
 apiserver_o: jjhome
 apiserver_ou: jjhome

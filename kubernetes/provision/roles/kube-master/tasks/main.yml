@@ -1,25 +1,17 @@
 ---
 # tasks file for kube-master
 
-- name: install python3 pip
+- name: install pre-requisite warez
   apt:
     default_release: buster
     name: "{{ packages }}"
   vars:
     packages:
     - python3-pip
+    - golang-cfssl
 - name: install pyOpenSSL
   pip:
     name: pyOpenSSL
-
-- name: install etcd, cfssl
-  apt:
-    default_release: buster
-    name: "{{ packages }}"
-  vars:
-    packages:
-    - etcd
-    - golang-cfssl
 
 # download kubernetes binaries for master
 - name: test if kubernetes binaries for master are downloaded
@@ -67,13 +59,13 @@
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
-# generate kube scheduler certificate
-- name: test if kube scheduler certificate is genereated
+# generate kube proxy certificate
+- name: test if kube proxy certificate is genereated
   stat:
-    path: /var/lib/kubernetes/kube-scheduler.pem
+    path: /var/lib/kubernetes/kube-proxy.pem
   register: cert
-- name: generate kube scheduler certificate
-  shell: "{{ lookup('template', 'gen-kube-scheduler-cert.sh') }}"
+- name: generate kube proxy certificate
+  shell: "{{ lookup('template', 'gen-kube-proxy-cert.sh') }}"
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
@@ -118,6 +110,58 @@
     executable: /bin/bash
   when: "cert.stat.exists == False"
 
+
+# generate .kubeconfig for scheduler
+- name: test if kube-scheduler.kubeconfig is genereated
+  stat:
+    path: "{{ kube_data_dir }}/kube-scheduler.kubeconfig"
+  register: conf
+- name: generate kube-scheduler.kubeconfig
+  shell: "{{ lookup('template', 'gen-kube-scheduler-conf.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "conf.stat.exists == False"
+
+# generate .kubeconfig for controller manager
+- name: test if kube-controller-manager.kubeconfig is genereated
+  stat:
+    path: "{{ kube_data_dir }}/kube-controller-manager.kubeconfig"
+  register: conf
+- name: generate kube-controller-manager.kubeconfig
+  shell: "{{ lookup('template', 'gen-kube-controller-manager-conf.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "conf.stat.exists == False"
+
+# generate .kubeconfig for admin
+- name: test if admin.kubeconfig is genereated
+  stat:
+    path: /home/devel/.kube/config
+  register: aconf
+- name: generate admin.kubeconfig
+  shell: "{{ lookup('template', 'gen-kube-admin-conf.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "aconf.stat.exists == False"
+
+# generate .kubeconfig for proxy
+- name: test if kube-proxy.kubeconfig is genereated
+  stat:
+    path: "{{ temp_data_dir }}/kube-proxy.kubeconfig"
+  register: conf
+- name: generate kube-proxy.kubeconfig
+  shell: "{{ lookup('template', 'gen-kube-proxy-conf.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "conf.stat.exists == False"
+
+# generate .kubeconfig for each node
+- name: generate .kubeconfig for each node
+  shell: "{{ lookup('template', 'gen-node-cert-conf.sh') }}"
+  args:
+    executable: /bin/bash
+  with_items:
+    - "{{ groups['slave'] }}"
 
 # - name: ensure /var/kubernetes/lib exists
 #   file:
@@ -176,28 +220,28 @@
 #     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
 #     provider: ownca
 # 
-# - name: generate certificate for kube-scheduler
+# - name: generate certificate for kube-proxy
 #   openssl_privatekey:
-#     path: /var/lib/kubernetes/kube-scheduler-key.pem
-# - name: generate certificate request for kube-scheduler
+#     path: /var/lib/kubernetes/kube-proxy-key.pem
+# - name: generate certificate request for kube-proxy
 #   openssl_csr:
-#     path: /var/lib/kubernetes/kube-scheduler.csr
-#     privatekey_path: /var/lib/kubernetes/kube-scheduler-key.pem
+#     path: /var/lib/kubernetes/kube-proxy.csr
+#     privatekey_path: /var/lib/kubernetes/kube-proxy-key.pem
 #     key_usage: 
 #       - key encipherment
 #       - server auth
 #       - client auth
-#     common_name: system:kube-scheduler
+#     common_name: system:kube-proxy
 #     country_name: CN
 #     state_or_province_name: Shanghai
 #     locality_name: Shanghai
-#     organization_name: system:kube-scheduler
+#     organization_name: system:kube-proxy
 #     organizational_unit_name: jjhome
 #     state: present
-# - name: generate certificate for kube-scheduler
+# - name: generate certificate for kube-proxy
 #   openssl_certificate:
-#     path: /var/lib/kubernetes/kube-scheduler.crt
-#     csr_path: /var/lib/kubernetes/kube-scheduler.csr
+#     path: /var/lib/kubernetes/kube-proxy.crt
+#     csr_path: /var/lib/kubernetes/kube-proxy.csr
 #     ownca_path: /var/lib/kubernetes/ownca.crt
 #     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
 #     provider: ownca

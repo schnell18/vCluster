@@ -69,6 +69,7 @@
   become: yes
   roles:
     - role: kube-master
+    - role: etcd
 
   tasks:
     - name: install pre-requisite warez like nfs server

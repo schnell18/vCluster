@@ -3,5 +3,6 @@ cfssl*
 *.tgz
 *.gz
 kube*
+etcd*
 runc.amd64
 harbor/

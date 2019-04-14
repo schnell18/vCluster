@@ -1,0 +1,95 @@
+---
+# tasks file for etcd
+
+- name: ensure /var/etcd/lib/ exists
+  file:
+    path: /var/etcd/lib
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: 0755
+- name: create etcd group
+  group:
+    name: etcd
+    state: present
+- name: create etcd user
+  user:
+    name: etcd
+    shell: /bin/false
+    home: /var/etcd/lib
+    group: etcd
+    create_home: False
+    state: present
+
+# download etcd binaries
+- name: test if etcd binaries are downloaded
+  stat:
+    path: /work/.preload/etcd
+  register: pmkb
+- name: download etcd binaries
+  shell: "{{ lookup('template', 'download-etcd.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "pmkb.stat.exists == False"
+
+- name: test if etcd binaries are installed
+  stat:
+    path: /usr/local/bin/etcd
+  register: pmk
+- name: install etcd binaries
+  shell: "{{ lookup('template', 'install-etcd.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "pmk.stat.exists == False"
+
+- name: copy certificate
+  copy:
+    src: "{{ item }}"
+    dest: /var/lib/etcd/default/
+    remote_src: True
+    owner: etcd
+    group: etcd
+  with_items:
+    - "{{ kube_data_dir }}/kubernetes.pem"
+    - "{{ kube_data_dir }}/ownca.pem"
+
+- name: copy private key
+  copy:
+    src: "{{ item }}"
+    dest: /var/lib/etcd/default/
+    remote_src: True
+    owner: etcd
+    group: etcd
+    mode: 0600
+  with_items:
+    - "{{ kube_data_dir }}/kubernetes-key.pem"
+
+- name: prepare config file
+  template:
+    src: etcd.yml.j2
+    dest: /var/lib/etcd/default/etcd.yml
+    owner: etcd
+    group: etcd
+    mode: 0644
+  notify: restart etcd
+
+- name: prepare systemd unit file
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    mode: 0644
+  notify: restart etcd
+
+- name: config etcdctl for root
+  lineinfile:
+    path: /root/.bashrc
+    create: True
+    regexp: "{{ item.regexp1 }}"
+    line: "{{ item.replace }}"
+    state: present
+  with_items:
+    - { regexp1: '^export ETCDCTL_ENDPOINTS=.*$', replace: 'export ETCDCTL_ENDPOINTS=https://localhost:2379'}
+    - { regexp1: '^export ETCDCTL_API=.*$', replace: 'export ETCDCTL_API=3'}
+    - { regexp1: '^export ETCDCTL_CACERT=.*$', replace: 'export ETCDCTL_CACERT=/var/lib/etcd/default/ownca.pem'}
+    - { regexp1: '^export ETCDCTL_CERT.*$', replace: 'export ETCDCTL_CERT=/var/lib/etcd/default/kubernetes.pem'}
+    - { regexp1: '^export ETCDCTL_KEY.*$', replace: 'export ETCDCTL_KEY=/var/lib/etcd/default/kubernetes-key.pem'}
