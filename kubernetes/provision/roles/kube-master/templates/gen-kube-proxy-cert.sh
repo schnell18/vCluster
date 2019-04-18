@@ -1,7 +1,7 @@
 # generate certifcate for kube-proxy
 cat > {{ temp_data_dir }}/kube-proxy-csr.json <<EOF
 {
-  "CN": "{{ kube_proxy_cn }}",
+  "CN": "system:kube-proxy",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -10,7 +10,7 @@ cat > {{ temp_data_dir }}/kube-proxy-csr.json <<EOF
     {
       "C": "{{ ownca_c }}",
       "L": "{{ ownca_l }}",
-      "O": "{{ kube_proxy_o }}",
+      "O": "system:node-proxier",
       "OU": "{{ kube_proxy_ou }}",
       "ST": "{{ ownca_st }}"
     }
@@ -19,8 +19,8 @@ cat > {{ temp_data_dir }}/kube-proxy-csr.json <<EOF
 EOF
 
 cfssl gencert \
-  -ca={{ kube_data_dir }}/ownca.pem \
+  -ca={{ sys_share_ca_dir }}/ownca.crt \
   -ca-key={{ kube_data_dir }}/ownca-key.pem \
-  -config={{ temp_data_dir }}/ownca-config.json \
+  -config={{ kube_data_dir }}/ownca-config.json \
   -profile=kubernetes \
   {{ temp_data_dir }}/kube-proxy-csr.json | cfssljson -bare {{ kube_data_dir }}/kube-proxy

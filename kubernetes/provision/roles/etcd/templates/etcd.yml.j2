@@ -1,5 +1,4 @@
 # This is the configuration file for the etcd server.
-
 # Human-readable name for this member.
 name: 'default'
 
@@ -95,32 +94,32 @@ proxy-read-timeout: 0
 
 client-transport-security:
   # Path to the client server TLS cert file.
-  cert-file: {{ etcd_data_dir }}/{{ etcd_name }}/kubernetes.pem
+  cert-file: {{ etcd_data_dir }}/{{ etcd_name }}/etcd-kube-client.pem
 
   # Path to the client server TLS key file.
-  key-file: {{ etcd_data_dir }}/{{ etcd_name }}/kubernetes-key.pem
+  key-file: {{ etcd_data_dir }}/{{ etcd_name }}/etcd-kube-client-key.pem
 
   # Enable client cert authentication.
   client-cert-auth: true
 
   # Path to the client server TLS trusted CA cert file.
-  trusted-ca-file: {{ etcd_data_dir }}/{{ etcd_name }}/ownca.pem
+  trusted-ca-file: {{ sys_share_ca_dir }}/ownca.crt
 
   # Client TLS using generated certificates
   auto-tls: false
 
 peer-transport-security:
   # Path to the peer server TLS cert file.
-  cert-file: {{ etcd_data_dir }}/{{ etcd_name }}/kubernetes.pem
+  cert-file: {{ etcd_data_dir }}/{{ etcd_name }}/etcd-kube-client.pem
 
   # Path to the peer server TLS key file.
-  key-file: {{ etcd_data_dir }}/{{ etcd_name }}/kubernetes-key.pem
+  key-file: {{ etcd_data_dir }}/{{ etcd_name }}/etcd-kube-client-key.pem
 
   # Enable peer client cert authentication.
   client-cert-auth: true
 
   # Path to the peer server TLS trusted CA cert file.
-  trusted-ca-file: {{ etcd_data_dir }}/{{ etcd_name }}/ownca.pem
+  trusted-ca-file: {{ sys_share_ca_dir }}/ownca.crt
 
   # Peer TLS using generated certificates.
   auto-tls: false

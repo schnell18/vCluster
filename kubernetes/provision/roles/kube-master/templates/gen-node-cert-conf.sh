@@ -1,6 +1,7 @@
 # generate certificate and kubeconfig in one go
 
-if [ ! -f {{ temp_data_dir }}/{{ item }}.kubeconfig ]; then
+if [ ! -f {{ kube_data_dir }}/{{ item }}.kubeconfig ]; then
+
 cat > {{ temp_data_dir }}/{{ item }}-csr.json << EOF
 {
   "CN": "system:node:{{ item }}",
@@ -20,35 +21,31 @@ cat > {{ temp_data_dir }}/{{ item }}-csr.json << EOF
 }
 EOF
 
-  # EXTERNAL_IP=192.168.90.$(expr $n + 25)
-  # INTERNAL_IP=192.168.90.$(expr $n + 25)
-  # -hostname={{ item }},EXTERNAL_IP,INTERNAL_IP \
-
   cfssl gencert \
-    -ca={{ kube_data_dir }}/ownca.pem \
+    -ca={{ sys_share_ca_dir }}/ownca.crt \
     -ca-key={{ kube_data_dir }}/ownca-key.pem \
-    -config={{ temp_data_dir }}/ownca-config.json \
+    -config={{ kube_data_dir }}/ownca-config.json \
     -hostname={{ item }} \
     -profile=kubernetes \
-    {{ temp_data_dir }}/{{ item }}-csr.json | cfssljson -bare {{ temp_data_dir }}/{{ item }}
+    {{ temp_data_dir }}/{{ item }}-csr.json | cfssljson -bare {{ kube_data_dir }}/{{ item }}
 
   kubectl config set-cluster {{ cluster_name }} \
-    --certificate-authority={{ kube_data_dir }}/ownca.pem \
+    --certificate-authority={{ sys_share_ca_dir }}/ownca.crt \
     --embed-certs=true \
     --server=https://{{ kubernetes_public_address }}:6443 \
-    --kubeconfig={{ temp_data_dir }}/{{ item }}.kubeconfig
+    --kubeconfig={{ kube_data_dir }}/{{ item }}.kubeconfig
 
   kubectl config set-credentials system:node:{{ item }} \
-    --client-certificate={{ temp_data_dir }}/{{ item }}.pem \
-    --client-key={{ temp_data_dir }}/{{ item }}-key.pem \
+    --client-certificate={{ kube_data_dir }}/{{ item }}.pem \
+    --client-key={{ kube_data_dir }}/{{ item }}-key.pem \
     --embed-certs=true \
-    --kubeconfig={{ temp_data_dir }}/{{ item }}.kubeconfig
+    --kubeconfig={{ kube_data_dir }}/{{ item }}.kubeconfig
 
   kubectl config set-context default \
     --cluster={{ cluster_name }} \
     --user=system:node:{{ item }} \
-    --kubeconfig={{ temp_data_dir }}/{{ item }}.kubeconfig
+    --kubeconfig={{ kube_data_dir }}/{{ item }}.kubeconfig
 
-  kubectl config use-context default --kubeconfig={{ temp_data_dir }}/{{ item }}.kubeconfig
+  kubectl config use-context default --kubeconfig={{ kube_data_dir }}/{{ item }}.kubeconfig
 
 fi

@@ -9,9 +9,9 @@
     packages:
     - python3-pip
     - golang-cfssl
-- name: install pyOpenSSL
-  pip:
-    name: pyOpenSSL
+# - name: install pyOpenSSL
+#   pip:
+#     name: pyOpenSSL
 
 # download kubernetes binaries for master
 - name: test if kubernetes binaries for master are downloaded
@@ -39,16 +39,6 @@
   file:
     path: /var/lib/kubernetes
     state: directory
-# generate ownca certificate for signing
-- name: test if own ca is genereated
-  stat:
-    path: /var/lib/kubernetes/ownca.pem
-  register: ownca
-- name: generate own ca
-  shell: "{{ lookup('template', 'gen-ownca.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "ownca.stat.exists == False"
 # generate api server certificate
 - name: test if api server certificate is genereated
   stat:
@@ -59,16 +49,22 @@
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
-# generate kube proxy certificate
-- name: test if kube proxy certificate is genereated
+- name: test if etcd kube client certificate is copied
   stat:
-    path: /var/lib/kubernetes/kube-proxy.pem
+    path: /var/lib/kubernetes/etcd-kube-client.pem
   register: cert
-- name: generate kube proxy certificate
-  shell: "{{ lookup('template', 'gen-kube-proxy-cert.sh') }}"
-  args:
-    executable: /bin/bash
+- name: copy etcd kube client certificate from etcd
+  copy:
+    src: "{{ item }}"
+    dest: "{{ kube_data_dir }}/"
+    remote_src: True
+    owner: root
+    group: root
+  with_items:
+    - "{{ etcd_data_dir }}/default/etcd-kube-client.pem"
+    - "{{ etcd_data_dir }}/default/etcd-kube-client-key.pem"
   when: "cert.stat.exists == False"
+
 # generate kube controller manager certificate
 - name: test if kube controller manager certificate is genereated
   stat:
@@ -89,16 +85,18 @@
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
+
 # generate service account certificate
 - name: test if service account certificate is genereated
   stat:
     path: /var/lib/kubernetes/service-account.pem
   register: cert
-- name: generatekube service account certificate
+- name: generate service account certificate
   shell: "{{ lookup('template', 'gen-kube-service-account-cert.sh') }}"
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
+
 # generate kube proxy certificate
 - name: test if kube proxy certificate is genereated
   stat:
@@ -109,7 +107,6 @@
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
-
 
 # generate .kubeconfig for scheduler
 - name: test if kube-scheduler.kubeconfig is genereated
@@ -147,7 +144,7 @@
 # generate .kubeconfig for proxy
 - name: test if kube-proxy.kubeconfig is genereated
   stat:
-    path: "{{ temp_data_dir }}/kube-proxy.kubeconfig"
+    path: "{{ kube_data_dir }}/kube-proxy.kubeconfig"
   register: conf
 - name: generate kube-proxy.kubeconfig
   shell: "{{ lookup('template', 'gen-kube-proxy-conf.sh') }}"
@@ -246,3 +243,90 @@
 #     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
 #     provider: ownca
 # 
+
+# run kubernetes services
+
+- name: ensure /var/kubernetes/lib exists
+  file:
+    path: /var/lib/kubernetes/config
+    state: directory
+- name: generate encryption config file for kube-apiserver
+  template:
+    src: encryption-config.yaml.j2
+    dest: /var/lib/kubernetes/config/encryption-config.yaml
+    mode: 0640
+  notify: restart kube-apiserver
+
+- name: enable and start kube-apiserver daemon
+  template:
+    src: kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+    mode: 0644
+  notify: restart kube-apiserver
+
+- name: enable and start kube-controller-manager daemon
+  template:
+    src: kube-controller-manager.service.j2
+    dest: /etc/systemd/system/kube-controller-manager.service
+    mode: 0644
+  notify: restart kube-controller-manager
+
+- name: generate config file for kube-scheduler
+  template:
+    src: kube-scheduler.yaml.j2
+    dest: /var/lib/kubernetes/config/kube-scheduler.yaml
+    mode: 0640
+  notify: restart kube-scheduler
+
+- name: enable and start kube-scheduler daemon
+  template:
+    src: kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+    mode: 0644
+  notify: restart kube-scheduler
+
+- meta: flush_handlers
+
+- name: Wait for kube-apiserver fully started
+  wait_for:
+    delay: 10
+    timeout: 270
+    path: /var/log/daemon.log
+    search_regex: "/apis/rbac.authorization.k8s.io/v1/clusterroles"
+
+- name: Test if RBAC roles are created
+  command: kubectl get clusterroles/system:kube-apiserver-to-kubelet
+  ignore_errors: True
+  register: kbcr
+- name: Create RBAC roles
+  shell: "{{ lookup('template', 'kubectl-rbac.sh') }}"
+  args:
+    executable: /bin/bash
+  when: kbcr.rc != 0
+- name: Test if secrets are loaded
+  command: kubectl get secrets/root-ca-certs -n kube-system
+  ignore_errors: True
+  register: kbst
+- name: Load secrets for certificates
+  shell: "{{ lookup('template', 'kubectl-secrets.sh') }}"
+  args:
+    executable: /bin/bash
+  when: kbst.rc != 0
+- name: Test if calico is configured
+  command: kubectl get daemonsets/calico-node -n kube-system
+  ignore_errors: True
+  register: kbds
+- name: Load calico network settings
+  shell: "{{ lookup('template', 'kubectl-calico.sh') }}"
+  args:
+    executable: /bin/bash
+  when: kbds.rc != 0
+- name: Test if kube-dns is configured
+  command: kubectl get deployments/kube-dns -n kube-system
+  ignore_errors: True
+  register: kbns
+- name: Load kube-dns settings
+  shell: "{{ lookup('template', 'kubectl-dns.sh') }}"
+  args:
+    executable: /bin/bash
+  when: kbns.rc != 0

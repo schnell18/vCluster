@@ -19,6 +19,16 @@
         packages:
         - socat
         - conntrack
+        #- python3-pip
+    - name: install tools for certificate generation
+      apt:
+        default_release: buster
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - golang-cfssl
+      when: "'master' in group_names"
+      
     - name: load br_netfilter right now
       modprobe:
         name: br_netfilter
@@ -66,10 +76,30 @@
         reload: yes
 
 - hosts: master
+  vars:
+    sys_share_ca_dir: /usr/local/share/ca-certificates/jjhome
+    kube_data_dir: /var/lib/kubernetes
   become: yes
+  pre_tasks:
+    - name: ensure {{ sys_share_ca_dir }} exists
+      file:
+        path: "{{ sys_share_ca_dir }}"
+        state: directory
+    - name: ensure {{ kube_data_dir }} exists
+      file:
+        path: "{{ kube_data_dir }}"
+        state: directory
+    # generate ownca certificate for signing
+    - name: test if own ca is genereated
+      stat:
+        path: "{{ sys_share_ca_dir }}/ownca.crt"
+      register: ownca
+    - name: generate own ca
+      shell: "{{ lookup('template', 'gen-ownca.sh') }}"
+      when: ownca.stat.exists == False
   roles:
-    - role: kube-master
     - role: etcd
+    - role: kube-master
 
   tasks:
     - name: install pre-requisite warez like nfs server

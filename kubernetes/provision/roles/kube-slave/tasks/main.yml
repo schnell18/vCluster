@@ -24,3 +24,120 @@
   args:
     executable: /bin/bash
   when: "'slave' in group_names and kb.stat.exists == False"
+
+- name: Create crictl config file
+  template:
+    src: crictl.yaml.j2
+    dest: /etc/crictl.yaml
+    mode: 0644
+  notify: Start containerd
+
+# containerd setup
+- name: Ensure containerd config directory exists
+  file:
+    path: /etc/containerd
+    state: directory
+- name: Create containerd config file
+  template:
+    src: config.toml.j2
+    dest: /etc/containerd/config.toml
+    mode: 0644
+  notify: Start containerd
+- name: Create containerd env.lst file
+  template:
+    src: env.lst.j2
+    dest: /etc/containerd/env.lst
+    mode: 0644
+  notify: Start containerd
+- name: enable and start containerd daemon
+  template:
+    src: containerd.service.j2
+    dest: /etc/systemd/system/containerd.service
+    mode: 0644
+  notify: Start containerd
+
+# kubelet setup
+- name: Ensure kubelet config directory exists
+  file:
+    path: "{{ kubelet_data_dir }}"
+    state: directory
+- name: Create kubelet config file
+  template:
+    src: kubelet-config.yaml.j2
+    dest: "{{ kubelet_data_dir }}/kubelet-config.yaml"
+    mode: 0644
+  notify: Start kubelet
+- name: enable and start kubelet daemon
+  template:
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: 0644
+  notify: Start kubelet
+
+# kube-proxy setup
+- name: Ensure kube-proxy config directory exists
+  file:
+    path: "{{ kube_proxy_data_dir }}"
+    state: directory
+- name: Create kube proxy config file
+  template:
+    src: kube-proxy-config.yaml.j2
+    dest: "{{ kube_proxy_data_dir }}/kube-proxy-config.yaml"
+    mode: 0644
+  notify: Start kube-proxy
+- name: enable and start kube-proxy daemon
+  template:
+    src: kube-proxy.service.j2
+    dest: /etc/systemd/system/kube-proxy.service
+    mode: 0644
+  notify: Start kube-proxy
+
+# copy .kubeconfig and ca certs from master
+- name: ensure {{ sys_share_ca_dir }} exists
+  file:
+    path: "{{ sys_share_ca_dir }}"
+    state: directory
+
+- name: test if own ca exists
+  stat:
+    path: "{{ sys_share_ca_dir }}/ownca.crt"
+  register: capm
+- name: copy own ca from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ sys_share_ca_dir }}/ownca.crt {{ sys_share_ca_dir }}/ownca.crt
+  when: capm.stat.exists == False
+# scp kubelet and kube-proxy certificates from master node
+- name: test if certificate for node exists
+  stat:
+    path: "{{ kubelet_data_dir }}/{{ inventory_hostname }}.pem"
+  register: capm
+- name: copy certificate for node from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/{{ inventory_hostname }}.pem {{ kubelet_data_dir }}/
+  when: capm.stat.exists == False
+- name: test if private key for node exists
+  stat:
+    path: "{{ kubelet_data_dir }}/{{ inventory_hostname }}-key.pem"
+  register: capm
+- name: copy private key for node from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/{{ inventory_hostname }}-key.pem {{ kubelet_data_dir }}/
+  when: capm.stat.exists == False
+- name: test if kubelet.kubeconfig exists
+  stat:
+    path: "{{ kubelet_data_dir }}/kubeconfig"
+  register: capm
+- name: copy kubelet.kubeconfig from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/{{ inventory_hostname }}.kubeconfig {{ kubelet_data_dir }}/kubeconfig
+  when: capm.stat.exists == False
+- name: test if kube-proxy.kubeconfig exists
+  stat:
+    path: "{{ kube_proxy_data_dir }}/kubeconfig"
+  register: capm
+- name: copy kube-proxy.kubeconfig from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/kube-proxy.kubeconfig {{ kube_proxy_data_dir }}/kubeconfig
+  when: capm.stat.exists == False
+- name: test if kube-proxy.pem exists
+  stat:
+    path: "{{ kube_proxy_data_dir }}/kube-proxy.pem"
+  register: capm
+- name: copy kube-proxy.pem from master
+  command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/kube-proxy.pem {{ kube_proxy_data_dir }}/
+  when: capm.stat.exists == False

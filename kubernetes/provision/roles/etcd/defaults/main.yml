@@ -4,3 +4,9 @@
 etcd_version: 3.3.12
 etcd_name: default
 etcd_data_dir: /var/lib/etcd
+sys_share_ca_dir: /usr/local/share/ca-certificates/jjhome
+ownca_c: CN
+ownca_st: Shanghai
+ownca_l: Shanghai
+ownca_o: earthling
+ownca_ou: jjhome

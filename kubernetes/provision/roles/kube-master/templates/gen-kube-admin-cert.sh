@@ -19,8 +19,8 @@ cat > {{ temp_data_dir }}/admin-csr.json <<EOF
 EOF
 
 cfssl gencert \
-  -ca={{ kube_data_dir }}/ownca.pem \
+  -ca={{ sys_share_ca_dir }}/ownca.crt \
   -ca-key={{ kube_data_dir }}/ownca-key.pem \
-  -config={{ temp_data_dir }}/ownca-config.json \
+  -config={{ kube_data_dir }}/ownca-config.json \
   -profile=kubernetes \
   {{ temp_data_dir }}/admin-csr.json | cfssljson -bare {{ kube_data_dir }}/admin

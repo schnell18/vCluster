@@ -18,7 +18,7 @@ cat << EOF | cfssl gencert -initca - | cfssljson -bare {{ kube_data_dir }}/ownca
 }
 EOF
 
-cat << EOF > {{ temp_data_dir }}/ownca-config.json
+cat << EOF > {{ kube_data_dir }}/ownca-config.json
 {
   "signing": {
     "default": {
@@ -33,3 +33,6 @@ cat << EOF > {{ temp_data_dir }}/ownca-config.json
   }
 }
 EOF
+
+mv {{ kube_data_dir }}/ownca.pem {{ sys_share_ca_dir }}/ownca.crt
+update-ca-certificates

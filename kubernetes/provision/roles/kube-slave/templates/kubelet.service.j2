@@ -6,11 +6,11 @@ Requires=containerd.service
 
 [Service]
 ExecStart=/usr/local/bin/kubelet \
-  --config=${KUBELET_DATA_DIR}/kubelet-config.yaml \
+  --config={{ kubelet_data_dir }}/kubelet-config.yaml \
   --container-runtime=remote \
   --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \
   --image-pull-progress-deadline=2m \
-  --kubeconfig=${KUBELET_DATA_DIR}/kubeconfig \
+  --kubeconfig={{ kubelet_data_dir }}/kubeconfig \
   --network-plugin=cni \
   --register-node=true \
   --allow-privileged \

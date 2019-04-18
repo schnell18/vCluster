@@ -1,6 +1,6 @@
 [plugins]
   [plugins.cri]
-    stream_server_address = "{{ node_ip }}"
+    stream_server_address = "{{  hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
     stream_server_port = "10010"
     [plugins.cri.containerd]
       snapshotter = "overlayfs"

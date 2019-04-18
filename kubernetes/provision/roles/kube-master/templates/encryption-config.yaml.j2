@@ -1,3 +1,4 @@
+{% set uuid = 9000 | random | to_uuid %}
 kind: EncryptionConfig
 apiVersion: v1
 resources:
@@ -7,5 +8,5 @@ resources:
       - aescbc:
           keys:
             - name: key1
-              secret: {{ encryption_key }}
+              secret: {{ uuid[:-4] | b64encode }}
       - identity: {}

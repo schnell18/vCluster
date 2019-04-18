@@ -1,2 +1,26 @@
 ---
 # handlers file for kube-master
+
+- name: restart kube-apiserver
+  become: True
+  systemd:
+    name: kube-apiserver
+    state: started
+    enabled: True
+    daemon_reload: True
+
+- name: restart kube-controller-manager
+  become: True
+  systemd:
+    name: kube-controller-manager
+    state: started
+    enabled: True
+    daemon_reload: True
+
+- name: restart kube-scheduler
+  become: True
+  systemd:
+    name: kube-scheduler
+    state: started
+    enabled: True
+    daemon_reload: True

@@ -1,7 +1,7 @@
 # generate .kubeconfig for cluster admin
 
 kubectl config set-cluster {{ cluster_name }} \
-  --certificate-authority={{ kube_data_dir }}/ownca.pem \
+  --certificate-authority={{ sys_share_ca_dir }}/ownca.crt \
   --embed-certs=true \
   --server=https://{{ kubernetes_public_address }}:6443 \
   --kubeconfig={{ kube_data_dir }}/admin.kubeconfig
