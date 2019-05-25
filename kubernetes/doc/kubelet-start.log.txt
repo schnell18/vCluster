@@ -1,0 +1,274 @@
+May 24 15:12:33 kbn1 systemd[1]: Started Kubernetes Kubelet.
+May 24 15:12:33 kbn1 kubelet[6740]: Flag --allow-privileged has been deprecated, will be removed in a future version
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294681    6740 flags.go:27] FLAG: --address="0.0.0.0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294713    6740 flags.go:27] FLAG: --allow-privileged="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294718    6740 flags.go:27] FLAG: --allowed-unsafe-sysctls="[]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294724    6740 flags.go:27] FLAG: --alsologtostderr="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294729    6740 flags.go:27] FLAG: --anonymous-auth="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294732    6740 flags.go:27] FLAG: --application-metrics-count-limit="100"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294736    6740 flags.go:27] FLAG: --authentication-token-webhook="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294739    6740 flags.go:27] FLAG: --authentication-token-webhook-cache-ttl="2m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294743    6740 flags.go:27] FLAG: --authorization-mode="AlwaysAllow"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294748    6740 flags.go:27] FLAG: --authorization-webhook-cache-authorized-ttl="5m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294753    6740 flags.go:27] FLAG: --authorization-webhook-cache-unauthorized-ttl="30s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294756    6740 flags.go:27] FLAG: --azure-container-registry-config=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294760    6740 flags.go:27] FLAG: --boot-id-file="/proc/sys/kernel/random/boot_id"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294764    6740 flags.go:27] FLAG: --bootstrap-checkpoint-path=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294767    6740 flags.go:27] FLAG: --bootstrap-kubeconfig=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294770    6740 flags.go:27] FLAG: --cadvisor-port="0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294774    6740 flags.go:27] FLAG: --cert-dir="/var/lib/kubelet/pki"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294779    6740 flags.go:27] FLAG: --cgroup-driver="cgroupfs"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294782    6740 flags.go:27] FLAG: --cgroup-root=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294785    6740 flags.go:27] FLAG: --cgroups-per-qos="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294789    6740 flags.go:27] FLAG: --chaos-chance="0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294794    6740 flags.go:27] FLAG: --client-ca-file=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294797    6740 flags.go:27] FLAG: --cloud-config=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294800    6740 flags.go:27] FLAG: --cloud-provider=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294803    6740 flags.go:27] FLAG: --cluster-dns="[]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294809    6740 flags.go:27] FLAG: --cluster-domain=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294813    6740 flags.go:27] FLAG: --cni-bin-dir=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294816    6740 flags.go:27] FLAG: --cni-conf-dir=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294819    6740 flags.go:27] FLAG: --config="/var/lib/kubelet/kubelet-config.yaml"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294823    6740 flags.go:27] FLAG: --container-hints="/etc/cadvisor/container_hints.json"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294827    6740 flags.go:27] FLAG: --container-log-max-files="5"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294830    6740 flags.go:27] FLAG: --container-log-max-size="10Mi"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294833    6740 flags.go:27] FLAG: --container-runtime="remote"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294838    6740 flags.go:27] FLAG: --container-runtime-endpoint="unix:///var/run/containerd/containerd.sock"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294842    6740 flags.go:27] FLAG: --containerd="unix:///var/run/containerd.sock"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294846    6740 flags.go:27] FLAG: --containerized="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294849    6740 flags.go:27] FLAG: --contention-profiling="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294852    6740 flags.go:27] FLAG: --cpu-cfs-quota="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294856    6740 flags.go:27] FLAG: --cpu-manager-policy="none"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294859    6740 flags.go:27] FLAG: --cpu-manager-reconcile-period="10s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294862    6740 flags.go:27] FLAG: --docker="unix:///var/run/docker.sock"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294867    6740 flags.go:27] FLAG: --docker-disable-shared-pid="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294870    6740 flags.go:27] FLAG: --docker-endpoint="unix:///var/run/docker.sock"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294874    6740 flags.go:27] FLAG: --docker-env-metadata-whitelist=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294877    6740 flags.go:27] FLAG: --docker-only="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294881    6740 flags.go:27] FLAG: --docker-root="/var/lib/docker"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294884    6740 flags.go:27] FLAG: --docker-tls="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294887    6740 flags.go:27] FLAG: --docker-tls-ca="ca.pem"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294891    6740 flags.go:27] FLAG: --docker-tls-cert="cert.pem"
+May 24 15:12:33 kbn1 systemd[1]: Started Kubernetes systemd probe.
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294898    6740 flags.go:27] FLAG: --docker-tls-key="key.pem"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294901    6740 flags.go:27] FLAG: --dynamic-config-dir=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294906    6740 flags.go:27] FLAG: --enable-controller-attach-detach="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294909    6740 flags.go:27] FLAG: --enable-debugging-handlers="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294912    6740 flags.go:27] FLAG: --enable-load-reader="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294915    6740 flags.go:27] FLAG: --enable-server="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294919    6740 flags.go:27] FLAG: --enforce-node-allocatable="[pods]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294923    6740 flags.go:27] FLAG: --event-burst="10"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294927    6740 flags.go:27] FLAG: --event-qps="5"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294930    6740 flags.go:27] FLAG: --event-storage-age-limit="default=0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294933    6740 flags.go:27] FLAG: --event-storage-event-limit="default=0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294937    6740 flags.go:27] FLAG: --eviction-hard="imagefs.available<15%,memory.available<100Mi,nodefs.available<10%,nodefs.inodesFree<5%"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294948    6740 flags.go:27] FLAG: --eviction-max-pod-grace-period="0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294951    6740 flags.go:27] FLAG: --eviction-minimum-reclaim=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294956    6740 flags.go:27] FLAG: --eviction-pressure-transition-period="5m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294959    6740 flags.go:27] FLAG: --eviction-soft=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294964    6740 flags.go:27] FLAG: --eviction-soft-grace-period=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294967    6740 flags.go:27] FLAG: --exit-on-lock-contention="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294971    6740 flags.go:27] FLAG: --experimental-allocatable-ignore-eviction="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294974    6740 flags.go:27] FLAG: --experimental-bootstrap-kubeconfig=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294977    6740 flags.go:27] FLAG: --experimental-check-node-capabilities-before-mount="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294981    6740 flags.go:27] FLAG: --experimental-dockershim="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294984    6740 flags.go:27] FLAG: --experimental-dockershim-root-directory="/var/lib/dockershim"
+May 24 15:12:33 kbn1 containerd[464]: time="2019-05-24T15:12:33Z" level=info msg="No cni config template is specified, wait for other system components to drop the config."
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294988    6740 flags.go:27] FLAG: --experimental-fail-swap-on="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294992    6740 flags.go:27] FLAG: --experimental-kernel-memcg-notification="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294995    6740 flags.go:27] FLAG: --experimental-mounter-path=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.294998    6740 flags.go:27] FLAG: --fail-swap-on="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295001    6740 flags.go:27] FLAG: --feature-gates=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295006    6740 flags.go:27] FLAG: --file-check-frequency="20s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295009    6740 flags.go:27] FLAG: --global-housekeeping-interval="1m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295013    6740 flags.go:27] FLAG: --google-json-key=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295016    6740 flags.go:27] FLAG: --hairpin-mode="promiscuous-bridge"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295021    6740 flags.go:27] FLAG: --healthz-bind-address="127.0.0.1"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295024    6740 flags.go:27] FLAG: --healthz-port="10248"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295028    6740 flags.go:27] FLAG: --help="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295031    6740 flags.go:27] FLAG: --host-ipc-sources="[*]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295036    6740 flags.go:27] FLAG: --host-network-sources="[*]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295040    6740 flags.go:27] FLAG: --host-pid-sources="[*]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295045    6740 flags.go:27] FLAG: --hostname-override=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295048    6740 flags.go:27] FLAG: --housekeeping-interval="10s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295052    6740 flags.go:27] FLAG: --http-check-frequency="20s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295055    6740 flags.go:27] FLAG: --image-gc-high-threshold="85"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295058    6740 flags.go:27] FLAG: --image-gc-low-threshold="80"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295062    6740 flags.go:27] FLAG: --image-pull-progress-deadline="2m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295065    6740 flags.go:27] FLAG: --image-service-endpoint=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295068    6740 flags.go:27] FLAG: --iptables-drop-bit="15"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295071    6740 flags.go:27] FLAG: --iptables-masquerade-bit="14"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295074    6740 flags.go:27] FLAG: --keep-terminated-pod-volumes="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295079    6740 flags.go:27] FLAG: --kube-api-burst="10"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295082    6740 flags.go:27] FLAG: --kube-api-content-type="application/vnd.kubernetes.protobuf"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295086    6740 flags.go:27] FLAG: --kube-api-qps="5"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295089    6740 flags.go:27] FLAG: --kube-reserved=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295092    6740 flags.go:27] FLAG: --kube-reserved-cgroup=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295095    6740 flags.go:27] FLAG: --kubeconfig="/var/lib/kubelet/kubeconfig"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295099    6740 flags.go:27] FLAG: --kubelet-cgroups=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295102    6740 flags.go:27] FLAG: --lock-file=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295106    6740 flags.go:27] FLAG: --log-backtrace-at=":0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295110    6740 flags.go:27] FLAG: --log-cadvisor-usage="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295113    6740 flags.go:27] FLAG: --log-dir=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295117    6740 flags.go:27] FLAG: --log-flush-frequency="5s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295120    6740 flags.go:27] FLAG: --logtostderr="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295124    6740 flags.go:27] FLAG: --machine-id-file="/etc/machine-id,/var/lib/dbus/machine-id"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295128    6740 flags.go:27] FLAG: --make-iptables-util-chains="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295131    6740 flags.go:27] FLAG: --manifest-url=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295135    6740 flags.go:27] FLAG: --manifest-url-header=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295140    6740 flags.go:27] FLAG: --master-service-namespace="default"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295144    6740 flags.go:27] FLAG: --max-open-files="1000000"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295148    6740 flags.go:27] FLAG: --max-pods="110"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295151    6740 flags.go:27] FLAG: --maximum-dead-containers="-1"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295155    6740 flags.go:27] FLAG: --maximum-dead-containers-per-container="1"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295158    6740 flags.go:27] FLAG: --minimum-container-ttl-duration="0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295161    6740 flags.go:27] FLAG: --minimum-image-ttl-duration="2m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295165    6740 flags.go:27] FLAG: --network-plugin=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295168    6740 flags.go:27] FLAG: --network-plugin-mtu="0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295171    6740 flags.go:27] FLAG: --node-ip=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295174    6740 flags.go:27] FLAG: --node-labels=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295179    6740 flags.go:27] FLAG: --node-status-max-images="50"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295182    6740 flags.go:27] FLAG: --node-status-update-frequency="10s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295186    6740 flags.go:27] FLAG: --non-masquerade-cidr="10.0.0.0/8"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295189    6740 flags.go:27] FLAG: --oom-score-adj="-999"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295193    6740 flags.go:27] FLAG: --pod-cidr=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295197    6740 flags.go:27] FLAG: --pod-infra-container-image="k8s.gcr.io/pause:3.1"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295200    6740 flags.go:27] FLAG: --pod-manifest-path=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295203    6740 flags.go:27] FLAG: --pod-max-pids="-1"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295207    6740 flags.go:27] FLAG: --pods-per-core="0"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295210    6740 flags.go:27] FLAG: --port="10250"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295213    6740 flags.go:27] FLAG: --protect-kernel-defaults="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295216    6740 flags.go:27] FLAG: --provider-id=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295220    6740 flags.go:27] FLAG: --qos-reserved=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295223    6740 flags.go:27] FLAG: --read-only-port="10255"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295227    6740 flags.go:27] FLAG: --really-crash-for-testing="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295230    6740 flags.go:27] FLAG: --redirect-container-streaming="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295233    6740 flags.go:27] FLAG: --register-node="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295236    6740 flags.go:27] FLAG: --register-schedulable="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295240    6740 flags.go:27] FLAG: --register-with-taints=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295244    6740 flags.go:27] FLAG: --registry-burst="10"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295248    6740 flags.go:27] FLAG: --registry-qps="5"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295251    6740 flags.go:27] FLAG: --resolv-conf="/etc/resolv.conf"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295255    6740 flags.go:27] FLAG: --root-dir="/var/lib/kubelet"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295258    6740 flags.go:27] FLAG: --rotate-certificates="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295261    6740 flags.go:27] FLAG: --runonce="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295265    6740 flags.go:27] FLAG: --runtime-cgroups=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295268    6740 flags.go:27] FLAG: --runtime-request-timeout="2m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295271    6740 flags.go:27] FLAG: --seccomp-profile-root="/var/lib/kubelet/seccomp"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295275    6740 flags.go:27] FLAG: --serialize-image-pulls="true"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295279    6740 flags.go:27] FLAG: --stderrthreshold="2"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295282    6740 flags.go:27] FLAG: --storage-driver-buffer-duration="1m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295285    6740 flags.go:27] FLAG: --storage-driver-db="cadvisor"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295289    6740 flags.go:27] FLAG: --storage-driver-host="localhost:8086"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295292    6740 flags.go:27] FLAG: --storage-driver-password="root"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295295    6740 flags.go:27] FLAG: --storage-driver-secure="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295299    6740 flags.go:27] FLAG: --storage-driver-table="stats"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295303    6740 flags.go:27] FLAG: --storage-driver-user="root"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295306    6740 flags.go:27] FLAG: --streaming-connection-idle-timeout="4h0m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295310    6740 flags.go:27] FLAG: --sync-frequency="1m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295313    6740 flags.go:27] FLAG: --system-cgroups=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295316    6740 flags.go:27] FLAG: --system-reserved=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295319    6740 flags.go:27] FLAG: --system-reserved-cgroup=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295322    6740 flags.go:27] FLAG: --tls-cert-file=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295326    6740 flags.go:27] FLAG: --tls-cipher-suites="[]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295330    6740 flags.go:27] FLAG: --tls-min-version=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295333    6740 flags.go:27] FLAG: --tls-private-key-file=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295336    6740 flags.go:27] FLAG: --v="2"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295339    6740 flags.go:27] FLAG: --version="false"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295344    6740 flags.go:27] FLAG: --vmodule=""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295347    6740 flags.go:27] FLAG: --volume-plugin-dir="/usr/libexec/kubernetes/kubelet-plugins/volume/exec/"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295352    6740 flags.go:27] FLAG: --volume-stats-agg-period="1m0s"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.295382    6740 feature_gate.go:230] feature gates: &{map[]}
+May 24 15:12:33 kbn1 kubelet[6740]: Flag --allow-privileged has been deprecated, will be removed in a future version
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.296456    6740 feature_gate.go:230] feature gates: &{map[]}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.296493    6740 feature_gate.go:230] feature gates: &{map[]}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301409    6740 mount_linux.go:214] Detected OS with systemd
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301460    6740 server.go:408] Version: v1.11.0
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301495    6740 feature_gate.go:230] feature gates: &{map[]}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301534    6740 feature_gate.go:230] feature gates: &{map[]}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301607    6740 plugins.go:97] No cloud provider specified.
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.301617    6740 server.go:524] No cloud provider specified: "" from the config file: ""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.304429    6740 manager.go:154] cAdvisor running in container: "/sys/fs/cgroup/cpu,cpuacct/system.slice/kubelet.service"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.306700    6740 fs.go:142] Filesystem UUIDs: map[4caba998-950e-4c49-8aad-9da48c14c93a:/dev/sda3 84cf40e9-1c47-4333-abb6-e82cab503050:/dev/sda2 932dddf7-e7f7-497d-9745-a8f6ca35636d:/dev/sda1]
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.306716    6740 fs.go:143] Filesystem partitions: map[tmpfs:{mountpoint:/run major:0 minor:18 fsType:tmpfs blockSize:0} /dev/sda3:{mountpoint:/ major:8 minor:3 fsType:ext4 blockSize:0} /dev/sda1:{mountpoint:/boot major:8 minor:1 fsType:ext4 blockSize:0}]
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.307507    6740 manager.go:227] Machine: {NumCores:2 CpuFrequency:2207998 MemoryCapacity:1044705280 HugePages:[{PageSize:2048 NumPages:0}] MachineID:7d6c932034b84bd69db5360fca70e940 SystemUUID:4E9F3F5A-2143-4731-8A18-91CEB3686CDD BootID:de65e5f2-abd6-4f9b-8560-3911d71e73bc Filesystems:[{Device:/dev/sda1 DeviceMajor:8 DeviceMinor:1 Capacity:188724224 Type:vfs Inodes:48768 HasInodes:true} {Device:tmpfs DeviceMajor:0 DeviceMinor:18 Capacity:104472576 Type:vfs Inodes:127527 HasInodes:true} {Device:/dev/sda3 DeviceMajor:8 DeviceMinor:3 Capacity:40753209344 Type:vfs Inodes:2547712 HasInodes:true}] DiskMap:map[8:0:{Name:sda Major:8 Minor:0 Size:42949672960 Scheduler:cfq}] NetworkDevices:[{Name:eth0 MacAddress:08:00:27:70:a0:ab Speed:1000 Mtu:1500} {Name:eth1 MacAddress:08:00:27:71:f8:86 Speed:1000 Mtu:1500}] Topology:[{Id:0 Memory:1044705280 Cores:[{Id:0 Threads:[0] Caches:[{Size:32768 Type:Data Level:1} {Size:32768 Type:Instruction Level:1} {Size:262144 Type:Unified Level:2} {Size:9437184 Type:Unified Level:3}]} {Id:1 Threads:[1] Caches:[{Size:32768 Type:Data Level:1} {Size:32768 Type:Instruction Level:1} {Size:262144 Type:Unified Level:2} {Size:9437184 Type:Unified Level:3}]}] Caches:[]}] CloudProvider:Unknown InstanceType:Unknown InstanceID:None}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.311743    6740 manager.go:233] Version: {KernelVersion:4.9.0-8-amd64 ContainerOsVersion:Debian GNU/Linux 9 (stretch) DockerVersion:Unknown DockerAPIVersion:Unknown CadvisorVersion: CadvisorRevision:}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312078    6740 server.go:648] --cgroups-per-qos enabled, but --cgroup-root was not specified.  defaulting to /
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312275    6740 container_manager_linux.go:243] container manager verified user specified cgroup-root exists: []
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312286    6740 container_manager_linux.go:248] Creating Container Manager object based on Node Config: {RuntimeCgroupsName: SystemCgroupsName: KubeletCgroupsName: ContainerRuntime:remote CgroupsPerQOS:true CgroupRoot:/ CgroupDriver:cgroupfs KubeletRootDir:/var/lib/kubelet ProtectKernelDefaults:false NodeAllocatableConfig:{KubeReservedCgroupName: SystemReservedCgroupName: EnforceNodeAllocatable:map[pods:{}] KubeReserved:map[] SystemReserved:map[] HardEvictionThresholds:[{Signal:nodefs.available Operator:LessThan Value:{Quantity:<nil> Percentage:0.1} GracePeriod:0s MinReclaim:<nil>} {Signal:nodefs.inodesFree Operator:LessThan Value:{Quantity:<nil> Percentage:0.05} GracePeriod:0s MinReclaim:<nil>} {Signal:imagefs.available Operator:LessThan Value:{Quantity:<nil> Percentage:0.15} GracePeriod:0s MinReclaim:<nil>} {Signal:memory.available Operator:LessThan Value:{Quantity:100Mi Percentage:0} GracePeriod:0s MinReclaim:<nil>}]} QOSReserved:map[] ExperimentalCPUManagerPolicy:none ExperimentalCPUManagerReconcilePeriod:10s ExperimentalPodPidsLimit:-1 EnforceCPULimits:true}
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312351    6740 container_manager_linux.go:267] Creating device plugin manager: true
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312357    6740 manager.go:103] Creating Device Plugin manager at /var/lib/kubelet/device-plugins/kubelet.sock
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312371    6740 state_mem.go:36] [cpumanager] initializing new in-memory state store
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312403    6740 state_mem.go:84] [cpumanager] updated default cpuset: ""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312412    6740 state_mem.go:92] [cpumanager] updated cpuset assignments: "map[]"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312418    6740 state_file.go:119] [cpumanager] state file: restored state from state file "/var/lib/kubelet/cpu_manager_state"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312421    6740 state_file.go:120] [cpumanager] state file: defaultCPUSet:
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312472    6740 server.go:928] Using root directory: /var/lib/kubelet
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.312493    6740 kubelet.go:299] Watching apiserver
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317124    6740 kuberuntime_manager.go:186] Container runtime containerd initialized, version: v1.1.1, apiVersion: v1alpha2
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317156    6740 kuberuntime_manager.go:917] updating runtime config through cri with podcidr 10.200.0.0/24
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317431    6740 kubelet_network.go:73] Setting Pod CIDR:  -> 10.200.0.0/24
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317560    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/aws-ebs"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317572    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/empty-dir"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317580    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/gce-pd"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317586    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/git-repo"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317593    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/host-path"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317600    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/nfs"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317606    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/secret"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317612    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/iscsi"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317622    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/glusterfs"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317629    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/rbd"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317638    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/cinder"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317648    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/quobyte"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317659    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/cephfs"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317668    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/downward-api"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.317674    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/fc"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318669    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/flocker"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318676    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/azure-file"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318683    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/configmap"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318691    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/vsphere-volume"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318698    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/azure-disk"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318705    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/photon-pd"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318712    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/projected"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318718    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/portworx-volume"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318726    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/scaleio"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318732    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/local-volume"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318738    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/storageos"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318752    6740 csi_plugin.go:111] kubernetes.io/csi: plugin initializing...
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318760    6740 plugins.go:500] Loaded volume plugin "kubernetes.io/csi"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.318839    6740 server.go:129] Starting to listen on 0.0.0.0:10250
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.319359    6740 server.go:302] Adding debug handlers to kubelet server.
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330288    6740 fs_resource_analyzer.go:66] Starting FS ResourceAnalyzer
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330307    6740 status_manager.go:152] Starting to sync pod status with apiserver
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330317    6740 kubelet.go:1760] Starting kubelet main sync loop.
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330339    6740 kubelet.go:1777] skipping pod synchronization - [container runtime is down PLEG is not healthy: pleg was last seen active 2562047h47m16.854775807s ago; threshold is 3m0s]
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330591    6740 server.go:986] Started kubelet
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330948    6740 volume_manager.go:245] The desired_state_of_world populator starts
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.330956    6740 volume_manager.go:247] Starting Kubelet Volume Manager
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.333714    6740 desired_state_of_world_populator.go:130] Desired state populator starts to run
+May 24 15:12:33 kbn1 kubelet[6740]: E0524 15:12:33.337643    6740 kubelet.go:2112] Container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: cni config load failed: no network config found in /etc/cni/net.d: cni plugin not initialized: failed to load cni config
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.339800    6740 factory.go:136] Registering containerd factory
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.339903    6740 factory.go:54] Registering systemd factory
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.340066    6740 factory.go:86] Registering Raw factory
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.340174    6740 manager.go:1205] Started watching for new ooms in manager
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.340712    6740 manager.go:356] Starting recovery of all containers
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.381167    6740 manager.go:361] Recovery completed
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.430483    6740 kubelet.go:1777] skipping pod synchronization - [container runtime is down]
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.431393    6740 kubelet_node_status.go:269] Setting node annotation to enable volume controller attach/detach
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.432133    6740 kubelet_node_status.go:441] Recording NodeHasSufficientDisk event message for node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.432194    6740 kubelet_node_status.go:441] Recording NodeHasSufficientMemory event message for node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.432209    6740 kubelet_node_status.go:441] Recording NodeHasNoDiskPressure event message for node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.432222    6740 kubelet_node_status.go:441] Recording NodeHasSufficientPID event message for node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.432239    6740 kubelet_node_status.go:79] Attempting to register node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.437344    6740 kubelet_node_status.go:123] Node kbn1.kube.vn was previously registered
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.437381    6740 kubelet_node_status.go:82] Successfully registered node kbn1.kube.vn
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.445315    6740 cpu_manager.go:155] [cpumanager] starting with none policy
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.446137    6740 cpu_manager.go:156] [cpumanager] reconciling every 10s
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.446691    6740 policy_none.go:42] [cpumanager] none policy: Start
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.448025    6740 manager.go:201] Starting Device Plugin manager
+May 24 15:12:33 kbn1 kubelet[6740]: Starting Device Plugin manager
+May 24 15:12:33 kbn1 kubelet[6740]: W0524 15:12:33.449175    6740 manager.go:496] Failed to retrieve checkpoint for "kubelet_internal_checkpoint": checkpoint is not found
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.450001    6740 manager.go:237] Serving device plugin registration server on "/var/lib/kubelet/device-plugins/kubelet.sock"
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.630584    6740 kubelet.go:1839] SyncLoop (ADD, "api"): ""
+May 24 15:12:33 kbn1 kubelet[6740]: I0524 15:12:33.636713    6740 reconciler.go:154] Reconciler: start to sync state
+May 24 15:12:38 kbn1 kubelet[6740]: E0524 15:12:38.451614    6740 kubelet.go:2112] Container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: cni config load failed: no network config found in /etc/cni/net.d: cni plugin not initialized: failed to load cni config

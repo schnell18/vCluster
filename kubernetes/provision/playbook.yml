@@ -2,6 +2,9 @@
 - hosts: all
   become: yes
   pre_tasks:
+    - name: set hostname to FQDN
+      hostname:
+        name: "{{ inventory_hostname }}"
     # install and config tsocks
     - name: install tsocks
       apt:

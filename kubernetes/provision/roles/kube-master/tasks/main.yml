@@ -66,6 +66,17 @@
   when: "cert.stat.exists == False"
 
 # generate kube controller manager certificate
+- name: test if kube scheduler certificate is genereated
+  stat:
+    path: /var/lib/kubernetes/kube-scheduler.pem
+  register: cert
+- name: generate kube controller manager certificate
+  shell: "{{ lookup('template', 'gen-kube-scheduler-cert.sh') }}"
+  args:
+    executable: /bin/bash
+  when: "cert.stat.exists == False"
+
+# generate kube controller manager certificate
 - name: test if kube controller manager certificate is genereated
   stat:
     path: /var/lib/kubernetes/kube-controller-manager.pem
@@ -75,6 +86,7 @@
   args:
     executable: /bin/bash
   when: "cert.stat.exists == False"
+
 # generate kube admin certificate
 - name: test if kubernetes admin certificate is genereated
   stat:
@@ -159,90 +171,8 @@
     executable: /bin/bash
   with_items:
     - "{{ groups['slave'] }}"
-
-# - name: ensure /var/kubernetes/lib exists
-#   file:
-#     path: /var/lib/kubernetes
-#     state: directory
-# - name: generate ownca private key
-#   openssl_privatekey:
-#     path: /var/lib/kubernetes/ownca-key.pem
-# - name: generate certificate request for ownca
-#   openssl_csr:
-#     path: /var/lib/kubernetes/ownca.csr
-#     privatekey_path: /var/lib/kubernetes/ownca-key.pem
-#     key_usage: 
-#       - digitalSignature
-#       - keyAgreement
-#       - server auth
-#     extended_key_usage: 
-#       - client auth
-#     common_name: jjhome own ca
-#     country_name: CN
-#     state_or_province_name: Shanghai
-#     locality_name: Shanghai
-#     organization_name: jjhome
-#     organizational_unit_name: jjhome
-#     state: present
-# - name: generate certificate for kube-apiserver
-#   openssl_certificate:
-#     path: /var/lib/kubernetes/ownca.crt
-#     csr_path: /var/lib/kubernetes/ownca.csr
-#     provider: selfsigned
-# 
-# # generate certificate for master components
-# - name: generate certificate for kube-apiserver
-#   openssl_privatekey:
-#     path: /var/lib/kubernetes/kube-apiserver-key.pem
-# - name: generate certificate request for kube-apiserver
-#   openssl_csr:
-#     path: /var/lib/kubernetes/kube-apiserver.csr
-#     privatekey_path: /var/lib/kubernetes/kube-apiserver-key.pem
-#     key_usage: 
-#       - key encipherment
-#       - server auth
-#       - client auth
-#     common_name: system:kube-apiserver
-#     country_name: CN
-#     state_or_province_name: Shanghai
-#     locality_name: Shanghai
-#     organization_name: system:kube-apiserver
-#     organizational_unit_name: jjhome
-#     state: present
-# - name: generate certificate for kube-apiserver
-#   openssl_certificate:
-#     path: /var/lib/kubernetes/kube-apiserver.crt
-#     csr_path: /var/lib/kubernetes/kube-apiserver.csr
-#     ownca_path: /var/lib/kubernetes/ownca.crt
-#     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
-#     provider: ownca
-# 
-# - name: generate certificate for kube-proxy
-#   openssl_privatekey:
-#     path: /var/lib/kubernetes/kube-proxy-key.pem
-# - name: generate certificate request for kube-proxy
-#   openssl_csr:
-#     path: /var/lib/kubernetes/kube-proxy.csr
-#     privatekey_path: /var/lib/kubernetes/kube-proxy-key.pem
-#     key_usage: 
-#       - key encipherment
-#       - server auth
-#       - client auth
-#     common_name: system:kube-proxy
-#     country_name: CN
-#     state_or_province_name: Shanghai
-#     locality_name: Shanghai
-#     organization_name: system:kube-proxy
-#     organizational_unit_name: jjhome
-#     state: present
-# - name: generate certificate for kube-proxy
-#   openssl_certificate:
-#     path: /var/lib/kubernetes/kube-proxy.crt
-#     csr_path: /var/lib/kubernetes/kube-proxy.csr
-#     ownca_path: /var/lib/kubernetes/ownca.crt
-#     ownca_privatekey_path: /var/lib/kubernetes/ownca-key.pem
-#     provider: ownca
-# 
+  register: kbgn
+  changed_when: "'Generating .kubeconfig for' in kbgn.stdout"
 
 # run kubernetes services
 
@@ -250,12 +180,17 @@
   file:
     path: /var/lib/kubernetes/config
     state: directory
+- name: test if kube-apiserver encryption config exists
+  stat:
+    path: /var/lib/kubernetes/config/encryption-config.yaml
+  register: kbecr
 - name: generate encryption config file for kube-apiserver
   template:
     src: encryption-config.yaml.j2
     dest: /var/lib/kubernetes/config/encryption-config.yaml
     mode: 0640
   notify: restart kube-apiserver
+  when: kbecr.stat.exists == False
 
 - name: enable and start kube-apiserver daemon
   template:
@@ -292,12 +227,13 @@
     delay: 10
     timeout: 270
     path: /var/log/daemon.log
-    search_regex: "/apis/rbac.authorization.k8s.io/v1/clusterroles"
+    search_regex: "\\/apis\\/rbac.authorization.k8s.io\\/v1\\/clusterroles"
 
 - name: Test if RBAC roles are created
   command: kubectl get clusterroles/system:kube-apiserver-to-kubelet
   ignore_errors: True
   register: kbcr
+  changed_when: False
 - name: Create RBAC roles
   shell: "{{ lookup('template', 'kubectl-rbac.sh') }}"
   args:
@@ -307,6 +243,7 @@
   command: kubectl get secrets/root-ca-certs -n kube-system
   ignore_errors: True
   register: kbst
+  changed_when: False
 - name: Load secrets for certificates
   shell: "{{ lookup('template', 'kubectl-secrets.sh') }}"
   args:
@@ -316,6 +253,7 @@
   command: kubectl get daemonsets/calico-node -n kube-system
   ignore_errors: True
   register: kbds
+  changed_when: False
 - name: Load calico network settings
   shell: "{{ lookup('template', 'kubectl-calico.sh') }}"
   args:
@@ -325,6 +263,7 @@
   command: kubectl get deployments/kube-dns -n kube-system
   ignore_errors: True
   register: kbns
+  changed_when: False
 - name: Load kube-dns settings
   shell: "{{ lookup('template', 'kubectl-dns.sh') }}"
   args:

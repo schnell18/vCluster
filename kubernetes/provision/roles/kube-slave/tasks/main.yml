@@ -56,48 +56,11 @@
     mode: 0644
   notify: Start containerd
 
-# kubelet setup
-- name: Ensure kubelet config directory exists
-  file:
-    path: "{{ kubelet_data_dir }}"
-    state: directory
-- name: Create kubelet config file
-  template:
-    src: kubelet-config.yaml.j2
-    dest: "{{ kubelet_data_dir }}/kubelet-config.yaml"
-    mode: 0644
-  notify: Start kubelet
-- name: enable and start kubelet daemon
-  template:
-    src: kubelet.service.j2
-    dest: /etc/systemd/system/kubelet.service
-    mode: 0644
-  notify: Start kubelet
-
-# kube-proxy setup
-- name: Ensure kube-proxy config directory exists
-  file:
-    path: "{{ kube_proxy_data_dir }}"
-    state: directory
-- name: Create kube proxy config file
-  template:
-    src: kube-proxy-config.yaml.j2
-    dest: "{{ kube_proxy_data_dir }}/kube-proxy-config.yaml"
-    mode: 0644
-  notify: Start kube-proxy
-- name: enable and start kube-proxy daemon
-  template:
-    src: kube-proxy.service.j2
-    dest: /etc/systemd/system/kube-proxy.service
-    mode: 0644
-  notify: Start kube-proxy
-
 # copy .kubeconfig and ca certs from master
 - name: ensure {{ sys_share_ca_dir }} exists
   file:
     path: "{{ sys_share_ca_dir }}"
     state: directory
-
 - name: test if own ca exists
   stat:
     path: "{{ sys_share_ca_dir }}/ownca.crt"
@@ -141,3 +104,40 @@
 - name: copy kube-proxy.pem from master
   command: scp -o StrictHostKeyChecking=no {{ master_host }}:{{ kube_data_dir }}/kube-proxy.pem {{ kube_proxy_data_dir }}/
   when: capm.stat.exists == False
+# kubelet setup
+- name: Ensure kubelet config directory exists
+  file:
+    path: "{{ kubelet_data_dir }}"
+    state: directory
+- name: Create kubelet config file
+  template:
+    src: kubelet-config.yaml.j2
+    dest: "{{ kubelet_data_dir }}/kubelet-config.yaml"
+    mode: 0644
+  notify: Start kubelet
+- name: enable and start kubelet daemon
+  template:
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: 0644
+  notify: Start kubelet
+
+# kube-proxy setup
+- name: Ensure kube-proxy config directory exists
+  file:
+    path: "{{ kube_proxy_data_dir }}"
+    state: directory
+- name: Create kube proxy config file
+  template:
+    src: kube-proxy-config.yaml.j2
+    dest: "{{ kube_proxy_data_dir }}/kube-proxy-config.yaml"
+    mode: 0644
+  notify: Start kube-proxy
+- name: enable and start kube-proxy daemon
+  template:
+    src: kube-proxy.service.j2
+    dest: /etc/systemd/system/kube-proxy.service
+    mode: 0644
+  notify: Start kube-proxy
+
+- meta: flush_handlers

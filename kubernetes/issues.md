@@ -260,6 +260,41 @@ Use this instead:
 
 8月 28 21:26:12 kbn1.kube.vn kube-proxy[635]: E0828 21:26:12.629703     635 proxier.go:1340] Failed to delete stale service IP 10.32.0.10 connections, error: error deleting connection tracking state for UDP service IP: 10.32.0.10, error: error looking for path of conntrack: exec: "conntrack": executable file not found in $PATH
 
+## fail to register node
+
+Kubelet complains:
+
+    Apr 19 08:49:54 kbn2 kubelet[2910]: E0419 08:49:54.947550    2910 kubelet_node_status.go:103] Unable to register node "kbn2" with API server: nodes "kbn2" is forbidden: node "kbn2.kube.vn" cannot modify node "kbn2"
+    Apr 19 08:49:55 kbn2 kubelet[2910]: E0419 08:49:55.210167    2910 eviction_manager.go:243] eviction manager: failed to get get summary stats: failed to get node info: node "kbn2" not found
+    ^C
+    root@kbn2:/var/lib/kubelet# systemctl restart kubelet
+    root@kbn2:/var/lib/kubelet# tail -f /var/log/syslog
+    Apr 19 08:54:45 kbn2 kubelet[12207]: E0419 08:54:45.862153   12207 eviction_manager.go:243] eviction manager: failed to get get summary stats: failed to get node info: node "kbn2.kube.vn" not found
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.886558   12207 kubelet_node_status.go:269] Setting node annotation to enable volume controller attach/detach
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.886573   12207 kubelet.go:1839] SyncLoop (ADD, "api"): ""
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.887859   12207 kubelet_node_status.go:441] Recording NodeHasSufficientDisk event message for node kbn2.kube.vn
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.887877   12207 kubelet_node_status.go:441] Recording NodeHasSufficientMemory event message for node kbn2.kube.vn
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.887913   12207 kubelet_node_status.go:441] Recording NodeHasNoDiskPressure event message for node kbn2.kube.vn
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.887921   12207 kubelet_node_status.go:441] Recording NodeHasSufficientPID event message for node kbn2.kube.vn
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.887932   12207 kubelet_node_status.go:79] Attempting to register node kbn2.kube.vn
+    Apr 19 08:54:45 kbn2 kubelet[12207]: I0419 08:54:45.897276   12207 kubelet_node_status.go:82] Successfully registered node kbn2.kube.vn
+
+set hostname to fully-qualified name(include domain name) to match CN
+in the certificate.
+
+    hostnamectl set-hostname kbn1.kube.vn
+
+## Get Node not ready problem
+
+kubelet complains:
+    Apr 21 00:03:23 kbn1 kubelet[24912]: E0421 00:03:23.855092   24912 kubelet.go:2112] Container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: cni config load failed: no network config found in /etc/cni/net.d: cni plugin not initialized: failed to load cni config
+
+Seem an egg-and-chicken problem. The cni config is created by schedule the calico
+plugin as a daemonset. But the node is not ready as cni config is not created.
+
+
+
+
 [1]: https://github.com/rancher/rancher/issues/12600
 [2]: https://github.com/bitnami/bitnami-docker-redis/issues/100
 [3]: https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working

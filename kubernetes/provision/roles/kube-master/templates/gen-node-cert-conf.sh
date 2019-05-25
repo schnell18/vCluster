@@ -1,7 +1,7 @@
 # generate certificate and kubeconfig in one go
 
 if [ ! -f {{ kube_data_dir }}/{{ item }}.kubeconfig ]; then
-
+echo "Generating .kubeconfig for {{ item }}..."
 cat > {{ temp_data_dir }}/{{ item }}-csr.json << EOF
 {
   "CN": "system:node:{{ item }}",
