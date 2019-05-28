@@ -1,0 +1,5 @@
+---
+# defaults file for kube-node
+kube_conf_dir: /etc/kubernetes
+kubernetes_public_address: 192.168.90.15 
+google_apt_mirror: https://apt.bbvk18.cf/

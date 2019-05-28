@@ -1,8 +1,2 @@
-cfssl*
-*.tar
-*.tgz
-*.gz
-kube*
-etcd*
-runc.amd64
-harbor/
+join-command.sh
+k8s-meta-images.tar

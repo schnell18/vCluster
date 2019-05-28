@@ -1,1 +1,0 @@
-kubectl create -f /work/provision/network/dns/kube-dns.yaml

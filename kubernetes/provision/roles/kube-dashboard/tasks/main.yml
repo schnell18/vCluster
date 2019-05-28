@@ -1,0 +1,28 @@
+---
+# tasks file for kube-master
+
+- name: Install kubernetes dashboard
+  shell: "{{ lookup('template', 'create-kubernetes-dashboard.sh') }}"
+  args:
+    executable: /bin/bash
+  register: kbgn
+  changed_when: "'Created kubernetes dashboard' in kbgn.stdout"
+
+- name: Create kubernetes dashboard admin
+  shell: "{{ lookup('template', 'create-dashboard-admin.sh') }}"
+  args:
+    executable: /bin/bash
+  register: kbgn
+  changed_when: "'Created dashboard admin' in kbgn.stdout"
+
+- name: Notify dashboard access method
+  shell: "{{ lookup('template', 'get-dashboard-admin-token.sh') }}"
+  args:
+    executable: /bin/bash
+  register: inst
+  changed_when: False
+- name: Print dashboard access instruction
+  debug:
+    msg: |
+     You may access the dashbaord by: run kubectl proxy then click this link http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/ w/ token: {{ inst.stdout }} 
+

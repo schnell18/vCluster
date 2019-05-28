@@ -1,0 +1,63 @@
+---
+# tasks file for kube-node
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    data: "{{ lookup('file', 'k8s-apt-key.asc') }}"
+    state: present
+
+- name: Adding apt repository for Kubernetes
+  apt_repository:
+    repo: deb {{ google_apt_mirror }} kubernetes-xenial main
+    # repo: deb https://apt.bbvk18.cf/ kubernetes-xenial main
+    state: present
+    filename: kubernetes
+    update_cache: yes
+
+- name: Install Kubernetes binaries
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - kubelet
+      - kubeadm
+      - kubectl
+
+- name: Configure node ip
+  lineinfile:
+    path: /etc/default/kubelet
+    state: present
+    create: yes
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+  notify:
+    - Restart kubelet
+
+- name: load meta images if absent
+  shell: "{{ lookup('template', 'load-k8s-meta-images.sh') }}"
+  args:
+    executable: /bin/bash
+  register: kbgn
+  changed_when: "'Loaded k8s meta images' in kbgn.stdout"
+
+# test existence of /etc/kubernetes/kubelet.conf to avoid repeated join
+- name: test if node already joins cluster
+  stat:
+    path: "{{ kube_conf_dir }}/kubelet.conf"
+  register: jstat
+- name: Join the node to cluster
+  command: sh /work/.preload/join-command.sh
+  when: jstat.stat.exists == False

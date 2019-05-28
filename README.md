@@ -17,7 +17,7 @@ Soft cluster catalog
 | kafka          | 0.10.1.0      | kf1,kf2,kf3    | root          |           |
 | elasticsearch  | 5.0.0         | es1,es2,es3    | root          |           |
 | hadoop         | 2.7.1         | hp1,hp2,hp3    | root          |           |
-| kubernetes     | 1.10.2        | kbm1,kbn1,kbn2 | root          |           |
+| kubernetes     | 1.14.2        | master,slave1-3| root          |           |
 
 Using the cluster
 =================

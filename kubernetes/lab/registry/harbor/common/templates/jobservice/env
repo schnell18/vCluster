@@ -1,4 +1,0 @@
-UI_SECRET=$ui_secret
-JOBSERVICE_SECRET=$jobservice_secret
-ADMINSERVER_URL=$adminserver_url
-GODEBUG=netdns=cgo

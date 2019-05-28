@@ -1,271 +1,108 @@
 ---
 # tasks file for kube-master
 
-- name: install pre-requisite warez
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    data: "{{ lookup('file', 'k8s-apt-key.asc') }}"
+    state: present
+
+- name: Adding apt repository for Kubernetes
+  apt_repository:
+    repo: deb {{ google_apt_mirror }} kubernetes-xenial main
+    state: present
+    filename: kubernetes
+
+- name: Install Kubernetes binaries
   apt:
-    default_release: buster
     name: "{{ packages }}"
+    state: present
+    update_cache: yes
   vars:
     packages:
-    - python3-pip
-    - golang-cfssl
-# - name: install pyOpenSSL
-#   pip:
-#     name: pyOpenSSL
+      - kubelet
+      - kubeadm
+      - kubectl
 
-# download kubernetes binaries for master
-- name: test if kubernetes binaries for master are downloaded
-  stat:
-    path: /work/.preload/kube-apiserver
-  register: pmkb
-- name: download kubernetes master components
-  shell: "{{ lookup('template', 'download-master.sh') }}"
+- name: Configure node ip
+  lineinfile:
+    path: /etc/default/kubelet
+    state: present
+    create: yes
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+  notify:
+    - Restart kubelet
+
+- name: load meta images if absent
+  shell: "{{ lookup('template', 'load-k8s-meta-images.sh') }}"
   args:
     executable: /bin/bash
-  when: "pmkb.stat.exists == False"
+  register: kbgn
+  changed_when: "'Loaded k8s meta images' in kbgn.stdout"
 
-# install kubernetes binaries for master
-- name: test if kubernetes binaries for master are installed
+- name: Test if cluster is already initialized
   stat:
-    path: /usr/local/bin/kube-apiserver
-  register: pmk
-- name: install kubernetes master components
-  shell: "{{ lookup('template', 'install-master.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "pmk.stat.exists == False"
+    path: "{{ kube_conf_dir }}/admin.conf"
+  register: astat
+- name: Initialize the Kubernetes cluster using kubeadm
+  shell: |
+    kubeadm init \
+    --apiserver-advertise-address="{{ kubernetes_public_address }}" \
+    --apiserver-cert-extra-sans="{{ kubernetes_public_address }}" \
+    --node-name {{ hostvars[inventory_hostname]['inventory_hostname_short'] }} \
+    --pod-network-cidr={{ pod_cidr }}
+  when: astat.stat.exists == False
 
-- name: ensure /var/kubernetes/lib exists
+- name: Make sure /home/devel/.kube exists
   file:
-    path: /var/lib/kubernetes
+    path: /home/devel/.kube
     state: directory
-# generate api server certificate
-- name: test if api server certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/kubernetes.pem
-  register: cert
-- name: generate api server certificate
-  shell: "{{ lookup('template', 'gen-kube-apiserver-cert.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "cert.stat.exists == False"
-- name: test if etcd kube client certificate is copied
-  stat:
-    path: /var/lib/kubernetes/etcd-kube-client.pem
-  register: cert
-- name: copy etcd kube client certificate from etcd
+- name: Setup kubeconfig for devel user
   copy:
-    src: "{{ item }}"
-    dest: "{{ kube_data_dir }}/"
-    remote_src: True
+    src: /etc/kubernetes/admin.conf
+    remote_src: yes
+    owner: devel
+    group: devel
+    mode: 0640
+    dest: /home/devel/.kube/config
+
+- name: Make sure /root/.kube exists
+  file:
+    path: /root/.kube
+    state: directory
+- name: Setup kubeconfig for root user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    remote_src: yes
     owner: root
     group: root
-  with_items:
-    - "{{ etcd_data_dir }}/default/etcd-kube-client.pem"
-    - "{{ etcd_data_dir }}/default/etcd-kube-client-key.pem"
-  when: "cert.stat.exists == False"
+    mode: 0640
+    dest: /root/.kube/config
 
-# generate kube controller manager certificate
-- name: test if kube scheduler certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/kube-scheduler.pem
-  register: cert
-- name: generate kube controller manager certificate
-  shell: "{{ lookup('template', 'gen-kube-scheduler-cert.sh') }}"
+- name:  Create etcd client cert secrets for calico
+  shell: "{{ lookup('template', 'create-calico-etcd-secret.sh') }}"
   args:
     executable: /bin/bash
-  when: "cert.stat.exists == False"
+  register: cbgn
+  changed_when: "'Created etcd client cert secrets' in cbgn.stdout"
 
-# generate kube controller manager certificate
-- name: test if kube controller manager certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/kube-controller-manager.pem
-  register: cert
-- name: generate kube controller manager certificate
-  shell: "{{ lookup('template', 'gen-kube-controller-manager-cert.sh') }}"
+- name: Install calico pod network
+  shell: "{{ lookup('template', 'create-calico-networking.sh') }}"
   args:
     executable: /bin/bash
-  when: "cert.stat.exists == False"
-
-# generate kube admin certificate
-- name: test if kubernetes admin certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/admin.pem
-  register: cert
-- name: generate kubernetes admin certificate
-  shell: "{{ lookup('template', 'gen-kube-admin-cert.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "cert.stat.exists == False"
-
-# generate service account certificate
-- name: test if service account certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/service-account.pem
-  register: cert
-- name: generate service account certificate
-  shell: "{{ lookup('template', 'gen-kube-service-account-cert.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "cert.stat.exists == False"
-
-# generate kube proxy certificate
-- name: test if kube proxy certificate is genereated
-  stat:
-    path: /var/lib/kubernetes/kube-proxy.pem
-  register: cert
-- name: generate kube proxy certificate
-  shell: "{{ lookup('template', 'gen-kube-proxy-cert.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "cert.stat.exists == False"
-
-# generate .kubeconfig for scheduler
-- name: test if kube-scheduler.kubeconfig is genereated
-  stat:
-    path: "{{ kube_data_dir }}/kube-scheduler.kubeconfig"
-  register: conf
-- name: generate kube-scheduler.kubeconfig
-  shell: "{{ lookup('template', 'gen-kube-scheduler-conf.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "conf.stat.exists == False"
-
-# generate .kubeconfig for controller manager
-- name: test if kube-controller-manager.kubeconfig is genereated
-  stat:
-    path: "{{ kube_data_dir }}/kube-controller-manager.kubeconfig"
-  register: conf
-- name: generate kube-controller-manager.kubeconfig
-  shell: "{{ lookup('template', 'gen-kube-controller-manager-conf.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "conf.stat.exists == False"
-
-# generate .kubeconfig for admin
-- name: test if admin.kubeconfig is genereated
-  stat:
-    path: /home/devel/.kube/config
-  register: aconf
-- name: generate admin.kubeconfig
-  shell: "{{ lookup('template', 'gen-kube-admin-conf.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "aconf.stat.exists == False"
-
-# generate .kubeconfig for proxy
-- name: test if kube-proxy.kubeconfig is genereated
-  stat:
-    path: "{{ kube_data_dir }}/kube-proxy.kubeconfig"
-  register: conf
-- name: generate kube-proxy.kubeconfig
-  shell: "{{ lookup('template', 'gen-kube-proxy-conf.sh') }}"
-  args:
-    executable: /bin/bash
-  when: "conf.stat.exists == False"
-
-# generate .kubeconfig for each node
-- name: generate .kubeconfig for each node
-  shell: "{{ lookup('template', 'gen-node-cert-conf.sh') }}"
-  args:
-    executable: /bin/bash
-  with_items:
-    - "{{ groups['slave'] }}"
   register: kbgn
-  changed_when: "'Generating .kubeconfig for' in kbgn.stdout"
+  changed_when: "'Created calico networking' in kbgn.stdout"
 
-# run kubernetes services
-
-- name: ensure /var/kubernetes/lib exists
-  file:
-    path: /var/lib/kubernetes/config
-    state: directory
-- name: test if kube-apiserver encryption config exists
+- name: Test if join command is generated
   stat:
-    path: /var/lib/kubernetes/config/encryption-config.yaml
-  register: kbecr
-- name: generate encryption config file for kube-apiserver
-  template:
-    src: encryption-config.yaml.j2
-    dest: /var/lib/kubernetes/config/encryption-config.yaml
-    mode: 0640
-  notify: restart kube-apiserver
-  when: kbecr.stat.exists == False
-
-- name: enable and start kube-apiserver daemon
-  template:
-    src: kube-apiserver.service.j2
-    dest: /etc/systemd/system/kube-apiserver.service
-    mode: 0644
-  notify: restart kube-apiserver
-
-- name: enable and start kube-controller-manager daemon
-  template:
-    src: kube-controller-manager.service.j2
-    dest: /etc/systemd/system/kube-controller-manager.service
-    mode: 0644
-  notify: restart kube-controller-manager
-
-- name: generate config file for kube-scheduler
-  template:
-    src: kube-scheduler.yaml.j2
-    dest: /var/lib/kubernetes/config/kube-scheduler.yaml
-    mode: 0640
-  notify: restart kube-scheduler
-
-- name: enable and start kube-scheduler daemon
-  template:
-    src: kube-scheduler.service.j2
-    dest: /etc/systemd/system/kube-scheduler.service
-    mode: 0644
-  notify: restart kube-scheduler
-
-- meta: flush_handlers
-
-- name: Wait for kube-apiserver fully started
-  wait_for:
-    delay: 10
-    timeout: 270
-    path: /var/log/daemon.log
-    search_regex: "\\/apis\\/rbac.authorization.k8s.io\\/v1\\/clusterroles"
-
-- name: Test if RBAC roles are created
-  command: kubectl get clusterroles/system:kube-apiserver-to-kubelet
-  ignore_errors: True
-  register: kbcr
-  changed_when: False
-- name: Create RBAC roles
-  shell: "{{ lookup('template', 'kubectl-rbac.sh') }}"
-  args:
-    executable: /bin/bash
-  when: kbcr.rc != 0
-- name: Test if secrets are loaded
-  command: kubectl get secrets/root-ca-certs -n kube-system
-  ignore_errors: True
-  register: kbst
-  changed_when: False
-- name: Load secrets for certificates
-  shell: "{{ lookup('template', 'kubectl-secrets.sh') }}"
-  args:
-    executable: /bin/bash
-  when: kbst.rc != 0
-- name: Test if calico is configured
-  command: kubectl get daemonsets/calico-node -n kube-system
-  ignore_errors: True
-  register: kbds
-  changed_when: False
-- name: Load calico network settings
-  shell: "{{ lookup('template', 'kubectl-calico.sh') }}"
-  args:
-    executable: /bin/bash
-  when: kbds.rc != 0
-- name: Test if kube-dns is configured
-  command: kubectl get deployments/kube-dns -n kube-system
-  ignore_errors: True
-  register: kbns
-  changed_when: False
-- name: Load kube-dns settings
-  shell: "{{ lookup('template', 'kubectl-dns.sh') }}"
-  args:
-    executable: /bin/bash
-  when: kbns.rc != 0
+    path: "/work/.preload/join-command.sh"
+  register: astat
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+  when: astat.stat.exists == False
+- name: Copy join command to local file
+  copy:
+    content: "{{ join_command.stdout_lines[0] }}"
+    mode: 0755
+    dest: "/work/.preload/join-command.sh"
+  when: astat.stat.exists == False
