@@ -1,4 +1,5 @@
 .vagrant/
+.vscode/
 *.swp
 *.swo
 *.tar

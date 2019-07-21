@@ -1,0 +1,13 @@
+mysqlRootPassword: testing
+
+mysqlUser: devel
+mysqlPassword: devel
+
+mysqlDatabase: gauss
+
+persistence:
+  enabled: true
+  storageClass: local-storage
+  size: 10Gi
+
+timezone: Asia/Shanghai

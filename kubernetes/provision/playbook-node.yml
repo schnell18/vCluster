@@ -13,6 +13,11 @@
         regexp: '^server = 192.168.0.1$'
         replace: 'server = 10.0.2.2'
 
+    - name: Make sure /var/lib/data exists
+      file:
+        path: /var/lib/data
+        state: directory
+
     - name: Install packages that allow apt to be used over HTTPS
       apt:
         name: "{{ packages }}"
