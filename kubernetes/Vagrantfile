@@ -1,4 +1,4 @@
-IMAGE_NAME = "debian98-min"
+IMAGE_NAME = "debian10-min"
 N = 3
 
 Vagrant.configure("2") do |config|

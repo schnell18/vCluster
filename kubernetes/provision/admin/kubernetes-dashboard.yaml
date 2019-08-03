@@ -156,6 +156,8 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
+      nodeSelector:
+        dashboard: "true"
 
 ---
 # ------------------- Dashboard Service ------------------- #

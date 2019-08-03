@@ -34,7 +34,3 @@
   roles:
     - role: docker
     - role: kube-node
-
-- hosts: master
-  roles:
-    - role: kube-dashboard

@@ -1,6 +1,13 @@
 ---
 # tasks file for kube-master
 
+- name: Force dashbaord schedule on master node
+  shell: "{{ lookup('template', 'label-master-as-dashboard.sh') }}"
+  args:
+    executable: /bin/bash
+  register: kblb
+  changed_when: "'Label dashbaord on master created' in kblb.stdout"
+
 - name: Install kubernetes dashboard
   shell: "{{ lookup('template', 'create-kubernetes-dashboard.sh') }}"
   args:

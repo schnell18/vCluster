@@ -1,5 +1,7 @@
-found=$(kubectl get deployment/kubernetes-dashboard -n kube-system | grep kubernetes-dashboard)
-if [ -z $found ]; then
-  kubectl create -f /work/provision/admin/kubernetes-dashboard.yaml
-  echo "Created kubernetes dashboard"
+kubectl get deployment/kubernetes-dashboard -n kube-system
+if [ $? -eq 0 ]; then
+    exit 0
 fi
+
+kubectl create -f /work/provision/admin/kubernetes-dashboard.yaml
+echo "Created kubernetes dashboard"
