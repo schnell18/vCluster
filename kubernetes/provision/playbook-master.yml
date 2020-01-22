@@ -23,7 +23,6 @@
       with_items:
         - swap
         - none
-    
     - name: Disable swap
       command: swapoff -a
       when: ansible_swaptotal_mb > 0

@@ -45,7 +45,7 @@
   register: astat
 - name: Initialize the Kubernetes cluster using kubeadm
   shell: |
-    kubeadm init \
+    env ALL_PROXY=socks5://10.0.2.2:1080 kubeadm init \
     --apiserver-advertise-address="{{ kubernetes_public_address }}" \
     --apiserver-cert-extra-sans="{{ kubernetes_public_address }}" \
     --node-name {{ hostvars[inventory_hostname]['inventory_hostname_short'] }} \

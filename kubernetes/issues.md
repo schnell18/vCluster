@@ -49,4 +49,11 @@ To force the kubernetes-dashboard run on master node, we can add a label to mast
          dashboard: "true"
 
 
+# kubernetes 1.17.1 warning
+
+kubernetes 1.17.1 w/ docker 19 ce
+
+    [preflight] Running pre-flight checks
+        [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+
 [1]: https://packages.cloud.google.com/apt/doc/apt-key.gpg

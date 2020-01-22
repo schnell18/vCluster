@@ -1,3 +1,4 @@
 ---
 
 enable_docker_socks5_proxy: True
+docker_apt_mirror: https://mirrors.ustc.edu.cn/docker-ce/linux/debian

@@ -8,7 +8,7 @@
 
 - name: Add docker stable apt repository
   apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    repo: deb [arch=amd64] {{ docker_apt_mirror }} buster stable
     state: present
     filename: docker
 
