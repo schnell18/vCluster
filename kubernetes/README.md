@@ -1,6 +1,6 @@
 # Introduction
 
-The project sets up a 1.14.2 kubernetes cluster based on virtual machine
+The project sets up a 1.17.1 kubernetes cluster based on virtual machine
 managed by vagrant and ansible. It is intended for research use on personal
 computer. By default it creates a cluster containing:
 
@@ -50,6 +50,27 @@ docker image registry and apt packages. This project helps to workaround
 these issues. You may preload the gcr meta images by save them into a file
 call `k8s-meta-images.tar` and put it under the .preload directory. Ansible
 will automatically load these images into master as well as any node.
+
+Here is the script to make the so-called `k8s-meta-images.tar`:
+
+    docker save \
+      calico/node:v3.12.0 \
+      calico/pod2daemon-flexvol:v3.12.0 \
+      calico/cni:v3.12.0 \
+      calico/kube-controllers:v3.12.0 \
+      k8s.gcr.io/kube-apiserver:v1.17.1 \
+      k8s.gcr.io/kube-controller-manager:v1.17.1 \
+      k8s.gcr.io/kube-scheduler:v1.17.1 \
+      k8s.gcr.io/kube-proxy:v1.17.1 \
+      k8s.gcr.io/coredns:1.6.5 \
+      k8s.gcr.io/etcd:3.4.3-0 \
+      k8s.gcr.io/kube-proxy:v1.14.2 \
+      k8s.gcr.io/kube-apiserver:v1.14.2 \
+      k8s.gcr.io/kube-controller-manager:v1.14.2 \
+      k8s.gcr.io/kube-scheduler:v1.14.2 \
+      k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1 \
+      k8s.gcr.io/pause:3.1 > meta-images.tar
+
 
 [1]: https://www.virtualbox.org/
 [2]: https://www.vagrantup.com/

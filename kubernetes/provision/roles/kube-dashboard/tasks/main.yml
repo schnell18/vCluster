@@ -31,5 +31,5 @@
 - name: Print dashboard access instruction
   debug:
     msg: |
-     You may access the dashbaord by: run kubectl proxy then click this link http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/ w/ token: {{ inst.stdout }} 
+     You may access the dashbaord by: run kubectl proxy then click this link http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ w/ token: {{ inst.stdout }}
 

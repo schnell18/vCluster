@@ -33,9 +33,9 @@
     state: present
   vars:
     packages:
-      - kubelet
-      - kubeadm
-      - kubectl
+      - kubelet=1.17.1-00
+      - kubeadm=1.17.1-00
+      - kubectl=1.17.1-00
 
 - name: Configure node ip
   lineinfile:
@@ -45,6 +45,8 @@
     line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   notify:
     - Restart kubelet
+
+- meta: flush_handlers
 
 - name: load meta images if absent
   shell: "{{ lookup('template', 'load-k8s-meta-images.sh') }}"

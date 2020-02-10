@@ -1,4 +1,4 @@
-kubectl get deployment/kubernetes-dashboard -n kube-system
+kubectl get deployment/kubernetes-dashboard -n kubernetes-dashboard
 if [ $? -eq 0 ]; then
     exit 0
 fi
