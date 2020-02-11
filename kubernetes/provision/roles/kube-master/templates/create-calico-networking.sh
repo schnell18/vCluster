@@ -1,5 +1,8 @@
 found=$(kubectl get ds -n kube-system | grep calico)
 if [ -z $found ]; then
-  kubectl create -f /work/provision/network/calico.yaml
+
+  cat <<EOF | kubectl create -f -
+{{ lookup('file', 'calico.yaml') }}
+EOF
   echo "Created calico networking"
 fi

@@ -3,5 +3,7 @@ if [ $? -eq 0 ]; then
     exit 0
 fi
 
-kubectl create -f /work/provision/admin/kubernetes-dashboard.yaml
+cat <<EOF | kubectl create -f -
+{{ lookup('file', 'kubernetes-dashboard.yaml') }}
+EOF
 echo "Created kubernetes dashboard"
