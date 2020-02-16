@@ -2,16 +2,6 @@
 - hosts: node
   become: true
   pre_tasks:
-    # install and config tsocks
-    - name: install tsocks
-      apt:
-        name: tsocks
-        state: present
-    - name: config tsocks
-      replace:
-        path: /etc/tsocks.conf
-        regexp: '^server = 192.168.0.1$'
-        replace: 'server = 10.0.2.2'
 
     - name: Make sure /var/lib/data exists
       file:
@@ -22,7 +12,7 @@
       apt:
         name: "{{ packages }}"
         state: present
-        update_cache: no
+        update_cache: yes
       vars:
         packages:
         - apt-transport-https

@@ -8,6 +8,7 @@ computer. By default it creates a cluster containing:
 - slave-1
 - slave-2
 - slave-3
+- slave-4
 
 If you wish to add more nodes, you may add nodes change `Vagrantfile` and
 adjust the ansible inventory file `hosts` accordingly.
@@ -20,7 +21,7 @@ You need the following tools required by this project:
 - [Vagrant][2]
 - [Ansible][3]
 
-You also need the debian vagrant box build by [this project][4].
+You also need the debian vagrant box managed by [this project][4].
 It is recommended you install VS Code as you text editor.
 Install these tools, and you clone this project.
 Open a command line window, the nagivate to the root directory of this project.
@@ -29,6 +30,7 @@ And run the following commands:
     vagrant up
     ansible-playbook -i hosts provision/playbook-master.yml
     ansible-playbook -i hosts provision/playbook-node.yml
+    ansible-playbook -i hosts provision/playbook-dashboard.yml
 
 Then you will be prompted to:
 
@@ -76,5 +78,5 @@ Here is the script to make the so-called `k8s-meta-images.tar`:
 [2]: https://www.vagrantup.com/
 [3]: https://www.ansible.com/
 [4]: https://github.com/schnell18/vmbot/tree/master/debian
-[5]: http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+[5]: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 [6]: https://k8smeetup.github.io/docs/tasks/tools/install-kubectl/ 

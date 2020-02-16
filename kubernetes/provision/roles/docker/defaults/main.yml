@@ -1,4 +1,7 @@
 ---
 
-enable_docker_socks5_proxy: True
 docker_apt_mirror: https://mirrors.ustc.edu.cn/docker-ce/linux/debian
+enable_docker_registry_mirrors: True 
+docker_registry_mirrors:
+  - https://dockerhub.azk8s.cn
+  - https://hub-mirror.c.163.com

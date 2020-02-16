@@ -30,16 +30,15 @@
     name: devel
     group: docker
 
-- name: Make sure docker service config directory exists
+- name: Make sure /etc/docker exists
   file:
-    path: /etc/systemd/system/docker.service.d
+    path: /etc/docker
     state: directory
-- name: Configure docker pull proxy
+- name: Add docker registry mirrors
   copy:
-    content: "{{ lookup('template', 'socks5-proxy.conf') }}"
+    content: "{{ lookup('template', 'daemon.json') }}"
     mode: 0755
-    dest: /etc/systemd/system/docker.service.d/socks5-proxy.conf
-  when: enable_docker_socks5_proxy == True
+    dest: /etc/docker/daemon.json
+  when: enable_docker_registry_mirrors == True
   notify:
     - Restart docker
-

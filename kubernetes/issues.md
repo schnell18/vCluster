@@ -56,4 +56,31 @@ kubernetes 1.17.1 w/ docker 19 ce
     [preflight] Running pre-flight checks
         [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
 
+# fail to reach POD on other node
+
+## problem statement
+
+kubernetes CNI network using calico 3.12. Using POD CIDR 10.200.0.0/24. Fail to ping
+pod 10.200.0.194 (scheduled on node slave-3) on node slave-1.
+
+Refer to [this issue reported on github][2]
+
+## Cause analysis
+
+Calico 3.12 use  legacy iptables, but kubeadm (as of 1.17.1) and Debian 10.2 use nftables. 
+
+## Solution
+
+Explicitly instruct calico to use nft:
+
+    FELIX_IPTABLESBACKEND=NFT
+
+See change in file: `provision/roles/kube-master/templates/calico.yaml`
+Or switch iptables to legacy mode:
+
+    update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+
+
 [1]: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+[2]: https://github.com/projectcalico/calico/issues/2322

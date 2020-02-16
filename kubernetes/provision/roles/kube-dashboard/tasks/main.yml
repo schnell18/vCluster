@@ -22,7 +22,7 @@
   register: kbgn
   changed_when: "'Created dashboard admin' in kbgn.stdout"
 
-- name: Notify dashboard access method
+- name: Get dashboard admin token
   shell: "{{ lookup('template', 'get-dashboard-admin-token.sh') }}"
   args:
     executable: /bin/bash
