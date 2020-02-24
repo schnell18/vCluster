@@ -1,0 +1,18 @@
+---
+# tasks file for local persistent volume provisioner
+
+- name:  Create local persistent volume provisioner
+  shell: "{{ lookup('template', 'create-local-pv-provisioner.sh') }}"
+  args:
+    executable: /bin/bash
+  register: clpp
+  changed_when: "'Created local persistent volume provisioner' in clpp.stdout"
+  tags: [local-pv-provisioner]
+
+- name: Create local-storage class
+  shell: "{{ lookup('template', 'create-local-storage-class.sh') }}"
+  args:
+    executable: /bin/bash
+  register: kbgn
+  changed_when: "'Created local-storage class' in kbgn.stdout"
+  tags: [local-pv-provisioner]

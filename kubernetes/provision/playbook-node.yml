@@ -3,11 +3,6 @@
   become: true
   pre_tasks:
 
-    - name: Make sure /var/lib/data exists
-      file:
-        path: /var/lib/data
-        state: directory
-
     - name: Install packages that allow apt to be used over HTTPS
       apt:
         name: "{{ packages }}"
@@ -18,6 +13,7 @@
         - apt-transport-https
         - ca-certificates
         - curl
+        - parted
         - gnupg-agent
         - software-properties-common
 

@@ -9,3 +9,5 @@
 *.7z
 *.rar
 *.retry
+*.vmdk
+*.vdi

@@ -1,5 +1,7 @@
 IMAGE_NAME = "debian10.2-min"
-N = 4
+NODES = 4
+EXTRA_DISKS = 2
+
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -11,12 +13,6 @@ Vagrant.configure("2") do |config|
     config.hostmanager.manage_host = true
     config.hostmanager.manage_guest = true
 
-    config.vm.provider "virtualbox" do |v|
-        v.memory = 1024
-        v.cpus = 2
-        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    end
-
     config.vm.define "master" do |master|
         master.vm.box = IMAGE_NAME
         master.vm.network "private_network", ip: "192.168.50.10"
@@ -24,21 +20,126 @@ Vagrant.configure("2") do |config|
         master.vm.provision :hostmanager
         master.hostmanager.aliases = %w(master.kube.vn)
 
+        master.vm.provider "virtualbox" do |v|
+            v.memory = 1024
+            v.cpus = 2
+            v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        end
+
         #  master.vm.provision "ansible" do |ansible|
         #      ansible.playbook = "provision/playbook-master.yml"
         #  end
     end
 
-    (1..N).each do |i|
-        config.vm.define "slave-#{i}" do |slave|
+    (1..NODES).each do |i|
+        node_id = "slave-#{i}"
+        config.vm.define node_id do |slave|
             slave.vm.box = IMAGE_NAME
             slave.vm.network "private_network", ip: "192.168.50.#{i + 10}"
-            slave.vm.hostname = "slave-#{i}"
+            slave.vm.hostname = node_id
             slave.vm.provision :hostmanager
-            slave.hostmanager.aliases = "slave-#{i}.kube.vn"
-            # slave.vm.provision "ansible" do |ansible|
-            #     ansible.playbook = "provision/playbook-node.yml"
+            slave.hostmanager.aliases = "#{node_id}.kube.vn"
+
+            vmdir = get_vm_disk_directory(node_id)
+
+            # slave.trigger.before :provision do |trigger|
+            #     trigger.info = "Create extra disk files..."
+            #     trigger.ruby do |env, machine|
+            #         (1..EXTRA_DISKS).each do |j|
+            #             disk_file = File.join(vmdir, "disk#{j}-#{node_id}.vmdk")
+            #             unless File.exists?(disk_file)
+            #                 trigger.info = "Add extra disk #{disk_file}..."
+            #                 create_disk(trigger, disk_file, 1024 * 51)
+            #             end
+            #         end
+            #     end
             # end
+
+            # slave.trigger.after :destroy do |trigger|
+            #     trigger.info = "Delete extra disks..."
+            #     trigger.ruby do |env, machine|
+            #         disk_registry = get_disk_registry()
+            #         (1..EXTRA_DISKS).each do |j|
+            #             disk_file = File.join(vmdir, "disk#{j}-#{node_id}.vmdk")
+            #             if File.exists?(disk_file)
+            #                 remove_disk(disk_registry, disk_file)
+            #             end
+            #         end
+            #     end
+            # end
+
+            slave.vm.provider "virtualbox" do |v|
+                v.name = node_id
+                v.memory = 1024
+                v.cpus = 2
+                v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
+                (1..EXTRA_DISKS).each do |j|
+                    disk_file = File.join(vmdir, "disk#{j}-#{node_id}.vmdk")
+                    unless File.exists?(disk_file)
+                        v.customize [
+                            "createmedium", "disk",
+                            "--filename", disk_file,
+                            "--format", "vmdk",
+                            "--size", 1024 * 51
+                        ]
+                        v.customize [
+                            "storageattach", :id,
+                            "--storagectl", "IDE Controller",
+                            "--port", 1,
+                            "--device", j - 1,
+                            "--type", "hdd",
+                            "--medium", disk_file
+                        ]
+                    end
+                end
+            end
         end
     end
 end
+
+def get_vm_disk_directory(vmname)
+    # line = %x(vboxmanage showvminfo --machinereadable #{vmname}).grep(/CfgFile/).first
+    # vmdir = File.dirname(line.split(':')[1].strip())
+    # vmdir = File.join(File.expand_path('~'), 'VirtualBox VMs', vmname)
+    line = %x(vboxmanage list systemproperties).split(/\n/).grep(/Default machine folder/).first()
+    path = line.split(/:/)[1].strip()
+    vmdir = File.join(path, vmname)
+    return vmdir
+end
+
+def create_disk(disk_file, size)
+    puts "creating disks"
+    stdout = %x(vboxmanage createmedium disk --filename '#{disk_file}' --format vmdk --size #{size})
+end
+
+def remove_disk(disk_registry, disk_file)
+    found = disk_registry.find { |disk|
+        disk["Location"] == disk_file
+    }
+    if found != nil
+        puts "Remove disk file: #{disk_file}..."
+        stdout = %x(vboxmanage closemedium disk #{found["UUID"]} --delete)
+    end
+end
+
+def get_disk_registry()
+    disks = []
+    disk = {}
+    lines = %x(vboxmanage list hdds).split(/\n/)
+    lines.each { |line|
+        if line != ""
+            parts = line.split(/:/)
+            key = parts[0].strip()
+            val = parts[1].strip()
+            if key == "UUID"
+                disk = {}
+                disks.push(disk)
+            end
+            disk[key] = val
+        end
+    }
+    return disks
+end
+
+# vim:set nu ai expandtab sw=4 ts=4 syntax=ruby:

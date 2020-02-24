@@ -30,3 +30,4 @@
   roles:
     - role: docker
     - role: kube-master
+    - role: local-pv-provisioner
