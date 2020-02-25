@@ -19,9 +19,9 @@
     update_cache: yes
   vars:
     packages:
-      - kubelet="{{ kubernetes_version }}-00"
-      - kubeadm="{{ kubernetes_version }}-00"
-      - kubectl="{{ kubernetes_version }}-00"
+      - kubelet={{ kubernetes_version }}-00
+      - kubeadm={{ kubernetes_version }}-00
+      - kubectl={{ kubernetes_version }}-00
 
 - name: Configure node ip
   lineinfile:

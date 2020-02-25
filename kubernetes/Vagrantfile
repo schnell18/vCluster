@@ -1,4 +1,4 @@
-IMAGE_NAME = "debian10.2-min"
+IMAGE_NAME = "debian10.3-min"
 NODES = 4
 EXTRA_DISKS = 2
 
@@ -62,9 +62,9 @@ Vagrant.configure("2") do |config|
                         ]
                         v.customize [
                             "storageattach", :id,
-                            "--storagectl", "IDE Controller",
-                            "--port", 1,
-                            "--device", j - 1,
+                            "--storagectl", "SATA Controller",
+                            "--port", j,
+                            "--device", 0,
                             "--type", "hdd",
                             "--medium", disk_file
                         ]

@@ -7,19 +7,14 @@
   become: true
   pre_tasks:
 
-    - name: Install packages that allow apt to be used over HTTPS
+    - name: Install disk management packages
       apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-        - apt-transport-https
-        - ca-certificates
-        - curl
         - parted
-        - gnupg-agent
-        - software-properties-common
 
   roles:
     - role: docker
