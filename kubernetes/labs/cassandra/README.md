@@ -42,5 +42,12 @@ Then you use the cqlsh inside the cluster to connect to the cassandra:
     kubectl run cqlsh -it --generator=run-pod/v1 --rm=true --image=cassandra:3.11 cqlsh $CLUSTER_IP
 
 
+## Access cassandra w/ Python
+
+The small project under *employee/python* demonstrates how to access cassandra in Python.
+This project uses the [cassandra-driver][2]. You may refer to the API documentation hosted
+at [datastax][3].
 
 [1]: https://kubernetes.io/docs/tutorials/stateful-application/cassandra/
+[2]: https://pypi.org/project/cassandra-driver/
+[3]: https://docs.datastax.com/en/developer/python-driver/3.22/api/cassandra/cluster/
