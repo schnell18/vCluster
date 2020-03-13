@@ -10,7 +10,7 @@ if __name__ == '__main__':
             'slave-2.kube.vn',
             'slave-3.kube.vn'
         ],
-        port=30844
+        port=31392
     )
     session = cluster.connect('employee')
     create_table = '''
@@ -20,6 +20,7 @@ if __name__ == '__main__':
         last_name text
     )
     '''
+    session.execute(create_table)
     insert = '''
     insert into python_test(id, first_name, last_name)
     values (uuid(), %s, %s)
