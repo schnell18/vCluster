@@ -42,3 +42,5 @@
   when: enable_docker_registry_mirrors == True
   notify:
     - Restart docker
+
+- meta: flush_handlers

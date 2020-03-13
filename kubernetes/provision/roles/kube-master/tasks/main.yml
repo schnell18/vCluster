@@ -28,7 +28,7 @@
     path: /etc/default/kubelet
     state: present
     create: yes
-    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    line: KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   notify:
     - Restart kubelet
 
@@ -39,7 +39,7 @@
   register: kbgn
   changed_when: "'Loaded k8s meta images' in kbgn.stdout"
 
-# env ALL_PROXY=socks5://10.0.2.2:1080 
+# env ALL_PROXY=socks5://10.0.2.2:1080
 
 - name: Test if cluster is already initialized
   stat:

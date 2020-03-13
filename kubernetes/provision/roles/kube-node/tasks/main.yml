@@ -42,11 +42,20 @@
     path: /etc/default/kubelet
     state: present
     create: yes
-    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    line: KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   notify:
     - Restart kubelet
 
 - meta: flush_handlers
+
+- name: Prepare partitions on additional disks
+  shell: "{{ lookup('template', 'prepare-partitions.sh') }}"
+  args:
+    executable: /bin/bash
+  register: clpp
+  with_items: '{{ disk_additional_disks }}'
+  changed_when: "'Prepared partitions' in clpp.stdout"
+  tags: ['disk', 'partition']
 
 - name: load meta images if absent
   shell: "{{ lookup('template', 'load-k8s-meta-images.sh') }}"
@@ -63,52 +72,3 @@
 - name: Join the node to cluster
   command: sh /work/.preload/join-command.sh
   when: jstat.stat.exists == False
-
-- name: Prepare partitions on additional disks
-  shell: "{{ lookup('template', 'prepare-partitions.sh') }}"
-  args:
-    executable: /bin/bash
-  register: clpp
-  with_items: '{{ disk_additional_disks }}'
-  changed_when: "'Prepared partitions' in clpp.stdout"
-  tags: ['disk', 'partition']
-
-# - name: Prepare partitions
-#   block:
-#     - name: Read device information
-#       parted:
-#         device: '{{ item.device }}'
-#         unit: MiB
-#       register: partition_info
-# 
-#     - name: "Create filesystem on disk"
-#       filesystem:
-#         dev: '{{ item.device }}'
-#         fstype: '{{ item.fstype }}'
-#         opts: '{{ item.fsopts|d(omit) }}'
-# 
-#     - name: "Ensure the mount directory exists"
-#       file:
-#         path: '{{ discovery_directory }}/{{ item.disk }}'
-#         owner: '{{ item.user | default("root") }}'
-#         group: '{{ item.group | default("root") }}'
-#         state: directory
-# 
-#     - name: "Get UUID for partition"
-#       command: blkid -s UUID -o value {{ item.device }}
-#       register: disk_blkid
-#       changed_when: False
-# 
-#     - name: "Mount partition"
-#       mount:
-#         path: '{{ discovery_directory }}/{{ item.0.disk }}'
-#         fstype: '{{ item.0.fstype }}'
-#         opts: '{{ item.0.mount_options|d(omit) }}'
-#         passno: '0'
-#         src: 'UUID={{ item.1.stdout }}'
-#         state: 'mounted'
-#       with_together:
-#         - '{{ disk_additional_disks }}'
-#         - '{{ disk_blkid.results }}'
-#   with_items: '{{ disk_additional_disks }}'
-#   tags: ['disk']

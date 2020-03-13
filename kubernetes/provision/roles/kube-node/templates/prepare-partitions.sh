@@ -24,13 +24,13 @@ mkpart() {
 }
 
 ## start of script entrace section
-########### script arguments start ########### 
+########### script arguments start ###########
 device="{{ item.device }}"
 root="{{ discovery_directory }}"
 disk="{{ item.disk }}"
 fstype="{{ item.fstype}}"
 partitions={{ item.partitions }}
-########### script arguments end ########### 
+########### script arguments end ###########
 changes=0
 
 # check if device is partitioned
