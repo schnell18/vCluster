@@ -1,0 +1,17 @@
+kind: PodPreset
+apiVersion: settings.k8s.io/v1alpha1
+metadata:
+  name: inject-work-dir
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      role: devShell
+  volumeMounts:
+    - mountPath: /work
+      name: work-vol
+  volumes:
+    - name: work-vol
+      hostPath:
+        path: /work
+        type: Directory

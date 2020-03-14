@@ -1,0 +1,25 @@
+---
+
+- hosts: master
+  vars:
+    kubernetes_version: "1.17.1"
+    kubernetes_gcr_repository: "gcr.azk8s.cn"
+  become: true
+
+  pre_tasks:
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+
+  roles:
+    - role: docker
+    - role: kube-master
+    - role: local-pv-provisioner

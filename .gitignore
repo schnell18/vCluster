@@ -1,5 +1,15 @@
 .vagrant/
+.vscode/
 *.swp
 *.swo
 *.jar
 *.log
+*.tar
+*.bz2
+*.tgz
+*.zip
+*.7z
+*.rar
+*.retry
+*.vmdk
+*.vdi

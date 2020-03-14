@@ -1,160 +1,89 @@
-Vagrant.configure(2) do |config|
+IMAGE_NAME = "debian10.3-min"
+NODES = 4
+EXTRA_DISKS = 2
 
-  config.vm.box = "centos73_min"
-  config.vm.box_check_update = false
-  config.rdp.port = 5000
-  config.vm.synced_folder ".", "/work"
 
-  # take care of /etc/hosts in both host and guest
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.manage_guest = true
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+    config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/work", automount: true
 
-# install virt7-docker repo
-$script1 = <<SCRIPT1
-cat <<EOF > /etc/yum.repos.d/virt7-common-release.repo
-[virt7-docker-common-release]
-name=virt7-docker-common-release
-baseurl=http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/
-enabled=1
-gpgcheck=0
-EOF
-SCRIPT1
+    # take care of /etc/hosts in both host and guest
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
 
-# install kubernetes
-$script2 = <<SCRIPT2
-rpm -q --queryformat "%{name} %{version} installed" kubernetes
-if [[  $? != 0 ]]; then
-  yum install -y kubernetes
-fi
+    config.vm.define "master" do |master|
+        master.vm.box = IMAGE_NAME
+        master.vm.network "private_network", ip: "192.168.50.10"
+        master.vm.hostname = "master"
+        master.vm.provision :hostmanager
+        master.hostmanager.aliases = %w(master.kube.vn)
 
-rpm -q --queryformat "%{name} %{version} installed" etcd
-if [[  $? != 0 ]]; then
-  yum install -y etcd
-fi
+        master.vm.provider "virtualbox" do |v|
+            v.name = "master"
+            v.memory = 2048
+            v.cpus = 4
+            v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        end
 
-rpm -q --queryformat "%{name} %{version} installed" flannel
-if [[  $? != 0 ]]; then
-  yum install -y flannel
-fi
-
-SCRIPT2
-
-# disable firewall
-$disable_firewall = <<SCRIPT3
-systemctl disable firewalld
-systemctl stop firewalld
-SCRIPT3
-
-# configuration for all kubernetes hosts
-$all_config = <<SCRIPT4
-echo "Setting kubernetes master..."
-echo sed -i "'s|127\\.0\\.0\\.1|${KB_MASTER_HOST}|'" /etc/kubernetes/config | sh
-SCRIPT4
-
-# start service on master
-$master_start_service = <<SCRIPT5
-echo "starting services..."
-#for SERVICE in etcd kube-apiserver kube-controller-manager kube-scheduler; do
-for SERVICE in etcd kube-apiserver kube-controller-manager kube-scheduler flanneld; do
-    systemctl restart $SERVICE
-    systemctl enable $SERVICE
-    systemctl status $SERVICE
-done
-SCRIPT5
-
-# configuration for kubernetes master
-$master_config = <<SCRIPT6
-echo "Setting etcd.conf..."
-sed -i 's|\\(ETCD_LISTEN_CLIENT_URLS\\)=.*|\\1="http://0.0.0.0:2379"|' /etc/etcd/etcd.conf
-sed -i 's|\\(ETCD_ADVERTISE_CLIENT_URLS\\)=.*|\\1="http://0.0.0.0:2379"|' /etc/etcd/etcd.conf
-echo "Config etcd data..."
-systemctl start etcd
-etcdctl mkdir /kube-centos/network
-etcdctl mk /kube-centos/network/config '{ "Network": "172.30.0.0/16", "SubnetLen": 24, "Backend": { "Type": "vxlan" } }'
-
-echo "Setting apiserver..."
-sed -i 's|\\(KUBE_API_ADDRESS\\)=.*|\\1="--address=0.0.0.0"|' /etc/kubernetes/apiserver
-sed -i 's|\\(KUBE_ETCD_SERVERS\\)=.*|\\1="--etcd-servers=http://kbm1.kube.vn:2379"|' /etc/kubernetes/apiserver
-
-echo "Setting flanneld config..."
-cat <<EOF > /etc/sysconfig/flanneld
-FLANNEL_ETCD_ENDPOINTS="http://kbm1.kube.vn:2379"
-FLANNEL_ETCD_PREFIX="/kube-centos/network"
-EOF
-SCRIPT6
-
-# configuration for kubernetes minion
-$minion_config = <<SCRIPT6
-echo "Setting kubelet..."
-sed -i 's|\\(KUBELET_ADDRESS\\)=.*|\\1="--address=0.0.0.0"|' /etc/kubernetes/kubelet
-sed -i 's|\\(KUBELET_API_SERVER\\)=.*|\\1="--api-servers=http://kbm1.kube.vn:8080"|' /etc/kubernetes/kubelet
-echo sed -i "'s|\\(KUBELET_HOSTNAME\\)=.*|\\1=\"--hostname-override=$KB_MINION_HOST\"|' /etc/kubernetes/kubelet" | sh
-echo "Setting flanneld config..."
-cat <<EOF > /etc/sysconfig/flanneld
-FLANNEL_ETCD_ENDPOINTS="http://kbm1.kube.vn:2379"
-FLANNEL_ETCD_PREFIX="/kube-centos/network"
-EOF
-SCRIPT6
-
-# start service on minion
-$minion_start_service = <<SCRIPT7
-echo "starting services..."
-for SERVICE in kube-proxy kubelet flanneld docker; do
-    systemctl restart $SERVICE
-    systemctl enable $SERVICE
-    systemctl status $SERVICE
-done
-kubectl config set-cluster default-cluster --server=http://kbm1.kube.vn:8080
-kubectl config set-context default-context --cluster=default-cluster --user=default-admin
-kubectl config use-context default-context
-SCRIPT7
-
-  # provision master
-  1.times do |i|
-    node_id = "kbm#{i + 1}"
-    config.vm.define node_id do |kbm|
-      kbm.vm.network "private_network", ip: "192.168.90.1#{i + 5}"
-      kbm.vm.provision :hostmanager
-      kbm.hostmanager.aliases = %w(kbm1.kube.vn)
-      kbm.vm.provision "shell", inline: $script1
-      kbm.vm.provision "shell", inline: $script2
-      kbm.vm.provision "shell", inline: $disable_firewall
-      kbm.vm.provision "shell", inline: $all_config, env: {:KB_MASTER_HOST =>  "kbm1.kube.vn"}
-      kbm.vm.provision "shell", inline: $master_config
-      kbm.vm.provision "shell", inline: $master_start_service
-      kbm.vm.provider "virtualbox" do |vb|
-        vb.name   = node_id
-        vb.gui    = false
-        vb.memory = 2024
-        vb.cpus   = 2
-      end
+        #  master.vm.provision "ansible" do |ansible|
+        #      ansible.playbook = "provision/playbook-master.yml"
+        #  end
     end
-  end
 
-  # provision nodes
-  2.times do |i|
-    node_id = "kbn#{i + 1}"
-    ip = "192.168.90.2#{i + 5}"
-    config.vm.define node_id do |kbn|
-      kbn.vm.provision "shell", inline: $script1
-      kbn.vm.provision "shell", inline: $script2
-      kbn.vm.provision "shell", inline: $disable_firewall
-      kbn.vm.provision "shell", inline: $all_config, env: {:KB_MASTER_HOST =>  "kbm1.kube.vn"}
-      kbn.vm.provision "shell", inline: $minion_config, env: {:KB_MINION_HOST =>  "#{node_id}.kube.vn"}
-      kbn.vm.provision "shell", inline: $minion_start_service
-      kbn.vm.network "private_network", ip: ip
-      kbn.vm.provision :hostmanager
-      kbn.hostmanager.aliases = %w(kbm1.kube.vn)
-      kbn.vm.provider "virtualbox" do |vb|
-        vb.name   = node_id
-        vb.gui    = false
-        vb.memory = 1024
-        vb.cpus   = 2
-      end
+    (1..NODES).each do |i|
+        node_id = "slave-#{i}"
+        config.vm.define node_id do |slave|
+            slave.vm.box = IMAGE_NAME
+            slave.vm.network "private_network", ip: "192.168.50.#{i + 10}"
+            slave.vm.hostname = node_id
+            slave.vm.provision :hostmanager
+            slave.hostmanager.aliases = "#{node_id}.kube.vn"
+
+            vmdir = get_vm_disk_directory(node_id)
+
+            slave.vm.provider "virtualbox" do |v|
+                # vm name must be assigned w/ node id
+                # otherwise, extra disks won't be created
+                v.name = node_id
+                v.memory = 2048
+                v.cpus = 2
+                v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
+                (1..EXTRA_DISKS).each do |j|
+                    disk_file = File.join(vmdir, "disk#{j}-#{node_id}.vmdk")
+                    unless File.exists?(disk_file)
+                        v.customize [
+                            "createmedium", "disk",
+                            "--filename", disk_file,
+                            "--format", "vmdk",
+                            "--size", 1024 * 51
+                        ]
+                        v.customize [
+                            "storageattach", :id,
+                            "--storagectl", "SATA Controller",
+                            "--port", j,
+                            "--device", 0,
+                            "--type", "hdd",
+                            "--medium", disk_file
+                        ]
+                    end
+                end
+            end
+        end
     end
-  end
-
 end
 
-# vim: set ai nu nobk expandtab sw=2 tw=72 ts=4 syntax=ruby :
+def get_vm_disk_directory(vmname)
+    path = %x(vboxmanage list systemproperties)
+        .split(/\n/)
+        .grep(/Default machine folder/)
+        .first()
+        .split(/:/)[1]
+        .strip()
+    vmdir = File.join(path, vmname)
+    return vmdir
+end
+
+# vim:set nu ai expandtab sw=4 ts=4 syntax=ruby:

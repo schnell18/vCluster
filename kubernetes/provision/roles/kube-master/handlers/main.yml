@@ -1,0 +1,8 @@
+---
+# handlers file for kube-master
+
+- name: Restart kubelet
+  service:
+    name: kubelet
+    daemon_reload: yes
+    state: restarted

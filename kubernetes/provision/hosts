@@ -1,0 +1,9 @@
+[master]
+master.kube.vn
+
+[node]
+slave-[1:4].kube.vn
+
+[all:vars]
+ansible_ssh_user=devel
+ansible_python_interpreter=/usr/bin/python3

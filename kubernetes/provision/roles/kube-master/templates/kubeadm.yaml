@@ -1,0 +1,15 @@
+# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2#ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+clusterName: kubernetes
+controlPlaneEndpoint: "{{ kubernetes_public_address }}:6443"
+kubernetesVersion: v{{ kubernetes_version }}
+apiServer:
+  certSANs:
+  - "{{ kubernetes_public_address }}"
+  extraArgs:
+    enable-admission-plugins: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
+    runtime-config: "{% for config in runtime_configs %}{{ config }}{% if not loop.last %},{% endif %}{% endfor %}"
+    advertise-address: {{ kubernetes_public_address }}
+networking:
+  podSubnet: "{{ pod_cidr }}"
