@@ -2,6 +2,8 @@ create keyspace employee
     with replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}
     and durable_writes = 'true';
 
+use employee;
+
 create table employee_by_id(
     id int primary key,
     name text,

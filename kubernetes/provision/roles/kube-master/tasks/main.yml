@@ -47,13 +47,7 @@
   register: astat
   tags: ["kubeadm"]
 - name: Initialize the Kubernetes cluster using kubeadm
-  shell: |
-    kubeadm init \
-    --apiserver-advertise-address="{{ kubernetes_public_address }}" \
-    --apiserver-cert-extra-sans="{{ kubernetes_public_address }}" \
-    --node-name {{ hostvars[inventory_hostname]['inventory_hostname_short'] }} \
-    --pod-network-cidr={{ pod_cidr }} \
-    --kubernetes-version={{ kubernetes_version }}
+  shell: "{{ lookup('template', 'run-kubeadm-init.sh') }}"
   when: astat.stat.exists == False
   tags: ["kubeadm"]
 

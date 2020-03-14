@@ -10,7 +10,7 @@ if __name__ == '__main__':
             'slave-2.kube.vn',
             'slave-3.kube.vn'
         ],
-        port=31392
+        port=31807
     )
     session = cluster.connect('employee')
     create_table = '''
