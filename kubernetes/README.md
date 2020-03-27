@@ -55,23 +55,50 @@ will automatically load these images into master as well as any node.
 
 Here is the script to make the so-called `k8s-meta-images.tar`:
 
-    docker save \
-      calico/node:v3.12.0 \
-      calico/pod2daemon-flexvol:v3.12.0 \
-      calico/cni:v3.12.0 \
-      calico/kube-controllers:v3.12.0 \
-      k8s.gcr.io/kube-apiserver:v1.17.1 \
-      k8s.gcr.io/kube-controller-manager:v1.17.1 \
-      k8s.gcr.io/kube-scheduler:v1.17.1 \
-      k8s.gcr.io/kube-proxy:v1.17.1 \
-      k8s.gcr.io/coredns:1.6.5 \
-      k8s.gcr.io/etcd:3.4.3-0 \
-      k8s.gcr.io/kube-proxy:v1.14.2 \
-      k8s.gcr.io/kube-apiserver:v1.14.2 \
-      k8s.gcr.io/kube-controller-manager:v1.14.2 \
-      k8s.gcr.io/kube-scheduler:v1.14.2 \
-      k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1 \
-      k8s.gcr.io/pause:3.1 > meta-images.tar
+
+    sudo docker pull gcr.azk8s.cn/google_containers/kube-apiserver:v1.18.0
+    sudo docker pull gcr.azk8s.cn/google_containers/kube-controller-manager:v1.18.0
+    sudo docker pull gcr.azk8s.cn/google_containers/kube-scheduler:v1.18.0
+    sudo docker pull gcr.azk8s.cn/google_containers/kube-proxy:v1.18.0
+    sudo docker pull gcr.azk8s.cn/google_containers/coredns:1.6.7
+    sudo docker pull gcr.azk8s.cn/google_containers/etcd:3.4.3-0
+    sudo docker pull gcr.azk8s.cn/google_containers/pause:3.2
+
+    sudo docker pull dockerhub.azk8s.cn/kubernetesui/metrics-scraper:v1.0.1
+    sudo docker pull dockerhub.azk8s.cn/kubernetesui/dashboard:v2.0.0-beta8
+    sudo docker pull dockerhub.azk8s.cn/calico/node:v3.12.0
+    sudo docker pull dockerhub.azk8s.cn/calico/pod2daemon-flexvol:v3.12.0
+    sudo docker pull dockerhub.azk8s.cn/calico/cni:v3.12.0
+    sudo docker pull dockerhub.azk8s.cn/calico/kube-controllers:v3.12.0
+
+    sudo docker tag gcr.azk8s.cn/google_containers/kube-apiserver:v1.18.0          k8s.gcr.io/kube-apiserver:v1.18.0
+    sudo docker tag gcr.azk8s.cn/google_containers/kube-controller-manager:v1.18.0 k8s.gcr.io/kube-controller-manager:v1.18.0
+    sudo docker tag gcr.azk8s.cn/google_containers/kube-scheduler:v1.18.0          k8s.gcr.io/kube-scheduler:v1.18.0
+    sudo docker tag gcr.azk8s.cn/google_containers/kube-proxy:v1.18.0              k8s.gcr.io/kube-proxy:v1.18.0
+    sudo docker tag gcr.azk8s.cn/google_containers/coredns:1.6.7                   k8s.gcr.io/coredns:1.6.7
+    sudo docker tag gcr.azk8s.cn/google_containers/etcd:3.4.3-0                    k8s.gcr.io/etcd:3.4.3-0
+    sudo docker tag gcr.azk8s.cn/google_containers/pause:3.2                       k8s.gcr.io/pause:3.2
+    sudo docker tag dockerhub.azk8s.cn/kubernetesui/metrics-scraper:v1.0.1 kubernetesui/metrics-scraper:v1.0.1
+    sudo docker tag dockerhub.azk8s.cn/kubernetesui/dashboard:v2.0.0-beta8 kubernetesui/dashboard:v2.0.0-beta8
+    sudo docker tag dockerhub.azk8s.cn/calico/node:v3.12.0                 calico/node:v3.12.0
+    sudo docker tag dockerhub.azk8s.cn/calico/pod2daemon-flexvol:v3.12.0   calico/pod2daemon-flexvol:v3.12.0
+    sudo docker tag dockerhub.azk8s.cn/calico/cni:v3.12.0                  calico/cni:v3.12.0
+    sudo docker tag dockerhub.azk8s.cn/calico/kube-controllers:v3.12.0     calico/kube-controllers:v3.12.0
+
+    sudo docker save \
+          calico/node:v3.12.0 \
+          calico/pod2daemon-flexvol:v3.12.0 \
+          calico/cni:v3.12.0 \
+          calico/kube-controllers:v3.12.0 \
+          kubernetesui/metrics-scraper:v1.0.1 \
+          kubernetesui/dashboard:v2.0.0-beta8 \
+          k8s.gcr.io/kube-apiserver:v1.18.0 \
+          k8s.gcr.io/kube-controller-manager:v1.18.0 \
+          k8s.gcr.io/kube-scheduler:v1.18.0 \
+          k8s.gcr.io/kube-proxy:v1.18.0 \
+          k8s.gcr.io/coredns:1.6.7 \
+          k8s.gcr.io/etcd:3.4.3-0 \
+          k8s.gcr.io/pause:3.2 > k8s-meta-images.tar
 
 
 [1]: https://www.virtualbox.org/
@@ -79,4 +106,4 @@ Here is the script to make the so-called `k8s-meta-images.tar`:
 [3]: https://www.ansible.com/
 [4]: https://github.com/schnell18/vmbot/tree/master/debian
 [5]: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-[6]: https://k8smeetup.github.io/docs/tasks/tools/install-kubectl/ 
+[6]: https://k8smeetup.github.io/docs/tasks/tools/install-kubectl/

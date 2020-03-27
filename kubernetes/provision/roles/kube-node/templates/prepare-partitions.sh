@@ -67,7 +67,6 @@ for i in $(seq 1 $existing_partitions); do
     fi
 
     # mount the partition
-    mounted=$()
     grep $mount_point /proc/mounts > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         mount $mount_point
