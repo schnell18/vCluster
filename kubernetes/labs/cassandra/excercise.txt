@@ -1,0 +1,391 @@
+cqlsh:my_keyspace> insert into user(first_name, last_name, title) values('Leslie', 'Lamports', 'Dr.');
+cqlsh:my_keyspace> select * from user;
+
+ first_name | last_name | title
+------------+-----------+-------
+     Leslie |  Lamports |   Dr.
+       Bill |     Gates |  null
+
+(2 rows)
+cqlsh:my_keyspace> insert into user(first_name, last_name, title) values('Donald', 'Knuth', 'Dr.');
+cqlsh:my_keyspace> select * from user;
+
+ first_name | last_name | title
+------------+-----------+-------
+     Donald |     Knuth |   Dr.
+     Leslie |  Lamports |   Dr.
+       Bill |     Gates |  null
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_time) from user;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Undefined column name last_time"
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name) from user;
+
+ first_name | last_name | title | writetime(last_name)
+------------+-----------+-------+----------------------
+     Donald |     Knuth |   Dr. |     1590237946281915
+     Leslie |  Lamports |   Dr. |     1590237821964727
+       Bill |     Gates |  null |     1590202611615155
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(first_name) from user;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot use selection function writeTime on PRIMARY KEY part first_name"
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(last_name) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(last_name)
+------------+-----------+-------+----------------------+----------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |           null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |           null
+       Bill |     Gates |  null |     1590202611615155 |           null
+
+(3 rows)
+cqlsh:my_keyspace> update using ttl 30 set title = 'Sr.' where first_name = 'Bill';
+SyntaxException: line 1:7 no viable alternative at input 'using' (update [using]...)
+cqlsh:my_keyspace> update user using ttl 30 set title = 'Sr.' where first_name = 'Bill';
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(last_name) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(last_name)
+------------+-----------+-------+----------------------+----------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |           null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |           null
+       Bill |     Gates |   Sr. |     1590202611615155 |           null
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(last_name) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(last_name)
+------------+-----------+-------+----------------------+----------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |           null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |           null
+       Bill |     Gates |   Sr. |     1590202611615155 |           null
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(dr) from user;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Undefined column name dr"
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |         10
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |          7
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |          5
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |          4
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |          3
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |   Sr. |     1590202611615155 |          1
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |  null |     1590202611615155 |       null
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |  null |     1590202611615155 |       null
+
+(3 rows)
+cqlsh:my_keyspace> select first_name, last_name, title, writetime(last_name), ttl(title) from user;
+
+ first_name | last_name | title | writetime(last_name) | ttl(title)
+------------+-----------+-------+----------------------+------------
+     Donald |     Knuth |   Dr. |     1590237946281915 |       null
+     Leslie |  Lamports |   Dr. |     1590237821964727 |       null
+       Bill |     Gates |  null |     1590202611615155 |       null
+
+(3 rows)
+cqlsh:my_keyspace> ? text_output
+*** No help on text_output
+cqlsh:my_keyspace> help text_output
+*** No help on text_output
+cqlsh:my_keyspace> select now()
+               ... ;
+SyntaxException: line 2:0 mismatched input ';' expecting K_FROM (select now()[;])
+cqlsh:my_keyspace> select uuid()
+               ... ;
+SyntaxException: line 2:0 mismatched input ';' expecting K_FROM (select uuid()[;])
+cqlsh:my_keyspace> alter table user add uid uuid;
+cqlsh:my_keyspace> alter table user add tid timeuuid;
+cqlsh:my_keyspace> select * from user;
+
+ first_name | last_name | tid  | title | uid
+------------+-----------+------+-------+------
+     Donald |     Knuth | null |   Dr. | null
+     Leslie |  Lamports | null |   Dr. | null
+       Bill |     Gates | null |  null | null
+
+(3 rows)
+cqlsh:my_keyspace> update user set tid = timeuuid(), uid = uuid();
+SyntaxException: line 1:46 mismatched input ';' expecting K_WHERE (...), uid = uuid()[;])
+cqlsh:my_keyspace> update user set tid = timeuuid(), uid = uuid()
+               ... ;
+SyntaxException: line 2:0 mismatched input ';' expecting K_WHERE (..., uid = uuid()[;])
+cqlsh:my_keyspace> update user set tid = timeuuid() uid = uuid() ;
+SyntaxException: line 1:33 mismatched input 'uid' expecting K_WHERE (...set tid = timeuuid() [uid]...)
+cqlsh:my_keyspace> update user set tid = timeuuid() ;
+SyntaxException: line 1:33 mismatched input ';' expecting K_WHERE (...set tid = timeuuid() [;])
+cqlsh:my_keyspace> update user set tid = timeuuid() uid = uuid() where first_name = 'Bill';
+SyntaxException: line 1:33 mismatched input 'uid' expecting K_WHERE (...set tid = timeuuid() [uid]...)
+cqlsh:my_keyspace> update user set tid = timeuuid(), uid = uuid() where first_name = 'Bill';
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Unknown function timeuuid called"
+cqlsh:my_keyspace> update user set tid = now(), uid = uuid() where first_name = 'Bill';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | last_name | tid                                  | title | uid
+------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald |     Knuth |                                 null |   Dr. |                                 null
+     Leslie |  Lamports |                                 null |   Dr. |                                 null
+       Bill |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> update user set tid = now(), uid = uuid() where first_name = 'Donald';
+cqlsh:my_keyspace> update user set tid = now(), uid = uuid() where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | last_name | tid                                  | title | uid
+------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald |     Knuth | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie |  Lamports | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> help blob_input
+*** No help on blob_input
+cqlsh:my_keyspace> help blob
+*** No browser to display CQL help. URL for help topic blob : https://cassandra.apache.org/doc/cql3/CQL-3.2.html#constants
+cqlsh:my_keyspace> select textAsBlob(last_name) from user where first_name = 'Leslie';
+
+ system.textasblob(last_name)
+------------------------------
+           0x4c616d706f727473
+
+(1 rows)
+cqlsh:my_keyspace> alter table user add ip_addr inet;
+cqlsh:my_keyspace> update user set ip_add = '10.128.213.55' where first_name='Donald';
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Undefined column name ip_add"
+cqlsh:my_keyspace> update user set ip_addr = '10.128.213.55' where first_name='Donald';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | ip_addr       | last_name | tid                                  | title | uid
+------------+---------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald | 10.128.213.55 |     Knuth | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie |          null |  Lamports | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |          null |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> ?
+
+Documented shell commands:
+===========================
+CAPTURE  CLS          COPY  DESCRIBE  EXPAND  LOGIN   SERIAL  SOURCE   UNICODE
+CLEAR    CONSISTENCY  DESC  EXIT      HELP    PAGING  SHOW    TRACING
+
+CQL help topics:
+================
+AGGREGATES               CREATE_KEYSPACE           DROP_TRIGGER      TEXT
+ALTER_KEYSPACE           CREATE_MATERIALIZED_VIEW  DROP_TYPE         TIME
+ALTER_MATERIALIZED_VIEW  CREATE_ROLE               DROP_USER         TIMESTAMP
+ALTER_TABLE              CREATE_TABLE              FUNCTIONS         TRUNCATE
+ALTER_TYPE               CREATE_TRIGGER            GRANT             TYPES
+ALTER_USER               CREATE_TYPE               INSERT            UPDATE
+APPLY                    CREATE_USER               INSERT_JSON       USE
+ASCII                    DATE                      INT               UUID
+BATCH                    DELETE                    JSON
+BEGIN                    DROP_AGGREGATE            KEYWORDS
+BLOB                     DROP_COLUMNFAMILY         LIST_PERMISSIONS
+BOOLEAN                  DROP_FUNCTION             LIST_ROLES
+COUNTER                  DROP_INDEX                LIST_USERS
+CREATE_AGGREGATE         DROP_KEYSPACE             PERMISSIONS
+CREATE_COLUMNFAMILY      DROP_MATERIALIZED_VIEW    REVOKE
+CREATE_FUNCTION          DROP_ROLE                 SELECT
+CREATE_INDEX             DROP_TABLE                SELECT_JSON
+cqlsh:my_keyspace> alter table user add emails set<text>;
+cqlsh:my_keyspace> update user set emails = {'tww@quad.com'}
+               ... ;
+SyntaxException: line 2:0 mismatched input ';' expecting K_WHERE (...set emails = {'tww@quad.com'}[;])
+cqlsh:my_keyspace> update user set emails = {'tww@quad.com'} where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | emails           | ip_addr       | last_name | tid                                  | title | uid
+------------+------------------+---------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald |             null | 10.128.213.55 |     Knuth | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie | {'tww@quad.com'} |          null |  Lamports | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |             null |          null |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> update user set emails += {'tww@quad.com'} where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | emails           | ip_addr       | last_name | tid                                  | title | uid
+------------+------------------+---------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald |             null | 10.128.213.55 |     Knuth | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie | {'tww@quad.com'} |          null |  Lamports | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |             null |          null |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> update user set emails += {'tony@gmail.com'} where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | emails                             | ip_addr       | last_name | tid                                  | title | uid
+------------+------------------------------------+---------------+-----------+--------------------------------------+-------+--------------------------------------
+     Donald |                               null | 10.128.213.55 |     Knuth | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie | {'tony@gmail.com', 'tww@quad.com'} |          null |  Lamports | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |                               null |          null |     Gates | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> alter table user add login_sessions map<timeuuid, int>
+               ... ;
+cqlsh:my_keyspace> update user set login_sessions = { now(): 13, now(): 18} where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | emails           | ip_addr       | last_name | login_sessions                                                                       | phones                                                 | tid                                  | title | uid
+------------+------------------+---------------+-----------+--------------------------------------------------------------------------------------+--------------------------------------------------------+--------------------------------------+-------+--------------------------------------
+     Donald |             null | 10.128.213.55 |     Knuth |                                                                                 null |                                                   null | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie | {'tww@quad.com'} |          null |  Lamports | {2ec81ac0-9d72-11ea-b29b-bfc732d8676b: 13, 2ec81ac1-9d72-11ea-b29b-bfc732d8676b: 18} | ['1-800-999-9999', '1-700-129-9634', '1-700-129-9634'] | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |             null |          null |     Gates |                                                                                 null |                                                   null | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> select login_sessions from user;
+
+ login_sessions
+--------------------------------------------------------------------------------------
+                                                                                 null
+ {2ec81ac0-9d72-11ea-b29b-bfc732d8676b: 13, 2ec81ac1-9d72-11ea-b29b-bfc732d8676b: 18}
+                                                                                 null
+
+(3 rows)
+cqlsh:my_keyspace> create type address(
+               ...   street text,
+               ...   city text,
+               ...   state text,
+               ...   zip_code int);
+cqlsh:my_keyspace> alter table user add addresses map<text, address>;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Non-frozen UDTs are not allowed inside collections: map<text, address>"
+cqlsh:my_keyspace> alter table user add addresses map<text, frozen<address>>;
+cqlsh:my_keyspace> desc table user;
+
+CREATE TABLE my_keyspace.user (
+    first_name text PRIMARY KEY,
+    addresses map<text, frozen<address>>,
+    emails set<text>,
+    ip_addr inet,
+    last_name text,
+    login_sessions map<timeuuid, int>,
+    phones list<text>,
+    tid timeuuid,
+    title text,
+    uid uuid
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND crc_check_chance = 1.0
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99PERCENTILE';
+
+cqlsh:my_keyspace> update user set addresses += {'home': {street: '7712 E. Broadway', city: 'Tucson', state: 'AZ', zip_code: 85715} where first_name = 'Leslie';
+SyntaxException: line 1:113 mismatched input 'where' expecting '}' (... 'AZ', zip_code: 85715} [where]...)
+cqlsh:my_keyspace> update user set addresses += {'home': {street: '7712 E. Broadway', city: 'Tucson', state: 'AZ', zip_code: 85715}} where first_name = 'Leslie';
+cqlsh:my_keyspace> select * from user;
+
+ first_name | addresses                                                                            | emails           | ip_addr       | last_name | login_sessions                                                                       | phones                                                 | tid                                  | title | uid
+------------+--------------------------------------------------------------------------------------+------------------+---------------+-----------+--------------------------------------------------------------------------------------+--------------------------------------------------------+--------------------------------------+-------+--------------------------------------
+     Donald |                                                                                 null |             null | 10.128.213.55 |     Knuth |                                                                                 null |                                                   null | d34a0380-9d02-11ea-b29b-bfc732d8676b |   Dr. | ce39643a-4b0f-4d1f-8887-91759f749267
+     Leslie | {'home': {street: '7712 E. Broadway', city: 'Tucson', state: 'AZ', zip_code: 85715}} | {'tww@quad.com'} |          null |  Lamports | {2ec81ac0-9d72-11ea-b29b-bfc732d8676b: 13, 2ec81ac1-9d72-11ea-b29b-bfc732d8676b: 18} | ['1-800-999-9999', '1-700-129-9634', '1-700-129-9634'] | d70b2a30-9d02-11ea-b29b-bfc732d8676b |   Dr. | a81f6f67-e092-40e6-b16b-ade31ca06bd6
+       Bill |                                                                                 null |             null |          null |     Gates |                                                                                 null |                                                   null | c056f080-9d02-11ea-b29b-bfc732d8676b |  null | 4d2bfbb1-b89b-48da-b63f-7145f0f50d63
+
+(3 rows)
+cqlsh:my_keyspace> desc keyspace
+
+CREATE KEYSPACE my_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '3'}  AND durable_writes = true;
+
+CREATE TYPE my_keyspace.address (
+    street text,
+    city text,
+    state text,
+    zip_code int
+);
+
+CREATE TABLE my_keyspace.user (
+    first_name text PRIMARY KEY,
+    addresses map<text, frozen<address>>,
+    emails set<text>,
+    ip_addr inet,
+    last_name text,
+    login_sessions map<timeuuid, int>,
+    phones list<text>,
+    tid timeuuid,
+    title text,
+    uid uuid
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND crc_check_chance = 1.0
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99PERCENTILE';
+
+cqlsh:my_keyspace>

@@ -39,7 +39,7 @@ Locate the node where cassandra runs:
 Then you use the cqlsh inside the cluster to connect to the cassandra:
 
     CLUSTER_IP=$(kubectl get svc -lapp=cassandra -o jsonpath='{.items[0].spec.clusterIP}')
-    kubectl run cqlsh -it --generator=run-pod/v1 --rm=true --image=schnell18/cassandra:3.11.6 cqlsh $CLUSTER_IP
+    kubectl run cqlsh -it -l role=devShell --rm=true --image=schnell18/cassandra:3.11.6 cqlsh $CLUSTER_IP
 
 
 ## Access cassandra w/ Python
