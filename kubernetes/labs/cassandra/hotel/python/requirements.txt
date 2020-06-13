@@ -1,0 +1,3 @@
+cassandra-driver
+lz4
+python-snappy

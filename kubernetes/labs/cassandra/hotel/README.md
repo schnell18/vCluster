@@ -17,3 +17,9 @@ Once you enter the cqlsh shell, you may load the `hotel` and `reservation` keysp
     source '/work/labs/cassandra/hotel/hotel.cql'
     source '/work/labs/cassandra/hotel/reservation.cql'
 
+
+## Load data
+
+In the cqlsh, you type:
+
+    copy available_rooms_by_hotel_date from '/work/labs/cassandra/hotel/hotel-inventory.cql' with header=true
