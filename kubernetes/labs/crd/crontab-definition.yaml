@@ -22,10 +22,27 @@ spec:
               properties:
                 cronSpec:
                   type: string
+                  pattern: '^(\d+|\*)(/\d+)?(\s+(\d+|\*)(/\d+)?){4}$'
+                  default: "5 0 * * *"
                 image:
                   type: string
                 replicas:
                   type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 1
+      additionalPrinterColumns:
+      - name: Spec
+        type: string
+        description: The cron spec defining the interval a CronJob is run
+        jsonPath: .spec.cronSpec
+      - name: Replicas
+        type: integer
+        description: The number of jobs launched by the CronJob
+        jsonPath: .spec.replicas
+      - name: Age
+        type: date
+        jsonPath: .metadata.creationTimestamp
   # either Namespaced or Cluster
   scope: Namespaced
   names:
