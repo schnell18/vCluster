@@ -22,4 +22,4 @@ Once you enter the cqlsh shell, you may load the `hotel` and `reservation` keysp
 
 In the cqlsh, you type:
 
-    copy available_rooms_by_hotel_date from '/work/labs/cassandra/hotel/hotel-inventory.cql' with header=true
+    copy available_rooms_by_hotel_date from '/work/labs/cassandra/hotel/hotel-inventory.csv' with header=true
