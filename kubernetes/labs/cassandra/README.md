@@ -48,6 +48,14 @@ The small project under *employee/python* demonstrates how to access cassandra i
 This project uses the [cassandra-driver][2]. You may refer to the API documentation hosted
 at [datastax][3].
 
+## Cleanup
+
+When you finished this lab, you type command as follows to release the
+resources allocated to cassandra:
+
+    kubectl delete -f cassandra-statefulset.yaml
+    kubectl delete -f cassandra-service.yaml
+
 [1]: https://kubernetes.io/docs/tutorials/stateful-application/cassandra/
 [2]: https://pypi.org/project/cassandra-driver/
 [3]: https://docs.datastax.com/en/developer/python-driver/3.22/api/cassandra/cluster/
