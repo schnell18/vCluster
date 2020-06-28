@@ -1,0 +1,7 @@
+apiVersion: tinkerit.cf/v1
+kind: VisitorsApp
+metadata:
+  name: example-visitorsapp
+spec:
+  size: 1
+  title: "Super Dashboard"
