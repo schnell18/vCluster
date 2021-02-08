@@ -36,8 +36,8 @@
   shell: "{{ lookup('template', 'load-k8s-meta-images.sh') }}"
   args:
     executable: /bin/bash
-  register: kbgn
-  changed_when: "'Loaded k8s meta images' in kbgn.stdout"
+  register: lbgn
+  changed_when: "'Loaded k8s meta images' in lbgn.stdout"
 
 # env ALL_PROXY=socks5://10.0.2.2:1080
 
@@ -85,6 +85,14 @@
     executable: /bin/bash
   register: cbgn
   changed_when: "'Created etcd client cert secrets' in cbgn.stdout"
+
+- name: Copy calico.yaml to remote
+  copy:
+    content: "{{ lookup('template', 'calico.yaml') }}"
+    owner: root
+    group: root
+    mode: 0640
+    dest: /tmp/calico.yaml
 
 - name: Install calico pod network
   shell: "{{ lookup('template', 'create-calico-networking.sh') }}"

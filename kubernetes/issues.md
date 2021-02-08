@@ -81,6 +81,78 @@ Or switch iptables to legacy mode:
     update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 
+# kube-apiserver fail to start
+
+## problem statement
+
+kubeadm fail to bootstrap kube-apiserver run as a docker container and report error like:
+
+    [kubelet-check] Initial timeout of 40s passed.
+
+            Unfortunately, an error has occurred:
+                    timed out waiting for the condition
+
+            This error is likely caused by:
+                    - The kubelet is not running
+                    - The kubelet is unhealthy due to a misconfiguration of the node in some way (required cgroups disabled)
+
+            If you are on a systemd-powered system, you can try to troubleshoot the error with the following commands:
+                    - 'systemctl status kubelet'
+                    - 'journalctl -xeu kubelet'
+
+
+## Cause analysis
+
+In kubernetes 1.20.x, [the `PodPreset` feature was removed][3]. As a result, the kube-apiserver will complain w/ follow message:
+
+    Error: [enable-admission-plugins plugin "PodPreset" is unknown, unknown api groups settings.k8s.io]
+
+if the `PodPreset` is requested on startup.
+
+## Solution
+
+Remove the `PodPreset` from the parameter `enable-admission-plugins`.
+
+# anbile complains dict object has no attribute `stdout`
+
+## problem statement
+
+Ansible complains 'dict object has no attribute stdout' with following snippet:
+
+
+    - name: Install calico pod network
+      shell: "{{ lookup('template', 'create-calico-networking.sh') }}"
+      args:
+        executable: /bin/bash
+      register: kbgn
+      changed_when: "'Created calico networking' in kbgn.stdout"
+
+## Cause analysis
+
+The problem is caused by an excessive heredoc as loaded by `create-calico-networking.sh`:
+
+    cat <<EOF | kubectl create -f -
+    {{ lookup('file', 'calico.yaml') }}
+    EOF
+
+The latest `calico.yaml` as of 2021-02-08 is over 184K bytes, which is far beyond the max allowed by the linux kernel length.
+
+
+## Solution
+
+Upload the `calico.yaml` using ansible built-in module `copy` rather than loading it as heredoc.
+A working example is illustrated as follows:
+
+    - name: Copy calico.yaml to remote
+      copy:
+        content: "{{ lookup('template', 'calico.yaml') }}"
+        owner: root
+        group: root
+        mode: 0640
+        dest: /tmp/calico.yaml
+
 
 [1]: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 [2]: https://github.com/projectcalico/calico/issues/2322
+[3]: https://kubernetes.io/docs/setup/release/notes/#deprecation
+[4]: https://www.linuxjournal.com/article/6060

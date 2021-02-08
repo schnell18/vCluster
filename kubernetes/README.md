@@ -1,6 +1,6 @@
 # Introduction
 
-The project sets up a 1.17.1 kubernetes cluster based on virtual machine
+The project sets up a 1.20.2 kubernetes cluster based on virtual machine
 managed by vagrant and ansible. It is intended for research use on personal
 computer. By default it creates a cluster containing:
 
@@ -19,6 +19,7 @@ You need the following tools required by this project:
 
 - [Virtualbox][1]
 - [Vagrant][2]
+- [vagrant-hostmanager][7]
 - [Ansible][3]
 
 You also need the debian vagrant box managed by [this project][4].
@@ -55,6 +56,7 @@ will automatically load these images into master as well as any node.
 
 Here is the script to make the so-called `k8s-meta-images.tar`:
 
+<<<<<<< HEAD
 
     sudo docker pull gcr.azk8s.cn/google_containers/kube-apiserver:v1.18.0
     sudo docker pull gcr.azk8s.cn/google_containers/kube-controller-manager:v1.18.0
@@ -99,6 +101,36 @@ Here is the script to make the so-called `k8s-meta-images.tar`:
           k8s.gcr.io/coredns:1.6.7 \
           k8s.gcr.io/etcd:3.4.3-0 \
           k8s.gcr.io/pause:3.2 > k8s-meta-images.tar
+=======
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-apiserver:v1.20.2
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-controller-manager:v1.20.2
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-scheduler:v1.20.2
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy:v1.20.2
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.7.0
+	docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.2
+
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-apiserver:v1.20.2 k8s.gcr.io/kube-apiserver:v1.20.2
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-controller-manager:v1.20.2 k8s.gcr.io/kube-controller-manager:v1.20.2
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-scheduler:v1.20.2 k8s.gcr.io/kube-scheduler:v1.20.2
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy:v1.20.2 k8s.gcr.io/kube-proxy:v1.20.2
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/etcd:3.4.13-0 k8s.gcr.io/etcd:3.4.13-0
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.7.0 k8s.gcr.io/coredns:1.7.0
+	docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.2 k8s.gcr.io/pause:3.2
+
+	docker save \
+	  calico/node:v3.17.2 \
+	  calico/pod2daemon-flexvol:v3.17.2 \
+	  calico/cni:v3.17.2 \
+	  calico/kube-controllers:v3.17.2 \
+	  kubernetesui/dashboard:v2.0.0 \
+	  k8s.gcr.io/kube-apiserver:v1.20.2 \
+	  k8s.gcr.io/kube-controller-manager:v1.20.2 \
+	  k8s.gcr.io/kube-scheduler:v1.20.2 \
+	  k8s.gcr.io/kube-proxy:v1.20.2 \
+	  k8s.gcr.io/coredns:1.7.0 \
+	  k8s.gcr.io/etcd:3.4.13-0 \
+	  k8s.gcr.io/pause:3.2 > meta-images.tar
+>>>>>>> 4626f3a (Upgrade to kubernetes 1.20.2)
 
 
 [1]: https://www.virtualbox.org/
@@ -107,3 +139,7 @@ Here is the script to make the so-called `k8s-meta-images.tar`:
 [4]: https://github.com/schnell18/vmbot/tree/master/debian
 [5]: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 [6]: https://k8smeetup.github.io/docs/tasks/tools/install-kubectl/
+<<<<<<< HEAD
+=======
+[7]: https://github.com/devopsgroup-io/vagrant-hostmanager
+>>>>>>> 4626f3a (Upgrade to kubernetes 1.20.2)
