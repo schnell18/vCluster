@@ -9,7 +9,6 @@ apiServer:
   - "{{ kubernetes_public_address }}"
   extraArgs:
     enable-admission-plugins: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
-    runtime-config: "{% for config in runtime_configs %}{{ config }}{% if not loop.last %},{% endif %}{% endfor %}"
     advertise-address: {{ kubernetes_public_address }}
 networking:
   podSubnet: "{{ pod_cidr }}"

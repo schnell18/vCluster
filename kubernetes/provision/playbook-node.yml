@@ -1,7 +1,7 @@
 ---
 - hosts: node
   vars:
-    kubernetes_version: "1.17.1"
+    kubernetes_version: "1.20.2"
     kubernetes_gcr_repository: "gcr.azk8s.cn"
 
   become: true

@@ -1,0 +1,6 @@
+backend:
+  size: 1
+
+frontend:
+  title: Helm Installed Visitors Site
+  port: "30686"
