@@ -111,3 +111,15 @@
     mode: 0755
     dest: "/work/.preload/join-command.sh"
   changed_when: False
+
+- name: Fetch kubeconfig file back
+  fetch:
+    src: /root/.kube/config
+    dest: /tmp/kubeconfig
+    flat: True
+  changed_when: False
+
+- name: Print QRCode location
+  debug:
+    msg: "You may now copy /tmp/kubeconfig to your home directory and access the k8s cluster w/ kubectl"
+  changed_when: False

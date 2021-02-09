@@ -1,4 +1,4 @@
-IMAGE_NAME = "debian10.7-min"
+IMAGE_NAME = "debian10.8-min"
 NODES = 3
 EXTRA_DISKS = 2
 
