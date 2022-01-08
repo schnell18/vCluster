@@ -1,6 +1,6 @@
 # Introduction
 
-The project sets up a 1.20.2 kubernetes cluster based on virtual machine
+The project sets up a 1.22.5 kubernetes cluster based on virtual machine
 managed by vagrant and ansible. It is intended for research use on personal
 computer. By default it creates a cluster containing:
 
@@ -8,7 +8,7 @@ computer. By default it creates a cluster containing:
 - slave-1
 - slave-2
 - slave-3
-- slave-4
+
 
 If you wish to add more nodes, you may add nodes change `Vagrantfile` and
 adjust the ansible inventory file `hosts` accordingly.
@@ -29,9 +29,9 @@ Open a command line window, the nagivate to the root directory of this project.
 And run the following commands:
 
     vagrant up
-    ansible-playbook -i hosts provision/playbook-master.yml
-    ansible-playbook -i hosts provision/playbook-node.yml
-    ansible-playbook -i hosts provision/playbook-dashboard.yml
+    ansible-playbook -i provision/hosts provision/playbook-master.yml
+    ansible-playbook -i provision/hosts provision/playbook-node.yml
+    ansible-playbook -i provision/hosts provision/playbook-dashboard.yml
 
 Then you will be prompted to:
 
