@@ -1,11 +1,18 @@
 ---
 - hosts: node
   vars:
-    kubernetes_version: "1.20.2"
+    kubernetes_version: "1.22.5"
     kubernetes_gcr_repository: "gcr.azk8s.cn"
 
   become: true
   pre_tasks:
+
+    - name: Adding local apt repository mirror
+      apt_repository:
+        repo: deb {{ buster_apt_mirror }} buster main contrib non-free
+        state: present
+        filename: newton
+        update_cache: yes
 
     - name: Install disk management packages
       apt:

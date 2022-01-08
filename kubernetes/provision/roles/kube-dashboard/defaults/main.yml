@@ -1,8 +1,8 @@
 ---
 # defaults file for kube-master
 kube_conf_dir: /etc/kubernetes
-kubernetes_public_address: 192.168.50.10
+kubernetes_public_address: 192.168.56.10
 pod_cidr: 10.200.0.0/24
-google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
+google_apt_mirror: http://newton:8081/repository/kubernetes/
 browse_dashboardui: True
 # google_apt_mirror: https://apt.bbvk18.cf/

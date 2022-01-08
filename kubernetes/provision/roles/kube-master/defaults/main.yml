@@ -1,10 +1,12 @@
 ---
 # defaults file for kube-master
 kube_conf_dir: /etc/kubernetes
-kubernetes_public_address: 192.168.50.10
+kubernetes_public_address: 192.168.56.10
 pod_cidr: 10.200.0.0/24
 # google_apt_mirror: https://apt.bbvk18.cf/
-google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
+# google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
+google_apt_mirror: http://newton:8081/repository/kubernetes/
+google_apt_mirror_apt_key: https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
 
 # on Debian 10 which use iptables 1.8, this should be NFT
 # prior to Debian 10, this should be Legacy

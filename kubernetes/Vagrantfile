@@ -1,5 +1,5 @@
 IMAGE_NAME = "schnell18/buster64"
-IMAGE_VERSION = "10.8"
+IMAGE_VERSION = "10.11"
 NODES = 3
 EXTRA_DISKS = 2
 
@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "master" do |master|
         master.vm.box = IMAGE_NAME
         master.vm.box_version = IMAGE_VERSION
-        master.vm.network "private_network", ip: "192.168.50.10"
+        master.vm.network "private_network", ip: "192.168.56.10"
         master.vm.hostname = "master"
         master.vm.provision :hostmanager
         master.hostmanager.aliases = %w(master.kube.vn)
@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
         config.vm.define node_id do |slave|
             slave.vm.box = IMAGE_NAME
             slave.vm.box_version = IMAGE_VERSION
-            slave.vm.network "private_network", ip: "192.168.50.#{i + 10}"
+            slave.vm.network "private_network", ip: "192.168.56.#{i + 10}"
             slave.vm.hostname = node_id
             slave.vm.provision :hostmanager
             slave.hostmanager.aliases = "#{node_id}.kube.vn"
