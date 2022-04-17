@@ -1,14 +1,23 @@
 ---
 # tasks file for docker
 
-- name: Add docker official yum repository
+- name: Copy official docker rpm-gpg keys
+  copy:
+    src: RPM-GPG-KEY-docker
+    dest: /tmp
+
+- name: Import official docker rpm-gpg keys
+  ansible.builtin.rpm_key:
+    state: present
+    key: "/tmp/RPM-GPG-KEY-docker"
+
+- name: Add official docker yum repository
   yum_repository:
     name: docker-ce-stable
     description: Docker official repository
     file: docker-ce
     baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
     gpgcheck: yes
-    gpgkey: https://download.docker.com/linux/centos/gpg
 
 - name: Install docker and its dependecies
   yum:

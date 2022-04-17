@@ -1,6 +1,6 @@
 ---
 
-- name: Copy MySQL official rpm-gpg keys
+- name: Copy official MySQL rpm-gpg keys
   copy:
     src: "{{ item }}"
     dest: /tmp
@@ -8,7 +8,7 @@
     - RPM-GPG-KEY-mysql
     - RPM-GPG-KEY-mysql-2022
 
-- name: Import official GPG MySQL keys
+- name: Import official MySQL rpm-gpg keys
   ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
@@ -17,7 +17,7 @@
     - /tmp/RPM-GPG-KEY-mysql-2022
 
 # mysql-community-client does not exist in MySQL 5.7
-- name: Add MySQL official yum repository
+- name: Add official MySQL yum repository
   yum_repository:
     name: mysql80-community
     description: MySQL 80 Community Server
