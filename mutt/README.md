@@ -34,6 +34,10 @@ Install docker module use ansible galaxy:
 
     ansible-galaxy collection install community.docker
 
+## query RPM GPG public key
+
+rpm --query gpg-pubkey | xargs rpm --query gpg-pubkey --queryformat "%{NAME}-%{VERSION}-%{RELEASE}\n\tSUMMARY: %{SUMMARY}\n\tPACKAGER: %{PACKAGER}\n\tINSTALL TIME: %{INSTALLTIME:date}\n"
+
 [1]: https://www.virtualbox.org/
 [2]: https://www.vagrantup.com/
 [3]: https://github.com/devopsgroup-io/vagrant-hostmanager

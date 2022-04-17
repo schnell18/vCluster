@@ -1,9 +1,6 @@
 ---
 
-- hosts: master
-  vars:
-    kubernetes_version: "1.22.5"
-    kubernetes_gcr_repository: "gcr.azk8s.cn"
+- hosts: node
   become: true
 
   pre_tasks:
@@ -20,6 +17,6 @@
       when: ansible_swaptotal_mb > 0
 
   roles:
+    - role: redis-cli
+    - role: mysql-client
     - role: docker
-    - role: kube-master
-    - role: local-pv-provisioner

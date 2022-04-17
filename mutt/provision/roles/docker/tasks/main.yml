@@ -1,19 +1,17 @@
 ---
 # tasks file for docker
 
-- name: Add an apt signing key for Docker
-  apt_key:
-    data: "{{ lookup('file', 'docker-apt-key.asc') }}"
-    state: present
-
-- name: Add docker stable apt repository
-  apt_repository:
-    repo: deb [arch=amd64] {{ docker_apt_mirror }} buster stable
-    state: present
-    filename: docker
+- name: Add docker official yum repository
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker official repository
+    file: docker-ce
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
 
 - name: Install docker and its dependecies
-  apt:
+  yum:
     name: "{{ packages }}"
     state: present
     update_cache: yes
