@@ -15,6 +15,11 @@
     - name: Disable swap
       command: swapoff -a
       when: ansible_swaptotal_mb > 0
+    - name: Ensure existence of log directory
+      file:
+        path: /var/log/mutt
+        state: directory
+
 
   roles:
     - role: redis-cli

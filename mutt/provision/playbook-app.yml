@@ -1,0 +1,35 @@
+---
+
+- hosts: node
+  become: true
+  vars:
+    image_tag: "{{ version | default('6.0.16-alpine') }}"
+    image_name: "redis"
+
+  pre_tasks:
+
+    # - name: Login docker registry
+    #   community.docker.docker_login:
+    #     # registry: your.private.registry
+    #     username: "scott"
+    #     password: "tiger"
+
+  tasks:
+    - name: "Pull image {{ image_name }}:{{ image_tag }}"
+      community.docker.docker_image:
+        name: redis
+        tag: "{{ image_tag }}"
+        source: pull
+
+    - name: Deploy new mutt version
+      community.docker.docker_container:
+        name: mutt
+        image: "{{ image_name }}:{{ image_tag }}"
+        state: started
+        restart: yes
+        mounts:
+          - source: "/var/log/mutt"
+            target: "/var/log/mutt"
+            type: bind
+        ports:
+         - "6379:6379"

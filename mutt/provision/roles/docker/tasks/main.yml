@@ -29,8 +29,16 @@
     - docker-ce
     - docker-ce-cli
     - containerd.io
+    - python-pip
   notify:
     - Restart docker
+
+- name: Install Docker SDK for Python
+  pip:
+    name: "{{ item }}"
+  loop:
+    - "docker<5"
+    - "websocket-client<1"
 
 - name: Add devel user to docker group
   user:

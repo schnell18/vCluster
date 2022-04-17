@@ -1,6 +1,0 @@
----
-- hosts: all
-  gather_facts: yes
-  tasks:
-    - debug: var=hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]
-    - debug: var=hostvars[inventory_hostname]['inventory_hostname_short']

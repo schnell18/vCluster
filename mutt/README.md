@@ -25,7 +25,7 @@ Open a command line window, the nagivate to the root directory of this project.
 And run the following commands:
 
     vagrant up
-    ansible-playbook -i provision/hosts provision/playbook.yml
+    ansible-playbook -i provision/hosts provision/playbook-infra.yml
 
 
 ## using ansible galaxy
@@ -33,6 +33,10 @@ And run the following commands:
 Install docker module use ansible galaxy:
 
     ansible-galaxy collection install community.docker
+
+## deploy mutt
+
+    ansible-playbook --extra-vars "version=v0.0.1-41" -i provision/hosts provision/playbook-app.yml
 
 ## query RPM GPG public key
 
