@@ -1,0 +1,51 @@
+IMAGE_NAME = "schnell18/centos7"
+IMAGE_VERSION = "7.9"
+NODES = 3
+
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+    config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/work", automount: true, SharedFoldersEnableSymlinksCreate: false
+
+    # take care of /etc/hosts in both host and guest
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
+
+    (1..NODES).each do |i|
+        node_id = "mutt#{i}"
+        config.vm.define node_id do |node|
+            node.vm.box = IMAGE_NAME
+            node.vm.box_version = IMAGE_VERSION
+            node.vm.network "private_network", ip: "192.168.56.#{i + 60}"
+            node.vm.hostname = node_id
+            node.vm.provision :hostmanager
+            node.hostmanager.aliases = "#{node_id}.kube.vn"
+
+            vmdir = get_vm_disk_directory(node_id)
+
+            node.vm.provider "virtualbox" do |v|
+                # vm name must be assigned w/ node id
+                # otherwise, extra disks won't be created
+                v.name = node_id
+                v.memory = 2048
+                v.cpus = 2
+                v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+            end
+        end
+    end
+end
+
+def get_vm_disk_directory(vmname)
+    path = %x(vboxmanage list systemproperties)
+        .split(/\n/)
+        .grep(/Default machine folder/)
+        .first()
+        .split(/:/)[1]
+        .strip()
+    vmdir = File.join(path, vmname)
+    return vmdir
+end
+
+# vim:set nu ai expandtab sw=4 ts=4 syntax=ruby:

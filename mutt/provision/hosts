@@ -1,0 +1,6 @@
+[node]
+mutt[1:3].kube.vn
+
+[all:vars]
+ansible_ssh_user=devel
+ansible_python_interpreter=/usr/bin/python3
