@@ -1,0 +1,22 @@
+[Unit]
+Description=My pointless service
+After=network.target
+
+
+[Service]
+; this does not work, you have to create `WorkingDirectory` 
+; outside of script invoked by systemd
+; ExecStartPre=/bin/mkdir -p /var/lib/pointless
+;
+
+Type=simple
+User=devel
+Group=devel
+Environment=GOPATH=/home/devel/go
+Environment=JAVA_HOME=/home/devel/java
+ExecStart=/usr/local/bin/pointless.sh
+Restart=always
+WorkingDirectory=/var/lib/pointless
+
+[Install]
+WantedBy=multi-user.target
