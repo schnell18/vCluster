@@ -1,18 +1,18 @@
 ---
 - hosts: node
   vars:
-    kubernetes_version: "1.22.5"
+    kubernetes_version: "1.24.0"
     kubernetes_gcr_repository: "gcr.azk8s.cn"
 
   become: true
   pre_tasks:
 
-    - name: Adding local apt repository mirror
-      apt_repository:
-        repo: deb {{ buster_apt_mirror }} buster main contrib non-free
-        state: present
-        filename: newton
-        update_cache: yes
+    # - name: Adding local apt repository mirror
+    #   apt_repository:
+    #     repo: deb {{ buster_apt_mirror }} buster main contrib non-free
+    #     state: present
+    #     filename: newton
+    #     update_cache: yes
 
     - name: Install disk management packages
       apt:
@@ -23,6 +23,25 @@
         packages:
         - parted
 
+    - name: Add pre-requisite kernel modules
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+    - name: Config networking parameters
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables', value: '1'}
+        - { key: 'net.ipv4.ip_forward', value: '1'}
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1'}
+
   roles:
-    - role: docker
+    - role: containerd
     - role: kube-node

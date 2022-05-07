@@ -2,9 +2,9 @@
 # defaults file for kube-node
 kube_conf_dir: /etc/kubernetes
 kubernetes_public_address: 192.168.56.10
-  #google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
-google_apt_mirror: http://newton:8081/repository/kubernetes/
-buster_apt_mirror: http://newton:8081/repository/buster/
+google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
+# google_apt_mirror: http://newton:8081/repository/kubernetes/
+# buster_apt_mirror: http://newton:8081/repository/buster/
 # google_apt_mirror: https://apt.bbvk18.cf/
 google_apt_mirror_apt_key: https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
 
@@ -13,7 +13,7 @@ disk_additional_disks:
 - device: /dev/sdb
   disk: disk1
   fstype: ext4
-  partitions: 10 
+  partitions: 10
 - device: /dev/sdc
   disk: disk2
   fstype: ext4

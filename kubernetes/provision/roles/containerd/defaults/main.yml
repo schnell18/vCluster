@@ -1,6 +1,7 @@
 ---
 
-docker_apt_mirror: https://mirrors.ustc.edu.cn/docker-ce/linux/debian
+#docker_apt_mirror: https://mirrors.ustc.edu.cn/docker-ce/linux/debian
+docker_apt_mirror: https://download.docker.com/linux/debian
 enable_docker_registry_mirrors: True
 docker_registry_mirrors:
   - https://mirror.ccs.tencentyun.com

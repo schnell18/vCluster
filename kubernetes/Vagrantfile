@@ -17,6 +17,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "master" do |master|
         master.vm.box = IMAGE_NAME
         master.vm.box_version = IMAGE_VERSION
+        # IP address of hostonly vm should fall into 192.168.56/21
+        # according to https://www.virtualbox.org/manual/UserManual.html
         master.vm.network "private_network", ip: "192.168.56.10"
         master.vm.hostname = "master"
         master.vm.provision :hostmanager

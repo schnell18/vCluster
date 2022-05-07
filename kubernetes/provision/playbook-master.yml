@@ -2,7 +2,7 @@
 
 - hosts: master
   vars:
-    kubernetes_version: "1.22.5"
+    kubernetes_version: "1.24.0"
     kubernetes_gcr_repository: "gcr.azk8s.cn"
   become: true
 
@@ -19,7 +19,33 @@
       command: swapoff -a
       when: ansible_swaptotal_mb > 0
 
+    - name: Add pre-requisite kernel modules
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+    - name: Config networking parameters
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables', value: '1'}
+        - { key: 'net.ipv4.ip_forward', value: '1'}
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1'}
+
+      # loop: "{{ sysctl_map | dict2items }}"
+      # vars:
+      #   sysctl_map:
+      #     net.bridge.bridge-nf-call-iptables : 1
+      #     net.ipv4.ip_forward: 1
+      #     net.bridge.bridge-nf-call-ip6tables: 1
+
   roles:
-    - role: docker
+    - role: containerd
     - role: kube-master
     - role: local-pv-provisioner

@@ -1,0 +1,43 @@
+---
+# tasks file for containerd
+
+- name: Add an apt signing key for Docker
+  apt_key:
+    data: "{{ lookup('file', 'docker-apt-key.asc') }}"
+    state: present
+
+- name: Add containerd stable apt repository
+  apt_repository:
+    repo: deb [arch=amd64] {{ docker_apt_mirror }} buster stable
+    state: present
+    filename: containerd
+
+- name: Install containerd and its dependecies
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - containerd.io
+  notify:
+    - Restart containerd
+
+# - name: Add devel user to containerd group
+#   user:
+#     name: devel
+#     group: containerd
+
+- name: Make sure /etc/containerd exists
+  file:
+    path: /etc/containerd
+    state: directory
+- name: Add containerd config file
+  copy:
+    content: "{{ lookup('template', 'config.toml') }}"
+    mode: 0755
+    dest: /etc/containerd/config.toml
+  notify:
+    - Restart containerd
+
+- meta: flush_handlers
