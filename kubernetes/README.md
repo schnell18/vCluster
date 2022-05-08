@@ -1,6 +1,6 @@
 # Introduction
 
-The project sets up a 1.22.5 kubernetes cluster based on virtual machine
+The project sets up a 1.24.0 kubernetes cluster based on virtual machine
 managed by vagrant and ansible. It is intended for research use on personal
 computer. By default it creates a cluster containing:
 
@@ -46,59 +46,44 @@ You need install [kubectl][6] on your laptop and copy the
 under the sub directory `.kube` of you home directory.
 Other tools depend on this setup.
 
-## proxy issue
+## 1.24 compatibility issue
 
-For well-known reason, people from China need proxy to access google
-docker image registry and apt packages. This project helps to workaround
-these issues. You may preload the gcr meta images by save them into a file
-call `k8s-meta-images.tar` and put it under the .preload directory. Ansible
-will automatically load these images into master as well as any node.
+Since 1.24, sercet of service account is no longer created by default. You need
+set the feature gate `LegacyServiceAccountTokenNoAutoGeneration` to `false` and pass
+to controller-manager to get secret auto created.
+You may accomplish this by specify the feature gate in kubeadm config file as:
 
-Here is the script to make the so-called `k8s-meta-images.tar`:
 
-    sudo docker pull gcr.azk8s.cn/google_containers/kube-apiserver:v1.18.0
-    sudo docker pull gcr.azk8s.cn/google_containers/kube-controller-manager:v1.18.0
-    sudo docker pull gcr.azk8s.cn/google_containers/kube-scheduler:v1.18.0
-    sudo docker pull gcr.azk8s.cn/google_containers/kube-proxy:v1.18.0
-    sudo docker pull gcr.azk8s.cn/google_containers/coredns:1.6.7
-    sudo docker pull gcr.azk8s.cn/google_containers/etcd:3.4.3-0
-    sudo docker pull gcr.azk8s.cn/google_containers/pause:3.2
+    apiVersion: kubeadm.k8s.io/v1beta3
+    kind: ClusterConfiguration
+    clusterName: kubernetes
+    kubernetesVersion: v1.24.0
+    ...
+    controllerManager:
+      extraArgs:
+        # auto-create secret for service account to be compatible w/ previous releases
+        feature-gates: LegacyServiceAccountTokenNoAutoGeneration=false
 
-    sudo docker pull dockerhub.azk8s.cn/kubernetesui/metrics-scraper:v1.0.1
-    sudo docker pull dockerhub.azk8s.cn/kubernetesui/dashboard:v2.0.0-beta8
-    sudo docker pull dockerhub.azk8s.cn/calico/node:v3.12.0
-    sudo docker pull dockerhub.azk8s.cn/calico/pod2daemon-flexvol:v3.12.0
-    sudo docker pull dockerhub.azk8s.cn/calico/cni:v3.12.0
-    sudo docker pull dockerhub.azk8s.cn/calico/kube-controllers:v3.12.0
+Please be advised that for kubernetes 1.24, apiVersion must be `kubeadm.k8s.io/v1beta3`.
+If you upgrade an existing kubernetes cluster to 1.24. You may change the
+`/etc/kubernetes/manifests/kube-controller-manager.yaml` directly:
 
-    sudo docker tag gcr.azk8s.cn/google_containers/kube-apiserver:v1.18.0          k8s.gcr.io/kube-apiserver:v1.18.0
-    sudo docker tag gcr.azk8s.cn/google_containers/kube-controller-manager:v1.18.0 k8s.gcr.io/kube-controller-manager:v1.18.0
-    sudo docker tag gcr.azk8s.cn/google_containers/kube-scheduler:v1.18.0          k8s.gcr.io/kube-scheduler:v1.18.0
-    sudo docker tag gcr.azk8s.cn/google_containers/kube-proxy:v1.18.0              k8s.gcr.io/kube-proxy:v1.18.0
-    sudo docker tag gcr.azk8s.cn/google_containers/coredns:1.6.7                   k8s.gcr.io/coredns:1.6.7
-    sudo docker tag gcr.azk8s.cn/google_containers/etcd:3.4.3-0                    k8s.gcr.io/etcd:3.4.3-0
-    sudo docker tag gcr.azk8s.cn/google_containers/pause:3.2                       k8s.gcr.io/pause:3.2
-    sudo docker tag dockerhub.azk8s.cn/kubernetesui/metrics-scraper:v1.0.1 kubernetesui/metrics-scraper:v1.0.1
-    sudo docker tag dockerhub.azk8s.cn/kubernetesui/dashboard:v2.0.0-beta8 kubernetesui/dashboard:v2.0.0-beta8
-    sudo docker tag dockerhub.azk8s.cn/calico/node:v3.12.0                 calico/node:v3.12.0
-    sudo docker tag dockerhub.azk8s.cn/calico/pod2daemon-flexvol:v3.12.0   calico/pod2daemon-flexvol:v3.12.0
-    sudo docker tag dockerhub.azk8s.cn/calico/cni:v3.12.0                  calico/cni:v3.12.0
-    sudo docker tag dockerhub.azk8s.cn/calico/kube-controllers:v3.12.0     calico/kube-controllers:v3.12.0
+    metadata:
+      creationTimestamp: null
+      labels:
+        component: kube-controller-manager
+        tier: control-plane
+      name: kube-controller-manager
+      namespace: kube-system
+    spec:
+      containers:
+      - command:
+        - kube-controller-manager
+        - --allocate-node-cidrs=true
+        ...
+        - --feature-gates=LegacyServiceAccountTokenNoAutoGeneration=false
+        ...
 
-    sudo docker save \
-          calico/node:v3.12.0 \
-          calico/pod2daemon-flexvol:v3.12.0 \
-          calico/cni:v3.12.0 \
-          calico/kube-controllers:v3.12.0 \
-          kubernetesui/metrics-scraper:v1.0.1 \
-          kubernetesui/dashboard:v2.0.0-beta8 \
-          k8s.gcr.io/kube-apiserver:v1.18.0 \
-          k8s.gcr.io/kube-controller-manager:v1.18.0 \
-          k8s.gcr.io/kube-scheduler:v1.18.0 \
-          k8s.gcr.io/kube-proxy:v1.18.0 \
-          k8s.gcr.io/coredns:1.6.7 \
-          k8s.gcr.io/etcd:3.4.3-0 \
-          k8s.gcr.io/pause:3.2 > k8s-meta-images.tar
 
 
 [1]: https://www.virtualbox.org/

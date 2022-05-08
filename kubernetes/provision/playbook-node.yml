@@ -1,5 +1,5 @@
 ---
-- hosts: node
+- hosts: slave-*
   vars:
     kubernetes_version: "1.24.0"
     kubernetes_gcr_repository: "gcr.azk8s.cn"

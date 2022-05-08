@@ -31,9 +31,9 @@ Vagrant.configure("2") do |config|
             v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
 
-        #  master.vm.provision "ansible" do |ansible|
-        #      ansible.playbook = "provision/playbook-master.yml"
-        #  end
+        master.vm.provision "ansible" do |ansible|
+            ansible.playbook = "provision/playbook-master.yml"
+        end
     end
 
     (1..NODES).each do |i|
@@ -75,6 +75,11 @@ Vagrant.configure("2") do |config|
                         ]
                     end
                 end
+            end
+
+            slave.vm.provision "ansible" do |ansible|
+                ansible.playbook = "provision/playbook-node.yml"
+                ansible.config_file = "provision/ansible.cfg"
             end
         end
     end
