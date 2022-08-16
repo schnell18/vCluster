@@ -1,0 +1,7 @@
+system:authenticated
+system:bootstrappers:kubeadm:default-node-token
+system:masters
+system:monitoring
+system:nodes
+system:serviceaccounts
+system:unauthenticated
