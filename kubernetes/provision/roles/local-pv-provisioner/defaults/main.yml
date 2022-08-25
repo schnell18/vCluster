@@ -1,7 +1,7 @@
 ---
 # defaults file for local-pv-provisioner
-# namespace: kube-system
-namespace: default
+# namespace: default
+namespace: kube-system
 storage_class_name: local-storage
-discovery_directory: /mnt/disks 
+discovery_directory: /mnt/disks
 local_pv_provisioner_image:  quay.io/external_storage/local-volume-provisioner:v2.1.0

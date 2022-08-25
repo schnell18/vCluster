@@ -2,7 +2,7 @@
 
 - hosts: master
   vars:
-    kubernetes_version: "1.24.0"
+    kubernetes_version: "1.25.0"
     kubernetes_gcr_repository: "gcr.azk8s.cn"
   become: true
 
