@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: titra-persistent-storage-claim
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titra
+  labels:
+    app: titra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: titra
+  template:
+    metadata:
+      labels:
+        app: titra
+        replicaset: MainRepSet
+    spec:
+      containers:
+      - name: titra
+        image: docker.io/kromit/titra:0.79.3
+        imagePullPolicy: IfNotPresent
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "trap : TERM INT; sleep 9999999999d & wait" ]
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: titra-persistent-storage-claim
+            mountPath: /data
+      volumes:
+        - name: titra-persistent-storage-claim
+          persistentVolumeClaim:
+            claimName: titra-persistent-storage-claim
