@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: noop-shell
+spec:
+  containers:
+  - name: noop-shell
+    image: mongo:4.4.16-focal
+    # Just spin & wait forever
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "trap : TERM INT; sleep 9999999999d & wait" ]
+

@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wekan-service
+  labels:
+    name: wekan
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 32080
+  selector:
+    app: wekan
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wekan-persistent-storage-claim
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wekan
+  labels:
+    app: wekan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wekan
+  template:
+    metadata:
+      labels:
+        app: wekan
+    spec:
+      initContainers:
+      - name: wekan-data-chowner
+        image: alpine:3.15
+        command: ["chown", "-R", "999:999", "/mnt"]
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["all"]
+            add: ["CHOWN"]
+          runAsUser: 0
+          runAsNonRoot: false
+        volumeMounts:
+        - name: wekan-persistent-storage-claim
+          mountPath: /mnt
+      containers:
+      - name: wekan
+        image: quay.io/wekan/wekan:v6.30
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+        env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MACHINE_MEMORY
+          value: "500Mi"
+        - name: WRITABLE_PATH
+          value: "/data"
+        - name: MONGO_URL
+          value: "mongodb://wekan:wekan@mongod-0.mongodb-service,mongod-1.mongodb-service,mongod-2.mongodb-servicemongodb/wekan?authSource=wekan&replicaSet=MainRepSet"
+        - name: ROOT_URL
+          value: "http://wekan.kube.vn:32080"
+        - name: CORS
+          value: "*"
+        - name: CORS_ALLOW_HEADERS
+          value: "Authorization,Content-Type"
+        - name: MAIL_URL
+          value: "smtp://<mail_url>:25/?ignoreTLS=true&tls={rejectUnauthorized:false}"
+        - name: MAIL_FROM
+          value: "Wekan Notifications <noreply.wekan@mydomain.com>"
+        - name: WITH_API
+          value: "true"
+        - name: RICHER_CARD_COMMENT_EDITOR
+          value: "false"
+        - name: CARD_OPENED_WEBHOOK_ENABLED
+          value: "false"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: wekan-persistent-storage-claim
+            mountPath: /data
+      volumes:
+        - name: wekan-persistent-storage-claim
+          persistentVolumeClaim:
+            claimName: wekan-persistent-storage-claim

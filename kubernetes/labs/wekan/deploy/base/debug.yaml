@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wekan-persistent-storage-claim
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wekan
+  labels:
+    app: wekan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wekan
+  template:
+    metadata:
+      labels:
+        app: wekan
+        replicaset: MainRepSet
+    spec:
+      affinity:
+        # This is to prevent wekan replicas from ending up on the same host machine
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: replicaset
+                  operator: In
+                  values:
+                  - MainRepSet
+              topologyKey: kubernetes.io/hostname
+      initContainers:
+      - name: wekan-data-chowner
+        image: alpine:3.15
+        command: ["chown", "-R", "999:999", "/mnt"]
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["all"]
+            add: ["CHOWN"]
+          runAsUser: 0
+          runAsNonRoot: false
+        volumeMounts:
+        - name: wekan-persistent-storage-claim
+          mountPath: /mnt
+      containers:
+      - name: wekan
+        image: quay.io/wekan/wekan:v6.30
+        imagePullPolicy: IfNotPresent
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "trap : TERM INT; sleep 9999999999d & wait" ]
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: wekan-persistent-storage-claim
+            mountPath: /data
+      volumes:
+        - name: wekan-persistent-storage-claim
+          persistentVolumeClaim:
+            claimName: wekan-persistent-storage-claim
