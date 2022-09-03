@@ -116,7 +116,7 @@
     flat: True
   changed_when: False
 
-- name: Print QRCode location
+- name: Print kubeconfig location
   debug:
     msg: "You may now copy /tmp/kubeconfig to your home directory and access the k8s cluster w/ kubectl"
   changed_when: False
