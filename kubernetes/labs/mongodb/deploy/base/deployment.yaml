@@ -1,0 +1,141 @@
+apiVersion: v1
+data:
+  mongosecret: WUlvWGswVmxDeFVrVVF2WG92bEg0ampxZUt5TUd6MjRWRXJkVVN3NlJaZnVyVVNZZ29pY2V2VUp6Ykw2eGxzcwp2Wk5NZFpSMkNXbGJORVl1THpQZ09VQVdZSW4zSkc3UlAyeXVEL05qR2IwSzVHMnRoQ2Q5OHZyUlYwRDRFSTBuCllQeGc4U0JLWkFwSHZqU2lzazl2b2ZRVG4yWFg1L3F4cXdGbmhLMHdTc2FjN2pwSTJYK1A1NWVlaitzNk02UEMKWGg0N2Y3ejlXbEFZQ1JqY3JsT0Rrb3I3dlZvMFpsS2FPbEYzalYwWUhZTGJLOFpSS3RlT1hYY2dIbGpHNTlwaApkUXk0NDFIdmFvbUlWUG1kMzI5NDQxUjVNSHdqQUwzdEhtcXl0MFp6SVRDanByUHM0VzhGUHZidm9ET1dmTDdqCkpVdXVkRi9nL3dKWG1NQm9abGJHMHk2bHgyeVNOTmtVVTFpclRleTFJc1VEaU9Mb1ZxNGVLNkV3a1dKdk85TTQKc05xS1lMUDdPbVJYUEJiZXhBaUx2WlBSbnpOcWVxblV3NDNLUWZMdTUwQUp3K0NVMElEV3NGeWx3ZHdDZ2pBegpRSkVhVSsyRzlUWUltWjdzaWQrQ2k5SjhwYXRNZFdaV2VXOFJZNjlCS2lOVXh5U0tCYVEvdVFaNXN1RmIyWlRvClJGUUJlaEZyaWloQ0E5QXJCSVFDWlVHVm94bmxMUEw4TjV2QUk3Ukp5L1Aza3RuK1VJb2J3NWRkSmhBc0ZVRlkKMDl6aTFBSGlnMlA1ajVEV1hYWGMxc2NZQTkrelBTT1BYbmE1RGp0anZSdytyVzhZWEx0QWxETXowZGRReTNxVwpFdWFaY0ZpQkxuNWNLdVR3WVgrOEV6djhHNk8zLytxa0hkWjRTLy9VUi9TV2JiQ1g0bWtMRVZpeS9pUWVWUkV4CkM3aG44T1pXallNcWk3ZHBwWEJnb2lVbHhsdUNBVGh5UkJHamlmTlZjbUxRT05hSGM5TmdDL1dnTDFEK1RUMlMKYXpsTkE4bUFkSk9SNmVRcVU1MEhld2pLamlEQlArVHN2KzZqaTM3V3RXYWpnWmVjcnhRbTlnZWUrZlVURnlhdQphSllGM2x3K1YzdXJ1RmpJa3k5TTVtRG9TOWhIOFlVc0ZGNGhWOWdlNldsdTRGOERYeVIxc2IzQ1phd3d0dWJwCjJoRSs1YzQyQ3RGWEdhTFZ6azZJNDdwVEpQK3V2OEVTUUQvSUhvRkVPMnJRYUs0T1ltVzFKZVhaN09GcDNZd3AKWS84TEVlNVZIOVRyTXdIVGRLVjV3VmVSV3gvcUFFTEwvWnJabzMxcVhtVzBuSEh5Cg==
+kind: Secret
+metadata:
+  name: mongosecret
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  labels:
+    name: mongo
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
+  selector:
+    role: mongo
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongod
+spec:
+  selector:
+    matchLabels:
+      role: mongo
+  serviceName: mongodb-service
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        role: mongo
+        environment: test
+        replicaset: MainRepSet
+    spec:
+      affinity:
+        # This is to prevent mongodb replicas from ending up on the same
+        # host machine
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: replicaset
+                  operator: In
+                  values:
+                  - MainRepSet
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongod-container
+          image: mongo:4.4.16-focal
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: STATEFULSET_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MACHINE_MEMORY
+            value: "500Mi"
+          # We can change this to a secret
+          - name: MONGO_USER
+            value: "admin"
+          - name: MONGO_PASSWORD
+            value: "abc123"
+          command:
+            - "bash"
+            - "-c"
+            #the default cache size guidance is: "50% of RAM minus 1 GB, or 256 MB"
+            # Which is why the wired tiger cache size is this way. This assumes 2gb of memory
+            # on the host machine. The plan is to change 0.25 to a calculated value
+            # by passing an environment variable that contains the host machines memory
+            # and automatically "personalizing" mongo to the machine its running on
+            - |
+              numactl --interleave=all mongod --wiredTigerCacheSizeGB 0.25 --bind_ip 0.0.0.0 \
+              --replSet MainRepSet --auth --clusterAuthMode keyFile \
+              --keyFile /etc/secrets-volume/mongosecret \
+              --setParameter authenticationMechanisms=SCRAM-SHA-1 \
+              --fork --logpath /var/log/mongod.log \
+              &&
+              if [ $STATEFULSET_NAME == "mongod-0" ];
+              then
+                initiated=0
+                replica_exists=false
+                while [ "$replica_exists" != true ]
+                do
+                  # Need to check to make sure that the other pods are currently up
+                  initiated=`mongo --quiet --eval 'rs.initiate({_id: "MainRepSet", version: 1, members: [
+                         { _id: 0, host : "mongod-0.mongodb-service:27017" },
+                         { _id: 1, host : "mongod-1.mongodb-service:27017" },
+                         { _id: 2, host : "mongod-2.mongodb-service:27017" }
+                   ]})["ok"]'`;
+                  replica_exists=`mongo --quiet --eval 'db.isMaster()["ismaster"]'`;
+                   # Shit we need to check rs status i think instead
+                  echo "Replica exists: " $replica_exists;
+                  sleep 2
+                done
+                # If everything else is workign then we need to create an admin user
+                mongo --eval "db.getSiblingDB('admin').createUser({
+                      user : \"$MONGO_USER\",
+                      pwd  : \"$MONGO_PASSWORD\",
+                      roles: [ { role: 'root', db: 'admin' } ]
+                });"
+                echo "STATEFULSET_NAME: $STATEFULSET_NAME \n MACHINE_MEMORY: $MACHINE_MEMORY";
+              fi && tail -f /var/log/mongod.log
+          resources:
+            requests:
+              cpu: 1
+              memory: 800Mi
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: secrets-volume
+              # readOnly: true
+              mountPath: /etc/secrets-volume/mongosecret
+              subPath: mongosecret
+            - name: mongodb-persistent-storage-claim
+              mountPath: /data/db
+      volumes:
+        - name: secrets-volume
+          secret:
+            secretName: mongosecret
+            # https://coderstoolbox.net/number/
+            # Convert to octal to decimal because kube only accepts
+            # decimal as input
+            defaultMode: 256
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-persistent-storage-claim
+    spec:
+      accessModes:
+       - "ReadWriteOnce"
+      storageClassName: "local-storage"
+      resources:
+        requests:
+          storage: 5000Mi
