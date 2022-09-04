@@ -94,7 +94,7 @@ spec:
                          { _id: 0, host : "mongod-0.mongodb-service:27017" },
                          { _id: 1, host : "mongod-1.mongodb-service:27017" },
                          { _id: 2, host : "mongod-2.mongodb-service:27017" }
-                   ]})["ok"]'`;
+                  ]})["ok"]'`;
                   replica_exists=`mongo --quiet --eval 'db.isMaster()["ismaster"]'`;
                    # Shit we need to check rs status i think instead
                   echo "Replica exists: " $replica_exists;
@@ -105,6 +105,18 @@ spec:
                       user : \"$MONGO_USER\",
                       pwd  : \"$MONGO_PASSWORD\",
                       roles: [ { role: 'root', db: 'admin' } ]
+                });
+                "
+                mongo --eval "db.getSiblingDB('wekan').createUser({
+                      user : 'wekan',
+                      pwd  : 'wekan',
+                      roles: [ { role: 'readWrite', db: 'wekan' } ]
+                });"
+
+                mongo --eval "db.getSiblingDB('titra').createUser({
+                      user : 'titra',
+                      pwd  : 'titra',
+                      roles: [ { role: 'readWrite', db: 'titra' } ]
                 });"
                 echo "STATEFULSET_NAME: $STATEFULSET_NAME \n MACHINE_MEMORY: $MACHINE_MEMORY";
               fi && tail -f /var/log/mongod.log

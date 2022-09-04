@@ -12,14 +12,14 @@ Connect to mongo with CLI:
 
 
     mongo --eval "db.getSiblingDB('wekan').createUser({
-          user : \"wekan\",
-          pwd  : \"wekan\",
+          user : 'wekan',
+          pwd  : 'wekan',
           roles: [ { role: 'readWrite', db: 'wekan' } ]
     });"
 
     mongo --eval "db.getSiblingDB('titra').createUser({
-          user : \"titra\",
-          pwd  : \"titra\",
+          user : 'titra',
+          pwd  : 'titra',
           roles: [ { role: 'readWrite', db: 'titra' } ]
     });"
 
