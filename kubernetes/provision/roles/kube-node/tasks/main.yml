@@ -16,12 +16,13 @@
 
 - name: Add an apt signing key for Kubernetes
   apt_key:
-    url: "{{ google_apt_mirror_apt_key }}"
+    url: "{{ kubernetes_apt_mirror_apt_key }}"
     state: present
 
 - name: Adding apt repository for Kubernetes
   apt_repository:
-    repo: deb {{ google_apt_mirror }} kubernetes-xenial main
+    repo: deb {{ kubernetes_apt_mirror }} /
+    # repo: deb {{ google_apt_mirror }} kubernetes-xenial main
     # repo: deb https://apt.bbvk18.cf/ kubernetes-xenial main
     state: present
     filename: kubernetes
@@ -33,9 +34,9 @@
     state: present
   vars:
     packages:
-      - kubelet={{ kubernetes_version }}-00
-      - kubeadm={{ kubernetes_version }}-00
-      - kubectl={{ kubernetes_version }}-00
+      - kubelet={{ kubernetes_version }}-{{ kubernetes_pkg_rev }}
+      - kubeadm={{ kubernetes_version }}-{{ kubernetes_pkg_rev }}
+      - kubectl={{ kubernetes_version }}-{{ kubernetes_pkg_rev }}
 
 - name: Configure node ip
   lineinfile:

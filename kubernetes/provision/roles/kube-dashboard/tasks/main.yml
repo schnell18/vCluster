@@ -28,13 +28,22 @@
     executable: /bin/bash
   register: inst
   changed_when: False
+
 - name: Print dashboard access instruction
   debug:
     msg: |
      You may access the dashbaord by: run kubectl proxy then click this link http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ w/ token: {{ inst.stdout }}
 
 - name: Launch a browser to access dashboard
-  command: "xdg-open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/"
+  shell: |
+    case $(uname) in
+      Linux)
+        xdg-open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+        ;;
+      Darwin)
+        open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+        ;;
+    esac
   delegate_to: localhost
   changed_when: False
-  when: "browse_dashboardui"
+  when: browse_dashboardui == True

@@ -12,7 +12,3 @@ apiServer:
     advertise-address: {{ kubernetes_public_address }}
 networking:
   podSubnet: "{{ pod_cidr }}"
-controllerManager:
-  extraArgs:
-    # auto-create secret for service account to be compatible w/ previous releases
-    feature-gates: LegacyServiceAccountTokenNoAutoGeneration=false

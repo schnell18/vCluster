@@ -1,6 +1,6 @@
 ---
 - hosts: master
   vars:
-    - browse_dashboardui: True
+    browse_dashboardui: True
   roles:
     - role: kube-dashboard
