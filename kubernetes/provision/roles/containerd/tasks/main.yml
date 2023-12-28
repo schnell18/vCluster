@@ -32,12 +32,19 @@
   file:
     path: /etc/containerd
     state: directory
+
 - name: Add containerd config file
   copy:
     content: "{{ lookup('template', 'config.toml') }}"
-    mode: 0755
+    mode: 0644
     dest: /etc/containerd/config.toml
   notify:
     - Restart containerd
+
+- name: Add crictl config file
+  copy:
+    content: "{{ lookup('template', 'crictl.yaml') }}"
+    mode: 0644
+    dest: /etc/crictl.yaml
 
 - meta: flush_handlers
