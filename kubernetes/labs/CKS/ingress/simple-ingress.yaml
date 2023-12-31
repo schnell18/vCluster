@@ -1,0 +1,43 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+  name: nginx
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # required for nginx ingress controll 1.0.0+
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - entry.kube.vn
+    secretName: min-ingress-tls
+  rules:
+  - host: entry.kube.vn
+    http:
+      paths:
+      - path: /web1
+        pathType: Prefix
+        backend:
+          service:
+            name: web1
+            port:
+              number: 80
+      - path: /web2
+        pathType: Prefix
+        backend:
+          service:
+            name: web2
+            port:
+              number: 80
