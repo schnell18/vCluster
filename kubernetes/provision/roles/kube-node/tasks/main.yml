@@ -73,3 +73,13 @@
 - name: Join the node to cluster
   command: sh /work/.preload/join-command.sh
   when: jstat.stat.exists == False
+
+- name: Harden kubelet config file permission
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: '600'
+  with_items:
+    - /var/lib/kubelet/config.yaml
+    - /lib/systemd/system/kubelet.service
