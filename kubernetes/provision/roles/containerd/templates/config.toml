@@ -58,7 +58,7 @@ version = 2
     max_container_log_line_size = 16384
     netns_mounts_under_state_dir = false
     restrict_oom_score_adj = false
-    sandbox_image = "k8s.gcr.io/pause:3.6"
+    sandbox_image = "registry.k8s.io/pause:3.9"
     selinux_category_range = 1024
     stats_collect_period = 10
     stream_idle_timeout = "4h0m0s"
@@ -98,6 +98,12 @@ version = 2
         [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime.options]
 
       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+        # gVisor: https://gvisor.dev/
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.gvisor]
+          runtime_type = "io.containerd.runsc.v1"
+        # Kata Containers: https://katacontainers.io/
+        # [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
+        #   runtime_type = "io.containerd.kata.v2"
 
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
           base_runtime_spec = ""
@@ -122,7 +128,7 @@ version = 2
             NoPivotRoot = false
             Root = ""
             ShimCgroup = ""
-            SystemdCgroup = false
+            SystemdCgroup = true
 
       [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime]
         base_runtime_spec = ""

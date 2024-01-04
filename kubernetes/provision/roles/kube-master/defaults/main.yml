@@ -23,5 +23,17 @@ admission_plugins:
   - DefaultStorageClass
   - ResourceQuota
   - DefaultTolerationSeconds
+  - NodeRestriction
 
 #  - PodPreset
+
+kubernetes_apiserver_profiling: false
+kubernetes_controller_manager_profiling: false
+kubernetes_scheduler_profiling: false
+kubernetes_audit_conf_dir: "/etc/kubernetes/audit"
+kubernetes_audit_policy_file: "audit-policy.yaml"
+kubernetes_audit_log_dir: "/var/log/k8s"
+kubernetes_audit_log_file: "audit.log"
+kubernetes_audit_log_max_age: 31
+kubernetes_audit_log_max_size: 100
+kubernetes_audit_log_max_backup: 10

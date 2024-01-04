@@ -23,6 +23,22 @@
       - kubeadm={{ kubernetes_version }}-{{ kubernetes_pkg_rev }}
       - kubectl={{ kubernetes_version }}-{{ kubernetes_pkg_rev }}
 
+- name: Make sure audit '{{ kubernetes_audit_conf_dir }}' directory exists
+  file:
+    path: "{{ kubernetes_audit_conf_dir }}"
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: Setup kubernetes audit policy
+  copy:
+    content: "{{ lookup('template', 'audit-policy.yaml') }}"
+    owner: root
+    group: root
+    mode: 0640
+    dest: "{{ kubernetes_audit_conf_dir }}/{{ kubernetes_audit_policy_file }}"
+
 - name: Configure node ip
   lineinfile:
     path: /etc/default/kubelet

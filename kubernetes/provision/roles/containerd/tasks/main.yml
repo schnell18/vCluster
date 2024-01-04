@@ -12,6 +12,17 @@
     state: present
     filename: containerd
 
+- name: Add an apt signing key for gvisor
+  apt_key:
+    data: "{{ lookup('file', 'gvisor-apt-key.asc') }}"
+    state: present
+
+- name: Add gvisor stable apt repository
+  apt_repository:
+    repo: deb [arch=amd64] {{ gvisor_apt_mirror }} release main
+    state: present
+    filename: gvisor
+
 - name: Install containerd and its dependecies
   apt:
     name: "{{ packages }}"
@@ -20,6 +31,7 @@
   vars:
     packages:
     - containerd.io
+    - runsc
   notify:
     - Restart containerd
 

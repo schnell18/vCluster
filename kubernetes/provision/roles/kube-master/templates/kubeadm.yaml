@@ -7,8 +7,31 @@ kubernetesVersion: v{{ kubernetes_version }}
 apiServer:
   certSANs:
   - "{{ kubernetes_public_address }}"
+  extraVolumes:
+    - name: "k8s-aduit-log-dir"
+      hostPath: "{{ kubernetes_audit_log_dir }}"
+      mountPath: "{{ kubernetes_audit_log_dir }}"
+      readOnly: false
+      pathType: DirectoryOrCreate
+    - name: "k8s-aduit-conf-dir"
+      hostPath: "{{ kubernetes_audit_conf_dir }}"
+      mountPath: "{{ kubernetes_audit_conf_dir }}"
+      readOnly: false
+      pathType: DirectoryOrCreate
   extraArgs:
     enable-admission-plugins: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
     advertise-address: {{ kubernetes_public_address }}
+    profiling: "{{ kubernetes_apiserver_profiling }}"
+    audit-policy-file: "{{ kubernetes_audit_conf_dir }}/{{ kubernetes_audit_policy_file }}"
+    audit-log-path: "{{ kubernetes_audit_log_dir }}/{{ kubernetes_audit_log_file }}"
+    audit-log-maxage: "{{ kubernetes_audit_log_max_age }}"
+    audit-log-maxsize: "{{ kubernetes_audit_log_max_size }}"
+    audit-log-maxbackup: "{{ kubernetes_audit_log_max_backup }}"
+controllerManager:
+  extraArgs:
+    profiling: "{{ kubernetes_controller_manager_profiling }}"
+scheduler:
+  extraArgs:
+    profiling: "{{ kubernetes_scheduler_profiling }}"
 networking:
   podSubnet: "{{ pod_cidr }}"
