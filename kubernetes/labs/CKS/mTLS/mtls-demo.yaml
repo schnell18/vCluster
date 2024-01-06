@@ -1,0 +1,226 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mtls-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: mtls-demo
+  name: redis-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-server
+  template:
+    metadata:
+      labels:
+        name: redis-server
+    spec:
+      volumes:
+        - name: certs
+          secret:
+            secretName: redis-server-certificate
+      containers:
+        - name: redis-server
+          image: docker.io/bitnami/redis:6.2.6
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: REDIS_TLS_ENABLED
+              value: "yes"
+            - name: REDIS_TLS_PORT
+              value: "6379"
+            - name: REDIS_TLS_CERT_FILE
+              value: "/certs/tls.crt"
+            - name: REDIS_TLS_KEY_FILE
+              value: "/certs/tls.key"
+            - name: REDIS_TLS_CA_FILE
+              value: "/certs/ca.crt"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+  namespace: mtls-demo
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    name: redis-server
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: spring-boot-redis-client-app-java-opts
+  namespace: mtls-demo
+stringData:
+  JAVA_OPTS: >-
+    -Djavax.net.ssl.keyStoreType=PKCS12
+    -Djavax.net.ssl.keyStore=/certs/keystore.p12
+    -Djavax.net.ssl.keyStorePassword=password123
+    -Djavax.net.ssl.trustStoreType=PKCS12
+    -Djavax.net.ssl.trustStore=/certs/truststore.p12
+    -Djavax.net.ssl.trustStorePassword=password123
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-boot-redis-client-app
+  name: spring-boot-redis-client-app
+  namespace: mtls-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-boot-redis-client-app
+  template:
+    metadata:
+      labels:
+        app: spring-boot-redis-client-app
+    spec:
+      volumes:
+        - name: client-certificate
+          secret:
+            secretName: redis-client-certificate
+      containers:
+        - image: ddubson/spring-boot-redis-mtls-demo:basic
+          name: spring-boot-redis-client-app
+          volumeMounts:
+            - mountPath: /certs
+              name: client-certificate
+          env:
+            - name: SPRING_REDIS_HOST
+              value: "redis-server"
+            - name: SPRING_REDIS_PORT
+              value: "6379"
+            - name: SPRING_REDIS_SSL
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: spring-boot-redis-client-app-java-opts
+          ports:
+            - containerPort: 8080
+              name: app-port
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: app-port
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: app-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spring-boot-redis-client-app
+  name: spring-boot-redis-client-app
+  namespace: mtls-demo
+spec:
+  ports:
+    - name: service-port
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: spring-boot-redis-client-app
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bootstrap-issuer
+  namespace: mtls-demo
+spec:
+  selfSigned: { }
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: root-certificate
+  namespace: mtls-demo
+spec:
+  isCA: true
+  secretName: root-certificate
+  commonName: "Root Certificate"
+  privateKey:
+    algorithm: RSA
+    size: 4096
+    encoding: PKCS8
+  issuerRef:
+    name: bootstrap-issuer
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: root-issuer
+  namespace: mtls-demo
+spec:
+  ca:
+    secretName: root-certificate
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: redis-server-certificate
+  namespace: mtls-demo
+spec:
+  secretName: redis-server-certificate
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 4096
+  commonName: "redis demo"
+  usages:
+    - server auth
+    - key encipherment
+    - digital signature
+  issuerRef:
+    name: root-issuer
+    kind: Issuer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-client-certificate-keystore-password
+  namespace: mtls-demo
+data:
+  password: cGFzc3dvcmQxMjM= # "password123"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: redis-client-certificate
+  namespace: mtls-demo
+spec:
+  secretName: redis-client-certificate
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 4096
+  commonName: "redis demo"
+  usages:
+    - client auth
+    - key encipherment
+    - digital signature
+  issuerRef:
+    name: root-issuer
+    kind: Issuer
+  keystores:
+    pkcs12:
+      create: true
+      passwordSecretRef:
+        name: redis-client-certificate-keystore-password
+        key: password
