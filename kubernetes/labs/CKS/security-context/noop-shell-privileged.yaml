@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: noop-shell
+  name: noop-shell
+spec:
+  containers:
+  - args:
+    - sh
+    - -c
+    - sleep 1d
+    image: docker.io/library/busybox
+    name: noop-shell
+    securityContext:
+      privileged: true
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
