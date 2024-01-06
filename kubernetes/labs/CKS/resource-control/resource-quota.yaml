@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backend
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-cpu-demo
+  namespace: backend
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: web1
+  name: web1
+  namespace: backend
+spec:
+  containers:
+  - image: docker.io/library/nginx:1.24.0-bullseye-perl
+    name: web1
+    resources:
+      limits:
+        memory: "800Mi"
+        cpu: "800m"
+      requests:
+        memory: "600Mi"
+        cpu: "400m"
