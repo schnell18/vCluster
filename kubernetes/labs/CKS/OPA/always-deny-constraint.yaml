@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAlwaysDeny
+metadata:
+  name: pod-always-deny
+spec:
+  # enforcementAction: dryrun
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    message: "ACCESS DENIED!"
