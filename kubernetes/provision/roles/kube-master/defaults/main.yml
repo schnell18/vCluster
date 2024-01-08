@@ -16,12 +16,7 @@ kubernetes_apt_mirror_apt_key: https://pkgs.k8s.io/core:/stable:/v1.27/deb/Relea
 calico_iptables_backend: NFT
 
 admission_plugins:
-  - NamespaceLifecycle
-  - LimitRanger
-  - ServiceAccount
   - PersistentVolumeLabel
-  - DefaultStorageClass
-  - ResourceQuota
   - DefaultTolerationSeconds
   - NodeRestriction
 
