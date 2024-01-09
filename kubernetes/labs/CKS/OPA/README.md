@@ -17,6 +17,14 @@ The `gatekeeper.yaml` is a copy of [v3.14][1] of the gatekeeper project.
 The library contains comprehensive and reusable templates created by the
 community. You may access it by following [this link][2].
 
+## Experiment 1 -- block k8s.gcr.io reference
+
+    kubectl apply -f block-gcr-repo-template.yaml
+    kubectl apply -f block-gcr-repo-constraint.yaml
+
+    kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.9 --restart=Never
+    kubectl run ephemeral-demo-warned --image=k8s.gcr.io/pause:3.1 --restart=Never
+
 
 
 [1]: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.14.0/deploy/gatekeeper.yaml

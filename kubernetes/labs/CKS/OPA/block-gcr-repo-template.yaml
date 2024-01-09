@@ -1,0 +1,37 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sblockgcrrepo
+  annotations:
+    metadata.gatekeeper.sh/title: "Allowed Repositories"
+    metadata.gatekeeper.sh/version: 1.0.1
+    description: >-
+      Requires container images to begin with a string from the specified list.
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sBlockGcrRepo
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sblockgcrrepo
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          startswith(container.image, "k8s.gcr.io/")
+          msg := sprintf("container <%v>'s image <%v> uses deprecated k8s.gcr.io. Migrate to registry.k8s.io ASAP", [container.name, container.image])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.initContainers[_]
+          startswith(container.image, "k8s.gcr.io/")
+          msg := sprintf("container <%v>'s image <%v> uses deprecated k8s.gcr.io. Migrate to registry.k8s.io ASAP", [container.name, container.image])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.ephemeralContainers[_]
+          startswith(container.image, "k8s.gcr.io/")
+          msg := sprintf("container <%v>'s image <%v> uses deprecated k8s.gcr.io. Migrate to registry.k8s.io ASAP", [container.name, container.image])
+        }
+
