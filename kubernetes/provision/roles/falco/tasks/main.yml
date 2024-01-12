@@ -1,0 +1,56 @@
+---
+# tasks file for faclo
+
+- name: Add an apt signing key for Falco
+  apt_key:
+    data: "{{ lookup('file', 'falco-apt-key.asc') }}"
+    state: present
+
+- name: Add Falco stable apt repository
+  apt_repository:
+    repo: deb [arch=amd64] {{ falco_apt_mirror }} stable main
+    state: present
+    filename: falco
+
+- name: debug symlink to kernel source
+  debug:
+    msg: "{{ ansible_kernel }} => {{ '' | linux_kernel_version() }}"
+
+# - name: Create symlink to kernel source
+#   file:
+#     src: "/lib/modules/{{ ansible_kernel }}"
+#     path: "/lib/modules/{{ '' | linux_kernel_version() }}-amd"
+#     state: link
+
+- name: Install falco's dependecies
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - dkms
+    - make
+    - "linux-headers-{{ ansible_kernel }}"
+
+- name: Setup kernel source symlink to fix debian kernel version special case
+  shell: "{{ lookup('template', 'setup-kernel-source-symlink.sh') }}"
+  args:
+    executable: /bin/bash
+  register: cbgn
+  changed_when: "'Created kernel source link' in cbgn.stdout"
+
+- name: Install falco
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - falco
+  environment:
+      FALCO_FRONTEND: noninteractive
+  notify:
+    - Restart falco
+
+- meta: flush_handlers

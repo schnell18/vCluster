@@ -47,6 +47,7 @@
       #     net.bridge.bridge-nf-call-ip6tables: 1
 
   roles:
-    - role: containerd
-    - role: kube-master
-    - role: local-pv-provisioner
+    - role: falco
+    # - role: containerd
+    # - role: kube-master
+    # - role: local-pv-provisioner

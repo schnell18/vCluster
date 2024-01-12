@@ -2,5 +2,6 @@
 - hosts: all
   gather_facts: yes
   tasks:
-    - debug: var=hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]
-    - debug: var=hostvars[inventory_hostname]['inventory_hostname_short']
+    - name: explore ansible_kernel
+      debug:
+        msg: "ansible_kernel is {{ ansible_kernel }}"
