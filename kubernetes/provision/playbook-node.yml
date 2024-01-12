@@ -45,4 +45,5 @@
 
   roles:
     - role: containerd
+    - role: falco
     - role: kube-node

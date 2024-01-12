@@ -6,5 +6,6 @@ link="/lib/modules/${linux_kernel_version}-${debian_kernel_arch}"
 
 if [ ! -L ${link} ]; then
   ln -sf ${src} ${link}
-  echo "Created kernel source link"
+  falco-driver-loader --compile module
+  echo "Compiled falco kmod"
 fi
