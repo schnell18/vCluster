@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: web2
+  name: web2
+spec:
+  nodeName: slave-1
+  containers:
+  - image: docker.io/library/httpd:2.4.58
+    name: web2
