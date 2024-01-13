@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: no-shell
+  name: no-shell
+spec:
+  nodeName: slave-1
+  containers:
+  - image: docker.io/library/httpd:2.4.58
+    name: no-shell
+    startupProbe:
+      exec:
+        command:
+        - rm
+        - /usr/bin/bash
+        - /usr/bin/chsh
+        - /usr/bin/dash
+        - /usr/bin/rbash
+        - /usr/bin/sh
+      initialDelaySeconds: 1
+      failureThreshold: 3
+      periodSeconds: 2

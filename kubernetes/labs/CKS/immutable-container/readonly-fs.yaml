@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: readonly
+  name: readonly
+spec:
+  nodeName: slave-1
+  containers:
+  - image: docker.io/library/httpd:2.4.58
+    name: readonly
+    volumeMounts:
+    - mountPath: /usr/local/apache2/logs
+      name: logs
+    securityContext:
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: logs
+    emptyDir:
+      sizeLimit: 500Mi
