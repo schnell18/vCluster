@@ -1,10 +1,10 @@
 ---
 - hosts: slave-*
   vars:
-    kubernetes_version: "1.27.9"
+    kubernetes_version: "1.28"
+    kubernetes_patch: "5"
     kubernetes_pkg_rev: "1.1"
-    kubernetes_gcr_repository: "gcr.azk8s.cn"
-
+    enable_falco: false
   become: true
   pre_tasks:
 
@@ -45,5 +45,6 @@
 
   roles:
     - role: containerd
-    - role: falco
     - role: kube-node
+    - role: falco
+      when: "{{ enable_falco | bool }}"

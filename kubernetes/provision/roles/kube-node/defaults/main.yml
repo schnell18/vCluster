@@ -7,8 +7,7 @@ kubernetes_public_address: 192.168.56.10
 # google_apt_mirror: https://apt.bbvk18.cf/
 # google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
 # google_apt_mirror_apt_key: https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
-kubernetes_apt_mirror: https://pkgs.k8s.io/core:/stable:/v1.27/deb/
-kubernetes_apt_mirror_apt_key: https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key
+kubernetes_apt_mirror: "https://pkgs.k8s.io/core:/stable:"
 
 discovery_directory: /mnt/disks
 disk_additional_disks:

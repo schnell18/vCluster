@@ -7,8 +7,7 @@ pod_cidr: 10.20.0.0/16
 # google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
 # google_apt_mirror: http://newton:8081/repository/kubernetes/
 # google_apt_mirror_apt_key: https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
-kubernetes_apt_mirror: https://pkgs.k8s.io/core:/stable:/v1.27/deb/
-kubernetes_apt_mirror_apt_key: https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key
+kubernetes_apt_mirror: "https://pkgs.k8s.io/core:/stable:"
 
 # on Debian 10 which use iptables 1.8, this should be NFT
 # prior to Debian 10, this should be Legacy

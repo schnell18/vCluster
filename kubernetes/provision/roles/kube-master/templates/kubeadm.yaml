@@ -3,7 +3,7 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 clusterName: kubernetes
 controlPlaneEndpoint: "{{ kubernetes_public_address }}:6443"
-kubernetesVersion: v{{ kubernetes_version }}
+kubernetesVersion: v{{ kubernetes_version }}.{{ kubernetes_patch }}
 apiServer:
   certSANs:
   - "{{ kubernetes_public_address }}"
