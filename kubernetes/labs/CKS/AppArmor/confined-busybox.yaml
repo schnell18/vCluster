@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: confined
+  name: confined
+  annotations:
+    # Tell Kubernetes to apply the AppArmor profile "k8s-apparmor-example-deny-write".
+    # Note that this is ignored if the Kubernetes node is not running version 1.4 or greater.
+    container.apparmor.security.beta.kubernetes.io/confined: localhost/k8s-deny-write
+spec:
+  containers:
+  - image: docker.io/library/busybox:1.28
+    name: confined
+    command:
+      - sh
+      - -c
+      - "echo 'Hello AppArmor!' && sleep 1d"
+
