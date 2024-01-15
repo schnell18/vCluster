@@ -30,13 +30,6 @@ JSON files to the directory recognized by kubelet, usually
 
 ## Experiment preparation
 
-
-Copy the seccomp profile JSON files under `profiles` directory to
-`/var/lib/kubelet/seccomp/profiles` on the node `slave-1`, simply run the
-following command:
-
-    sh load-profiles.sh
-
 ## Experiment 1 - audit system calls
 
 Run the following command to create a pod with auditing only:

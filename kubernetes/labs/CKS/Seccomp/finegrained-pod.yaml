@@ -12,6 +12,7 @@ spec:
   containers:
   - name: finegrained-container
     image: hashicorp/http-echo:1.0
+    # image: docker.io/library/nginx:1.24.0-bullseye-perl
     args:
     - "-text=just made some syscalls!"
     securityContext:
