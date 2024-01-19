@@ -1,8 +1,10 @@
 ---
 # defaults file for kube-master
 kube_conf_dir: /etc/kubernetes
-kubernetes_public_address: 192.168.56.10
-pod_cidr: 10.20.0.0/16
+kube_admin_user: vagrant
+kube_admin_group: vagrant
+kube_admin_home_dir: "/home/{{ kube_admin_user }}"
+pod_cidr: 10.10.0.0/16
 # google_apt_mirror: https://apt.bbvk18.cf/
 # google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
 # google_apt_mirror: http://newton:8081/repository/kubernetes/

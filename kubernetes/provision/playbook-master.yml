@@ -21,6 +21,15 @@
       command: swapoff -a
       when: ansible_swaptotal_mb > 0
 
+    - name: Install pre-requisite packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: no
+      vars:
+        packages:
+        - gpg
+
     - name: Add pre-requisite kernel modules
       modprobe:
         name: "{{ item }}"

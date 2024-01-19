@@ -4807,6 +4807,8 @@ spec:
               name: kubernetes-services-endpoint
               optional: true
           env:
+            - name: KUBECONFIG
+              value: /host/etc/kubernetes/admin.conf 
             # Name of the CNI config file to create.
             - name: CNI_CONF_NAME
               value: "10-calico.conflist"
@@ -4833,6 +4835,8 @@ spec:
           volumeMounts:
             - mountPath: /host/opt/cni/bin
               name: cni-bin-dir
+            - mountPath: /host/etc/kubernetes
+              name: etc-kubernetes-dir
             - mountPath: /host/etc/cni/net.d
               name: cni-net-dir
           securityContext:
@@ -5027,6 +5031,10 @@ spec:
         - name: cni-bin-dir
           hostPath:
             path: /opt/cni/bin
+        # Used to access admin kubeconfig for cni install
+        - name: etc-kubernetes-dir
+          hostPath:
+            path: /etc/kubernetes
         - name: cni-net-dir
           hostPath:
             path: /etc/cni/net.d

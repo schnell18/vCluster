@@ -11,6 +11,7 @@
     repo: deb [arch=amd64] {{ docker_apt_mirror }} buster stable
     state: present
     filename: containerd
+    update_cache: yes
 
 - name: Add an apt signing key for gvisor
   apt_key:
@@ -22,12 +23,13 @@
     repo: deb [arch=amd64] {{ gvisor_apt_mirror }} release main
     state: present
     filename: gvisor
+    update_cache: yes
 
 - name: Install containerd and its dependecies
   apt:
     name: "{{ packages }}"
     state: present
-    update_cache: yes
+    update_cache: no
   vars:
     packages:
     - containerd.io

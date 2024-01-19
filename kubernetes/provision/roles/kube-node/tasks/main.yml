@@ -30,6 +30,7 @@
   apt:
     name: "{{ packages }}"
     state: present
+    update_cache: no
   vars:
     packages:
       - kubelet={{ kubernetes_version }}.{{ kubernetes_patch }}-{{ kubernetes_pkg_rev }}

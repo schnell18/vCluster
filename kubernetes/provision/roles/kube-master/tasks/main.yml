@@ -12,12 +12,13 @@
     repo: "deb {{ kubernetes_apt_mirror }}/v{{ kubernetes_version }}/deb/ /"
     state: present
     filename: kubernetes
+    update_cache: yes
 
 - name: Install Kubernetes binaries
   apt:
     name: "{{ packages }}"
     state: present
-    update_cache: yes
+    update_cache: no
   vars:
     packages:
       - kubelet={{ kubernetes_version }}.{{ kubernetes_patch }}-{{ kubernetes_pkg_rev }}
@@ -67,18 +68,19 @@
   when: astat.stat.exists == False
   tags: ["kubeadm"]
 
-- name: Make sure /home/devel/.kube exists
+- name: "Make sure {{ kube_admin_home_dir }}/.kube exists"
   file:
-    path: /home/devel/.kube
+    path: "{{ kube_admin_home_dir }}/.kube"
     state: directory
+
 - name: Setup kubeconfig for devel user
   copy:
     src: /etc/kubernetes/admin.conf
     remote_src: yes
-    owner: devel
-    group: devel
+    owner: "{{ kube_admin_user }}"
+    group: "{{ kube_admin_group }}"
     mode: 0640
-    dest: /home/devel/.kube/config
+    dest: "{{ kube_admin_home_dir }}/.kube/config"
 
 - name: Make sure /root/.kube exists
   file:

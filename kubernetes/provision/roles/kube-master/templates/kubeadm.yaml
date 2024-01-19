@@ -2,11 +2,12 @@
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 clusterName: kubernetes
-controlPlaneEndpoint: "{{ kubernetes_public_address }}:6443"
+controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}:6443"
+
 kubernetesVersion: v{{ kubernetes_version }}.{{ kubernetes_patch }}
 apiServer:
   certSANs:
-  - "{{ kubernetes_public_address }}"
+  - "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
   extraVolumes:
     - name: "k8s-aduit-log-dir"
       hostPath: "{{ kubernetes_audit_log_dir }}"
@@ -20,7 +21,7 @@ apiServer:
       pathType: DirectoryOrCreate
   extraArgs:
     enable-admission-plugins: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
-    advertise-address: {{ kubernetes_public_address }}
+    advertise-address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
     profiling: "{{ kubernetes_apiserver_profiling }}"
     audit-policy-file: "{{ kubernetes_audit_conf_dir }}/{{ kubernetes_audit_policy_file }}"
     audit-log-path: "{{ kubernetes_audit_log_dir }}/{{ kubernetes_audit_log_file }}"

@@ -16,7 +16,7 @@ If you wish to add more nodes, you may add nodes by changing `Vagrantfile`.
 
 You need the following tools required by this project:
 
-- [Virtualbox][1]
+- Windows/MacOS [Virtualbox][1] or Linux libvirt
 - [Vagrant][2]
 - [vagrant-hostmanager][7]
 - [Ansible][3]
@@ -26,6 +26,10 @@ these tools using package manager of operating systems for instance use apt-get
 on Debian/Ubuntu. To install vagrant-hostmanager, you type:
 
     vagrant plugin install vagrant-hostmanager
+
+On Linux, you need the `vagrant-libvirt` plugin, which can installed as follows:
+
+    vagrant plugin install vagrant-libvirt
 
 Then you clone this project. Open a command line window, the
 nagivate to the root directory of this project. And run the following commands:
