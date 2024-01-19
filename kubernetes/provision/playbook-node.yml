@@ -15,7 +15,7 @@
     #     filename: newton
     #     update_cache: yes
 
-    - name: Install disk management packages
+    - name: Install pre-requisite packages
       apt:
         name: "{{ packages }}"
         state: present
@@ -23,6 +23,7 @@
       vars:
         packages:
         - parted
+        - gpg
 
     - name: Add pre-requisite kernel modules
       modprobe:
@@ -47,4 +48,4 @@
     - role: containerd
     - role: kube-node
     - role: falco
-      when: "{{ enable_falco | bool }}"
+      when: enable_falco

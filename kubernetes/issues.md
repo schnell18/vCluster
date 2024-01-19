@@ -113,7 +113,7 @@ if the `PodPreset` is requested on startup.
 
 Remove the `PodPreset` from the parameter `enable-admission-plugins`.
 
-# anbile complains dict object has no attribute `stdout`
+# anbsile complains dict object has no attribute `stdout`
 
 ## problem statement
 
@@ -151,6 +151,40 @@ A working example is illustrated as follows:
         mode: 0640
         dest: /tmp/calico.yaml
 
+
+# vagrant-libvirt provider parallel provision random failure
+
+## problem statement
+
+Provisioning 4+1 node kubernetes cluster with libvirt fails randomly. The
+second NIC of master node seem not to be configured with intended IP address.
+
+## Cause analysis
+
+Response time comparison of parallel vs non-parallel provision:
+- non-parallel: 7.63s user 1.16s system 3% cpu 4:26.14 total
+- parallel: 7.26s user 1.10s system 8% cpu 1:41.86 total (failed)
+
+Test environment spec:
+
+    OS: Manjaro Linux x86_64
+    Host: 82RF Legion Y9000P IAH7H
+    Kernel: 5.15.146-1-MANJARO
+    Shell: zsh 5.9
+    Resolution: 2560x1600
+    Terminal: tmux
+    CPU: 12th Gen Intel i7-12700H (20) @
+    GPU: Intel Alder Lake-P GT2 [Iris Xe
+    GPU: NVIDIA GeForce RTX 3060 Mobile /
+    Memory: 16GiB
+
+
+## Solution
+
+No solution identified so far, except the workaround to run the provision in
+non-parallel mode:
+
+    vagrant up --no-parallel
 
 [1]: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 [2]: https://github.com/projectcalico/calico/issues/2322

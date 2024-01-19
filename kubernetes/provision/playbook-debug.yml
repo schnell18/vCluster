@@ -4,4 +4,4 @@
   tasks:
     - name: explore ansible_kernel
       debug:
-        msg: "ansible_kernel is {{ ansible_kernel }}"
+        msg: "{{ hostvars[inventory_hostname] }}"

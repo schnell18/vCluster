@@ -1,99 +1,132 @@
-IMAGE_NAME = "schnell18/buster64"
-IMAGE_VERSION = "10.11"
-NODES = 4
+IMAGE_NAME = "generic/debian12"
+IMAGE_VERSION = "4.3.10"
+MASTERS = 1
+SLAVES = 4
 EXTRA_DISKS = 2
 
 
+$script = <<-SCRIPT
+sudo sed -i.bak \
+    -e 's#deb.debian.org#mirror.sjtu.edu.cn#g' \
+    -e 's#security.debian.org#mirror.sjtu.edu.cn#g' \
+    /etc/apt/sources.list
+sudo apt-get update
+echo "Set default time zone to Asia/Shanghai..."
+sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    sudo echo "Asia/Shanghai" > /etc/timezone
+SCRIPT
+
 Vagrant.configure("2") do |config|
+
+    vagrant_provider = get_provider(ARGV)
+
+    # switch to sjtu debian mirror
+    config.vm.provision "shell", inline: $script
+
     config.ssh.insert_key = false
+    config.ssh.private_key_path = ["~/.vagrant.d/insecure_private_keys/vagrant.key.rsa"]
     config.vm.box_check_update = false
-    config.vm.synced_folder ".", "/work", automount: true, SharedFoldersEnableSymlinksCreate: false
+    if vagrant_provider == 'libvirt'
+        config.vm.synced_folder ".", "/work",
+            :type => :nfs,
+            :mount_options => ['nolock,noatime,actimeo=1'],
+            automount: true,
+            nfs_udp: false, 
+            SharedFoldersEnableSymlinksCreate: false
+    else
+        config.vm.synced_folder ".", "/work",
+            automount: true,
+            SharedFoldersEnableSymlinksCreate: false
+    end
 
     # take care of /etc/hosts in both host and guest
     config.hostmanager.enabled = true
     config.hostmanager.manage_host = true
     config.hostmanager.manage_guest = true
 
-    config.vm.define "master" do |master|
-        master.vm.box = IMAGE_NAME
-        master.vm.box_version = IMAGE_VERSION
-        # IP address of hostonly vm should fall into 192.168.56/21
-        # according to https://www.virtualbox.org/manual/UserManual.html
-        master.vm.network "private_network", ip: "192.168.56.10"
-        master.vm.hostname = "master"
-        master.vm.provision :hostmanager
-        master.hostmanager.aliases = %w(master.kube.vn)
+    (1..SLAVES + MASTERS).each do |i|
+        node_id = i <= MASTERS ? "master" : "slave-#{i - MASTERS}"
+        config.vm.define node_id do |node|
+            node.vm.box = IMAGE_NAME
+            node.vm.box_version = IMAGE_VERSION
+            if vagrant_provider == 'libvirt'
+                node.vm.network "private_network",
+                    ip: "192.168.122.#{i + 9}",
+                    :libvirt__network_name => "kubernetes",
+                    :autostart => true
+            else
+                node.vm.network "private_network", ip: "192.168.56.#{i + 9}"
+            end
+            node.vm.hostname = node_id
+            node.vm.provision :hostmanager
+            node.hostmanager.aliases = "#{node_id}.kube.vn"
+    
+            node.vm.provider "libvirt" do |v|
+                # the default pool is full
+                v.storage_pool_name = "home-pool"
+                v.title = node_id
+                v.description = "Kubernetes node: " + node_id
+                v.memory = 2048
+                v.cpus = 2
+                if i > MASTERS
+                    (1..EXTRA_DISKS).each do |j|
+                        v.storage :file, :size => '30G'
+                    end
+                end
+            end
+    
+            node.vm.provider "virtualbox" do |v|
 
-        master.vm.provider "virtualbox" do |v|
-            v.name = "master"
-            v.memory = 2048
-            v.cpus = 4
-            v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-        end
-
-        master.vm.provision "ansible" do |ansible|
-            ansible.playbook = "provision/playbook-master.yml"
-        end
-    end
-
-    (1..NODES).each do |i|
-        node_id = "slave-#{i}"
-        config.vm.define node_id do |slave|
-            slave.vm.box = IMAGE_NAME
-            slave.vm.box_version = IMAGE_VERSION
-            slave.vm.network "private_network", ip: "192.168.56.#{i + 10}"
-            slave.vm.hostname = node_id
-            slave.vm.provision :hostmanager
-            slave.hostmanager.aliases = "#{node_id}.kube.vn"
-
-            vmdir = get_vm_disk_directory(node_id)
-
-            slave.vm.provider "virtualbox" do |v|
                 # vm name must be assigned w/ node id
                 # otherwise, extra disks won't be created
                 v.name = node_id
                 v.memory = 2048
                 v.cpus = 2
                 v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-
-                (1..EXTRA_DISKS).each do |j|
-                    disk_file = File.join(vmdir, "disk#{j}-#{node_id}.vmdk")
-                    unless File.exists?(disk_file)
-                        v.customize [
-                            "createmedium", "disk",
-                            "--filename", disk_file,
-                            "--format", "vmdk",
-                            "--size", 1024 * 51
-                        ]
-                        v.customize [
-                            "storageattach", :id,
-                            "--storagectl", "SATA Controller",
-                            "--port", j,
-                            "--device", 0,
-                            "--type", "hdd",
-                            "--medium", disk_file
-                        ]
+                if i > MASTERS
+                    (1..EXTRA_DISKS).each do |j|
+                        v.storage :file, :size => '30G'
                     end
                 end
             end
-
-            slave.vm.provision "ansible" do |ansible|
-                ansible.playbook = "provision/playbook-node.yml"
-                ansible.config_file = "provision/ansible.cfg"
+    
+            if i == MASTERS
+                node.vm.provision "ansible" do |ansible|
+                    ansible.playbook = "provision/playbook-master.yml"
+                    ansible.config_file = "provision/ansible.cfg"
+                    ansible.limit = "master"
+                    ansible.extra_vars = {
+                        hypervisor: vagrant_provider
+                    }
+                end
             end
+            if i == SLAVES + MASTERS
+                node.vm.provision "ansible" do |ansible|
+                    ansible.playbook = "provision/playbook-node.yml"
+                    ansible.config_file = "provision/ansible.cfg"
+                    ansible.limit = "slave-*"
+                    ansible.extra_vars = {
+                        hypervisor: vagrant_provider
+                    }
+                end
+            end
+
         end
     end
 end
 
-def get_vm_disk_directory(vmname)
-    path = %x(vboxmanage list systemproperties)
-        .split(/\n/)
-        .grep(/Default machine folder/)
-        .first()
-        .split(/:/)[1]
-        .strip()
-    vmdir = File.join(path, vmname)
-    return vmdir
+def get_provider(args)
+  provider = nil
+  for i in 0..args.length-1
+    if args[i] == '--provider'
+      provider = args[i+1]
+      break
+    elsif args[i].start_with?("--provider=")
+      provider = args[i].split(/=/, 2)[1]
+      break
+    end
+  end
+  return provider || ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox"
 end
 
 # vim:set nu ai expandtab sw=4 ts=4 syntax=ruby:

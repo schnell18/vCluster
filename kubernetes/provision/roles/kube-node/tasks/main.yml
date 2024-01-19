@@ -30,6 +30,7 @@
   apt:
     name: "{{ packages }}"
     state: present
+    update_cache: no
   vars:
     packages:
       - kubelet={{ kubernetes_version }}.{{ kubernetes_patch }}-{{ kubernetes_pkg_rev }}
@@ -47,13 +48,24 @@
 
 - meta: flush_handlers
 
-- name: Prepare partitions on additional disks
+- name: Prepare partitions for additional disks on VirtualBox backend
   shell: "{{ lookup('template', 'prepare-partitions.sh') }}"
   args:
     executable: /bin/bash
   register: clpp
-  with_items: '{{ disk_additional_disks }}'
+  with_items: "{{ disk_additional_disks }}"
   changed_when: "'Prepared partitions' in clpp.stdout"
+  when: hypervisor != 'libvirt'
+  tags: ['disk', 'partition']
+
+- name: Prepare partitions for additional disks on libvirt backend
+  shell: "{{ lookup('template', 'prepare-partitions.sh') }}"
+  args:
+    executable: /bin/bash
+  register: clpp
+  with_items: "{{ disk_additional_disks_libvirt }}"
+  changed_when: "'Prepared partitions' in clpp.stdout"
+  when: hypervisor == 'libvirt'
   tags: ['disk', 'partition']
 
 # - name: load meta images if absent
@@ -64,10 +76,16 @@
 #   changed_when: "'Loaded k8s meta images' in kbgn.stdout"
 
 # test existence of /etc/kubernetes/kubelet.conf to avoid repeated join
-- name: test if node already joins cluster
+- name: Test if node already joins cluster
   stat:
     path: "{{ kube_conf_dir }}/kubelet.conf"
   register: jstat
+
+- name: Wait until the join-command.sh is available
+  ansible.builtin.wait_for:
+    path: /work/.preload/join-command.sh
+  when: jstat.stat.exists == False
+
 - name: Join the node to cluster
   command: sh /work/.preload/join-command.sh
   when: jstat.stat.exists == False
