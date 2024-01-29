@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: violdation-pod
+  labels:
+    app: violdation-pod
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/draconian.json
+  containers:
+  - name: violation-container
+    image: docker.io/library/nginx:1.24.0-bullseye-perl
+    securityContext:
+      allowPrivilegeEscalation: false
