@@ -63,7 +63,7 @@ Vagrant.configure("2") do |config|
     
             node.vm.provider "libvirt" do |v|
                 # the default pool is full
-                v.storage_pool_name = "home-pool"
+                # v.storage_pool_name = "home-pool"
                 v.title = node_id
                 v.description = "Kubernetes node: " + node_id
                 v.memory = 2048
@@ -76,7 +76,6 @@ Vagrant.configure("2") do |config|
             end
     
             node.vm.provider "virtualbox" do |v|
-
                 # vm name must be assigned w/ node id
                 # otherwise, extra disks won't be created
                 v.name = node_id
@@ -110,12 +109,26 @@ Vagrant.configure("2") do |config|
                     }
                 end
             end
-
         end
     end
 end
 
-def get_provider(args)
+def get_provider_from_state()
+  # fix here for multi-master cluster
+  libvirt_dir = File.join(".vagrant", "machines",  "master", "libvirt")
+  if File.exists?(libvirt_dir)
+    return "libvirt"
+  end
+  for i in 1..SLAVES
+    libvirt_dir = File.join(".vagrant", "machines",  "slave-#{i}", "libvirt")
+    if File.exists?(libvirt_dir)
+      return "libvirt"
+    end
+  end
+  return nil
+end
+
+def get_provider_from_args(args)
   provider = nil
   for i in 0..args.length-1
     if args[i] == '--provider'
@@ -127,6 +140,10 @@ def get_provider(args)
     end
   end
   return provider || ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox"
+end
+
+def get_provider(args)
+  return get_provider_from_state() || get_provider_from_args(args)
 end
 
 # vim:set nu ai expandtab sw=4 ts=4 syntax=ruby:
