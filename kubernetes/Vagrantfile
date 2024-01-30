@@ -16,6 +16,9 @@ sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     sudo echo "Asia/Shanghai" > /etc/timezone
 SCRIPT
 
+# Disable parallel provisioning to avoid failure
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
 Vagrant.configure("2") do |config|
 
     vagrant_provider = get_provider(ARGV)
