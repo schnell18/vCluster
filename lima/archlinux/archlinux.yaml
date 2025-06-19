@@ -34,7 +34,7 @@ provision:
       Server = https://nz.arch.niranjan.co/$repo/os/$arch
       Server = https://mirror.2degrees.nz/archlinux/$repo/os/$arch
       EOF
-      pacman -Syyu --noconfirm --needed neovim base-devel git
+      pacman -Syyu --noconfirm --needed base-devel git
   # Install yay as normal user
   - mode: user
     script: |
@@ -46,3 +46,23 @@ provision:
       makepkg --noconfirm -si && \
       cd && \
       rm -fr /tmp/yay
+  # Setup XWindow and SSH
+  - mode: user
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if ! grep "User git" ~/.ssh/config; then
+          HOST_USER=$(ls /Users)
+          cat<<EOF >> ~/.ssh/config
+      Host github.com
+        User git
+        Port 22
+        StrictHostKeyChecking no
+        PasswordAuthentication no
+        IdentityFile /Users/$HOST_USER/.ssh/id_ed25519
+      EOF
+      fi
+
+      if ! grep -e "^export DISPLAY=host.lima.internal:0" ~/.bashrc; then
+          echo "export DISPLAY=host.lima.internal:0" >> ~/.bashrc
+      fi
