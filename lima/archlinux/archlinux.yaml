@@ -4,11 +4,45 @@ cpus: 6
 memory: 8GiB
 mountType: virtiofs
 networks:
-- vzNAT: true
+  - vzNAT: true
 rosetta:
   enabled: true
   binfmt: true
 vmType: vz
 base:
-- template://_images/archlinux
-- template://_default/mounts
+  - template://_default/mounts
+images:
+  - location: "https://geo.mirror.pkgbuild.com/images/v20250615.366044/Arch-Linux-x86_64-cloudimg-20250615.366044.qcow2"
+    arch: "x86_64"
+    digest: "sha256:a8fb36fd4a60ac606c99efd01f5ef959612d11748e8b686001b37e29411b00a4"
+
+  # Fallback to the latest release image.
+  # Hint: run `limactl prune` to invalidate the cache
+  - location: https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2
+    arch: x86_64
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      # Use New Zealand mirrors
+      cat<<'EOF' > /etc/pacman.d/mirrorlist
+
+      # New Zealand
+      Server = https://mirror.fsmg.org.nz/archlinux/$repo/os/$arch
+      Server = https://archlinux.ourhome.kiwi/$repo/os/$arch
+      Server = https://nz.arch.niranjan.co/$repo/os/$arch
+      Server = https://mirror.2degrees.nz/archlinux/$repo/os/$arch
+      EOF
+      pacman -Syyu --noconfirm --needed neovim base-devel git
+  # Install yay as normal user
+  - mode: user
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      cd /tmp && \
+      git clone https://aur.archlinux.org/yay.git && \
+      cd yay && \
+      makepkg --noconfirm -si && \
+      cd && \
+      rm -fr /tmp/yay
