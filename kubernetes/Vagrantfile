@@ -6,14 +6,10 @@ EXTRA_DISKS = 2
 
 
 $script = <<-SCRIPT
-sudo sed -i.bak \
-    -e 's#deb.debian.org#mirror.sjtu.edu.cn#g' \
-    -e 's#security.debian.org#mirror.sjtu.edu.cn#g' \
-    /etc/apt/sources.list
 sudo apt-get update
-echo "Set default time zone to Asia/Shanghai..."
-sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    sudo echo "Asia/Shanghai" > /etc/timezone
+echo "Set default time zone to Pacific/Auckland..."
+sudo cp /usr/share/zoneinfo/Pacific/Auckland /etc/localtime && \
+    sudo echo "Pacific/Auckland" > /etc/timezone
 SCRIPT
 
 # Disable parallel provisioning to avoid failure
@@ -65,8 +61,7 @@ Vagrant.configure("2") do |config|
             node.hostmanager.aliases = "#{node_id}.kube.vn"
     
             node.vm.provider "libvirt" do |v|
-                # the default pool is full
-                # v.storage_pool_name = "home-pool"
+                # v.storage_pool_name = "vmpool"
                 v.title = node_id
                 v.description = "Kubernetes node: " + node_id
                 v.memory = 2048
@@ -119,12 +114,12 @@ end
 def get_provider_from_state()
   # fix here for multi-master cluster
   libvirt_dir = File.join(".vagrant", "machines",  "master", "libvirt")
-  if File.exists?(libvirt_dir)
+  if File.exist?(libvirt_dir)
     return "libvirt"
   end
   for i in 1..SLAVES
     libvirt_dir = File.join(".vagrant", "machines",  "slave-#{i}", "libvirt")
-    if File.exists?(libvirt_dir)
+    if File.exist?(libvirt_dir)
       return "libvirt"
     end
   end
