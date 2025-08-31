@@ -1,8 +1,8 @@
 IMAGE_NAME = "generic/debian12"
-IMAGE_VERSION = "4.3.10"
+IMAGE_VERSION = "4.3.12"
 MASTERS = 1
 SLAVES = 4
-EXTRA_DISKS = 2
+EXTRA_DISKS = 4
 
 
 $script = <<-SCRIPT
@@ -49,36 +49,36 @@ Vagrant.configure("2") do |config|
             node.vm.box = IMAGE_NAME
             node.vm.box_version = IMAGE_VERSION
             if vagrant_provider == 'libvirt'
-                node.vm.network "private_network",
-                    ip: "192.168.122.#{i + 9}",
-                    :libvirt__network_name => "kubernetes",
-                    :autostart => true
+                # node.vm.network "private_network",
+                    # ip: "192.168.122.#{i + 9}",
+                    # :libvirt__network_name => "kubernetes",
+                    # :autostart => true
             else
                 node.vm.network "private_network", ip: "192.168.56.#{i + 9}"
             end
             node.vm.hostname = node_id
             node.vm.provision :hostmanager
             node.hostmanager.aliases = "#{node_id}.kube.vn"
-    
+
             node.vm.provider "libvirt" do |v|
                 # v.storage_pool_name = "vmpool"
                 v.title = node_id
                 v.description = "Kubernetes node: " + node_id
-                v.memory = 2048
-                v.cpus = 2
+                v.memory = 4096
+                v.cpus = 4
                 if i > MASTERS
                     (1..EXTRA_DISKS).each do |j|
-                        v.storage :file, :size => '30G'
+                        v.storage :file, :size => '60G'
                     end
                 end
             end
-    
+
             node.vm.provider "virtualbox" do |v|
                 # vm name must be assigned w/ node id
                 # otherwise, extra disks won't be created
                 v.name = node_id
-                v.memory = 2048
-                v.cpus = 2
+                v.memory = 4096
+                v.cpus = 4
                 v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
                 if i > MASTERS
                     (1..EXTRA_DISKS).each do |j|
@@ -86,7 +86,7 @@ Vagrant.configure("2") do |config|
                     end
                 end
             end
-    
+
             if i == MASTERS
                 node.vm.provision "ansible" do |ansible|
                     ansible.playbook = "provision/playbook-master.yml"

@@ -1,8 +1,8 @@
 ---
 - hosts: slave-*
   vars:
-    kubernetes_version: "1.28"
-    kubernetes_patch: "5"
+    kubernetes_version: "1.33"
+    kubernetes_patch: "4"
     kubernetes_pkg_rev: "1.1"
     enable_falco: false
   become: true

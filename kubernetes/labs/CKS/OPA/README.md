@@ -22,7 +22,7 @@ community. You may access it by following [this link][2].
     kubectl apply -f block-gcr-repo-template.yaml
     kubectl apply -f block-gcr-repo-constraint.yaml
 
-    kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.9 --restart=Never
+    kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.10 --restart=Never
     kubectl run ephemeral-demo-warned --image=k8s.gcr.io/pause:3.1 --restart=Never
 
 

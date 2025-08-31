@@ -1,9 +1,9 @@
 ---
 
-docker_apt_mirror: https://mirror.sjtu.edu.cn/docker-ce/linux/debian
+docker_apt_mirror: https://download.docker.com/linux/debian
+# docker_apt_mirror: https://mirror.sjtu.edu.cn/docker-ce/linux/debian
 gvisor_apt_mirror: https://storage.googleapis.com/gvisor/releases
-#docker_apt_mirror: https://download.docker.com/linux/debian
-enable_docker_registry_mirrors: True
+enable_docker_registry_mirrors: False
 docker_registry_mirrors:
   - https://mirror.ccs.tencentyun.com
   - https://dockerhub.azk8s.cn

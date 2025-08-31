@@ -5,6 +5,7 @@ kube_admin_user: vagrant
 kube_admin_group: vagrant
 kube_admin_home_dir: "/home/{{ kube_admin_user }}"
 pod_cidr: 10.10.0.0/16
+service_cidr: 10.96.0.0/12
 # google_apt_mirror: https://apt.bbvk18.cf/
 # google_apt_mirror: https://mirrors.aliyun.com/kubernetes/apt/
 # google_apt_mirror: http://newton:8081/repository/kubernetes/
@@ -17,7 +18,6 @@ kubernetes_apt_mirror: "https://pkgs.k8s.io/core:/stable:"
 calico_iptables_backend: NFT
 
 admission_plugins:
-  - PersistentVolumeLabel
   - DefaultTolerationSeconds
   - NodeRestriction
 

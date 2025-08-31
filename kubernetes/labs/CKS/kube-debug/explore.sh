@@ -1,4 +1,4 @@
-kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.9 --restart=Never
+kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.10 --restart=Never
 
 kubectl exec -it ephemeral-demo -- sh
 

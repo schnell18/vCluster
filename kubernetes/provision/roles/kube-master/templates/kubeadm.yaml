@@ -1,13 +1,53 @@
-# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta3#ClusterConfiguration
-apiVersion: kubeadm.k8s.io/v1beta3
+apiVersion: kubeadm.k8s.io/v1beta4
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: abcdef.0123456789abcdef
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+kind: InitConfiguration
+localAPIEndpoint:
+  advertise-address: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+  bindPort: 6443
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  imagePullSerial: true
+  name: node
+  taints: null
+timeouts:
+  controlPlaneComponentHealthCheck: 4m0s
+  discovery: 5m0s
+  etcdAPICall: 2m0s
+  kubeletHealthCheck: 4m0s
+  kubernetesAPICall: 1m0s
+  tlsBootstrap: 5m0s
+  upgradeManifests: 5m0s
+---
+apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
-clusterName: kubernetes
-controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}:6443"
-
-kubernetesVersion: v{{ kubernetes_version }}.{{ kubernetes_patch }}
 apiServer:
   certSANs:
-  - "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+  - "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+  extraArgs:
+    - name: advertise-address
+      value: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+    - name: audit-log-maxage
+      value: "{{ kubernetes_audit_log_max_age }}"
+    - name: audit-log-maxbackup
+      value: "{{ kubernetes_audit_log_max_backup }}"
+    - name: audit-log-maxsize
+      value: "{{ kubernetes_audit_log_max_size }}"
+    - name: audit-log-path
+      value: "{{ kubernetes_audit_log_dir }}/{{ kubernetes_audit_log_file }}"
+    - name: audit-policy-file
+      value: "{{ kubernetes_audit_conf_dir }}/{{ kubernetes_audit_policy_file }}"
+    - name: enable-admission-plugins
+      value: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
+    - name: profiling
+      value: "{{ kubernetes_apiserver_profiling }}"
   extraVolumes:
     - name: "k8s-aduit-log-dir"
       hostPath: "{{ kubernetes_audit_log_dir }}"
@@ -19,20 +59,25 @@ apiServer:
       mountPath: "{{ kubernetes_audit_conf_dir }}"
       readOnly: false
       pathType: DirectoryOrCreate
-  extraArgs:
-    enable-admission-plugins: "{% for plugin in admission_plugins %}{{ plugin }}{% if not loop.last %},{% endif %}{% endfor %}"
-    advertise-address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
-    profiling: "{{ kubernetes_apiserver_profiling }}"
-    audit-policy-file: "{{ kubernetes_audit_conf_dir }}/{{ kubernetes_audit_policy_file }}"
-    audit-log-path: "{{ kubernetes_audit_log_dir }}/{{ kubernetes_audit_log_file }}"
-    audit-log-maxage: "{{ kubernetes_audit_log_max_age }}"
-    audit-log-maxsize: "{{ kubernetes_audit_log_max_size }}"
-    audit-log-maxbackup: "{{ kubernetes_audit_log_max_backup }}"
+caCertificateValidityPeriod: 87600h0m0s
+certificateValidityPeriod: 8760h0m0s
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+imageRepository: registry.k8s.io
+controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:6443"
 controllerManager:
   extraArgs:
-    profiling: "{{ kubernetes_controller_manager_profiling }}"
+  - name: profiling
+    value: "{{ kubernetes_controller_manager_profiling }}"
+encryptionAlgorithm: RSA-2048
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+networking:
+  dnsDomain: cluster.local
+  podSubnet: "{{ pod_cidr }}"
+  serviceSubnet: "{{ service_cidr }}"
 scheduler:
   extraArgs:
-    profiling: "{{ kubernetes_scheduler_profiling }}"
-networking:
-  podSubnet: "{{ pod_cidr }}"
+  - name: profiling
+    value: "{{ kubernetes_scheduler_profiling }}"

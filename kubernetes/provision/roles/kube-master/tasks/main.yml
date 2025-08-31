@@ -51,7 +51,7 @@
     path: /etc/default/kubelet
     state: present
     create: yes
-    line: KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --node-ip={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    line: KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --node-ip={{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
   notify:
     - Restart kubelet
 
