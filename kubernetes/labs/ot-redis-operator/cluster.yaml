@@ -17,7 +17,7 @@ spec:
   podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000
-  persistenceEnabled: false
+  persistenceEnabled: true
   kubernetesConfig:
     image: quay.io/opstree/redis:v7.0.15
     imagePullPolicy: IfNotPresent
@@ -25,8 +25,16 @@ spec:
       name: redis-secret
       key: password
   redisExporter:
-    enabled: false
-    image: quay.io/opstree/redis-exporter:v1.44.0
+    enabled: true
+    image: quay.io/opstree/redis-exporter:v1.75.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
   redisLeader:
     readinessProbe:
       failureThreshold: 5
@@ -68,4 +76,22 @@ spec:
         resources:
           requests:
             storage: 5Gi
-
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-cluster
+  labels:
+    redis-operator: "true"
+    env: production
+spec:
+  selector:
+    matchLabels:
+      redis_setup_type: cluster
+  endpoints:
+  - port: redis-exporter
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - monitoring

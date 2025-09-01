@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: example
+  namespace: monitoring
+spec:
+  serviceAccountName: prometheus
+  replicas: 2
+  alerting:
+    alertmanagers:
+    - namespace: monitoring
+      name: alertmanager-example
+      port: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-main
+  namespace: monitoring
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    port: 39090
+    port: 9090
+    protocol: TCP
+    targetPort: web
+  selector:
+    prometheus: example

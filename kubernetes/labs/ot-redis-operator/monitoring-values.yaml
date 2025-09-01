@@ -1,0 +1,51 @@
+redisCluster:
+  name: ""
+  clusterSize: 3
+  clusterVersion: v7
+  persistenceEnabled: true
+  image: quay.io/opstree/redis
+  tag: v7.0.15
+  imagePullPolicy: IfNotPresent
+  redisSecret:
+    secretName: "redis-secret"
+    secretKey: "password"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+storageSpec:
+  volumeClaimTemplate:
+    spec:
+      storageClassName: "local-storage"
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+  nodeConfVolume: true
+  nodeConfVolumeClaimTemplate:
+    spec:
+      storageClassName: "local-storage"
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  namespace: monitoring
+redisExporter:
+  enabled: true
+  image: quay.io/opstree/redis-exporter
+  tag: "v1.75.0"
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
