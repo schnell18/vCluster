@@ -1,0 +1,127 @@
+---
+bidoneRedisCluster:
+  redisCluster:
+    clusterSize: 3
+    clusterVersion: v7
+    watch_namespace: ot-operators
+    persistenceEnabled: true
+    image: quay.io/opstree/redis
+    tag: v7.0.15
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      secretName: redis-secret
+      secretKey: password
+    leader:
+      replicas: 3
+      serviceType: ClusterIP
+      affinity: {}
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #     - matchExpressions:
+        #       - key: disktype
+        #         operator: In
+        #         values:
+        #         - ssd
+    follower:
+      replicas: 3
+      serviceType: ClusterIP
+      affinity: {}
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #     - matchExpressions:
+        #       - key: disktype
+        #         operator: In
+        #         values:
+        #         - ssd
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+  # labels:
+  #   foo: bar
+  #   test: echo
+
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+    minAvailable: 1
+
+  externalConfig:
+    enabled: false
+    data: |
+      tcp-keepalive 400
+      slowlog-max-len 158
+      stream-node-max-bytes 2048
+
+  externalService:
+    enabled: false
+    # annotations:
+    #   foo: bar
+    serviceType: LoadBalancer
+    port: 6379
+
+  nodeSelector: {}
+    # memory: medium
+
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        # storageClassName: standard
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    #   selector: {}
+
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+
+  affinity: {}
+    # nodeAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     nodeSelectorTerms:
+    #     - matchExpressions:
+    #       - key: disktype
+    #         operator: In
+    #         values:
+    #         - ssd
+
+---
+bidoneRedisOperator:
+  redisOperator:
+    name: redis-operator
+    imageName: quay.io/opstree/redis-operator
+    imageTag: v0.12.0
+    imagePullPolicy: IfNotPresent
+
+    # Additional pod annotations
+    podAnnotations: {}
+    # Additional Pod labels (e.g. for filtering Pod by custom labels)
+    podLabels: {}
+
+  # watch_namespace: ot-operators
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 250Mi
+    requests:
+      cpu: 250m
+      memory: 250Mi
+
+  replicas: 1
+
+  serviceAccountName: redis-operator
+
+  priorityClassName: ""
+  nodeSelector: {}
+  tolerateAllTaints: false
+  tolerations: []
+  affinity: {}

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: redis-cluster-deployment
+icon: https://upload.wikimedia.org/wikipedia/commons/6/64/Logo-redis.svg
+description: Bidone managed redis-operator to deploy RedisCluster using OT-Container-Kit
+type: application
+version: 0.1.0
+appVersion: v7.0.15
+kubeVersion: ">=1.32.0"
+dependencies:
+  - name: redis-operator
+    alias: bidoneRedisOperator
+    version: "0.21.2"
+    repository: "https://ot-container-kit.github.io/helm-charts"
+  - name: redis-cluster
+    alias: bidoneRedisCluster
+    version: "0.17.1"
+    repository: "https://ot-container-kit.github.io/helm-charts"

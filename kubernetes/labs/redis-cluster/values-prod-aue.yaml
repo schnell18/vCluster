@@ -1,0 +1,19 @@
+---
+bidoneRedisCluster:
+  redisCluster:
+    resources:
+      requests:
+        cpu: 800m
+        memory: 512Mi
+      limits:
+        cpu: 800m
+        memory: 512Mi
+
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        # storageClassName: standard
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
