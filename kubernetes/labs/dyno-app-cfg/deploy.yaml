@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+        - name: demo-app
+          image: docker.io/schnell18/dyno-cfg-demo:v1.0.0-2
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "800m"
+              memory: "200Mi"
+            limits:
+              cpu: "800m"
+              memory: "200Mi"
+          ports:
+            - containerPort: 8000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /greet
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /greet
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          volumeMounts:
+            - name: app-configs
+              mountPath: /configs
+              readOnly: true
+      volumes:
+        - name: app-configs
+          hostPath:
+            path: /var/lib/app-configs
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  labels:
+    app: demo-app
+spec:
+  selector:
+    app: demo-app
+  ports:
+    - name: http
+      port: 8000        # Cluster-wide service port
+      targetPort: 8000  # Container port inside the pod
+  type: ClusterIP

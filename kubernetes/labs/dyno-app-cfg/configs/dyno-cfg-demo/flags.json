@@ -1,0 +1,12 @@
+{
+  "flags": {
+    "greeting.use_new": {
+      "state": "ENABLED",
+      "defaultVariant": "on",
+      "variants": {
+        "on": true,
+        "off": false
+      }
+    }
+  }
+}
